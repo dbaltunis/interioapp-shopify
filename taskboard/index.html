@@ -80,35 +80,42 @@ header button:hover{background:#4338ca}
 
 <script>
 const COLS=[{id:'backlog',name:'Backlog'},{id:'progress',name:'In Progress'},{id:'review',name:'Review'},{id:'done',name:'Done'}];
-const STORAGE_KEY='interioapp_tasks_v3';
+const STORAGE_KEY='interioapp_tasks_v4';
 
 const DEFAULT_TASKS=[
-  {id:d(),title:'Define mission, vision, values',desc:'',priority:'high',phase:'Phase 0',col:'backlog'},
-  {id:d(),title:'Set up task management platform',desc:'Kanban board built',priority:'high',phase:'Phase 0',col:'done'},
-  {id:d(),title:'Complete OpenClaw tool setup',desc:'Brave API configured',priority:'high',phase:'Phase 0',col:'done'},
-  {id:d(),title:'Create GitHub repo',desc:'github.com/dbaltunis/interioapp-shopify',priority:'high',phase:'Phase 0',col:'done'},
-  {id:d(),title:'Purchase domain',desc:'interiorshopapps.com',priority:'high',phase:'Phase 0',col:'done'},
-  {id:d(),title:'Create YouTube channel',desc:'@InteriorShopApps',priority:'high',phase:'Phase 0',col:'done'},
-  {id:d(),title:'Shopify App Store competitive analysis',desc:'10 competitors analysed. Report in docs/competitive-analysis.md',priority:'high',phase:'Phase 1',col:'done'},
-  {id:d(),title:'YouTube landscape research',desc:'Content calendar + first video script ready',priority:'high',phase:'Phase 1',col:'done'},
-  {id:d(),title:'Instagram content plan',desc:'10 post ideas with captions and hashtags ready',priority:'medium',phase:'Phase 1',col:'done'},
-  {id:d(),title:'Competitor gap analysis report',desc:'Key gaps identified: no AI, no multi-region, no services play',priority:'high',phase:'Phase 1',col:'done'},
-  {id:d(),title:'Build landing page',desc:'interiorshopapps.com launching soon page built',priority:'high',phase:'Phase 4',col:'review'},
-  {id:d(),title:'Point domain to hosting',desc:'Need GoDaddy DNS update',priority:'high',phase:'Phase 4',col:'progress'},
-  {id:d(),title:'Scaffold Remix + Polaris app',desc:'Building now',priority:'high',phase:'Phase 3',col:'progress'},
-  {id:d(),title:'Create Instagram account',desc:'@interiorshopapps',priority:'high',phase:'Phase 4',col:'progress'},
-  {id:d(),title:'Upload first YouTube video',desc:'Script ready, need to record/upload',priority:'high',phase:'Phase 4',col:'progress'},
-  {id:d(),title:'Design quoting engine (multi-region)',desc:'',priority:'high',phase:'Phase 2',col:'backlog'},
+  // DONE
+  {id:d(),title:'Define mission, vision, values',desc:'Saved to docs/mission-vision-values.md',priority:'high',phase:'Phase 0',col:'done'},
+  {id:d(),title:'Set up task management platform',desc:'Kanban board built & online',priority:'high',phase:'Phase 0',col:'done'},
+  {id:d(),title:'Complete OpenClaw tool setup',desc:'Brave API, Ollama, Chrome configured',priority:'high',phase:'Phase 0',col:'done'},
+  {id:d(),title:'Create GitHub repo',desc:'github.com/dbaltunis/interioapp-shopify (private)',priority:'high',phase:'Phase 0',col:'done'},
+  {id:d(),title:'Purchase domain',desc:'interiorshopapps.com — live on GitHub Pages',priority:'high',phase:'Phase 0',col:'done'},
+  {id:d(),title:'Create YouTube channel',desc:'@InteriorShopApps — channel live',priority:'high',phase:'Phase 0',col:'done'},
+  {id:d(),title:'Create Instagram account',desc:'@interiorshopapps — business account live',priority:'high',phase:'Phase 0',col:'done'},
+  {id:d(),title:'Competitive analysis',desc:'10 Shopify apps + FLOWRiX analysed → docs/competitive-analysis.md',priority:'high',phase:'Phase 1',col:'done'},
+  {id:d(),title:'YouTube content plan',desc:'20-video calendar + first script ready',priority:'high',phase:'Phase 1',col:'done'},
+  {id:d(),title:'Instagram content plan',desc:'10 post ideas with captions and hashtags',priority:'medium',phase:'Phase 1',col:'done'},
+  {id:d(),title:'Design system v1.0',desc:'Premium warm modern aesthetic — docs/design-system.md',priority:'high',phase:'Phase 1',col:'done'},
+  {id:d(),title:'Shopify BFS requirements',desc:'Built for Shopify badge criteria documented',priority:'high',phase:'Phase 1',col:'done'},
+  {id:d(),title:'Brand philosophy doc',desc:'Priestley CAOS, KPI, Bartlett DOAC principles',priority:'high',phase:'Phase 1',col:'done'},
+  {id:d(),title:'Point domain to hosting',desc:'DNS configured, GitHub Pages serving interiorshopapps.com',priority:'high',phase:'Phase 0',col:'done'},
+  {id:d(),title:'Scaffold Remix + Polaris app',desc:'14 files — calculator, pricing engine, Prisma schema',priority:'high',phase:'Phase 3',col:'done'},
+  // IN PROGRESS
+  {id:d(),title:'Redesign website',desc:'Current version too generic — rebuilding with design system',priority:'high',phase:'Phase 4',col:'progress'},
+  {id:d(),title:'Slack integration',desc:'Bot connected but event subscriptions need fixing in Slack app settings',priority:'medium',phase:'Phase 0',col:'progress'},
+  {id:d(),title:'Upload first YouTube video',desc:'Script ready, need to record/produce',priority:'high',phase:'Phase 4',col:'progress'},
+  {id:d(),title:'Post first Instagram content',desc:'Need image generation for on-brand visuals',priority:'high',phase:'Phase 4',col:'progress'},
+  // BACKLOG
+  {id:d(),title:'Design quoting engine (multi-region)',desc:'6 regions, 3 product types',priority:'high',phase:'Phase 2',col:'backlog'},
   {id:d(),title:'AI backend architecture',desc:'',priority:'high',phase:'Phase 2',col:'backlog'},
-  {id:d(),title:'Shopify documentation deep-dive',desc:'',priority:'high',phase:'Phase 2',col:'backlog'},
   {id:d(),title:'Technical architecture document',desc:'',priority:'high',phase:'Phase 2',col:'backlog'},
   {id:d(),title:'AI calculator engine',desc:'',priority:'high',phase:'Phase 3',col:'backlog'},
   {id:d(),title:'Multi-region quoting logic',desc:'',priority:'high',phase:'Phase 3',col:'backlog'},
   {id:d(),title:'Deploy to Heroku + Supabase',desc:'',priority:'medium',phase:'Phase 3',col:'backlog'},
-  {id:d(),title:'YouTube channel + content plan',desc:'20 video ideas planned',priority:'high',phase:'Phase 4',col:'done'},
+  {id:d(),title:'Shopify Partner account access',desc:'Add interioapp@icloud.com as team member',priority:'high',phase:'Phase 3',col:'backlog'},
+  {id:d(),title:'Theme app extension (storefront widget)',desc:'',priority:'high',phase:'Phase 3',col:'backlog'},
+  {id:d(),title:'Lead capture strategy (free tools)',desc:'Drive to 50 installs + 5 reviews for BFS',priority:'high',phase:'Phase 4',col:'backlog'},
+  {id:d(),title:'Set up image generation',desc:'For Instagram/marketing visuals',priority:'medium',phase:'Phase 4',col:'backlog'},
   {id:d(),title:'Voice/chat support setup',desc:'',priority:'medium',phase:'Phase 4',col:'backlog'},
-  {id:d(),title:'Lead capture strategy (free tools)',desc:'',priority:'high',phase:'Phase 4',col:'backlog'},
-  {id:d(),title:'100 five-star reviews plan',desc:'',priority:'high',phase:'Phase 4',col:'backlog'},
 ];
 
 function d(){return crypto.randomUUID()}
