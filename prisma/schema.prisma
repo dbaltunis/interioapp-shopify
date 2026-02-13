@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Shop {
+  id            String         @id @default(cuid())
+  shopDomain    String         @unique
+  accessToken   String
+  installedAt   DateTime       @default(now())
+  isActive      Boolean        @default(true)
+  defaultRegion String         @default("UK")
+  unitSystem    String         @default("metric") // metric | imperial
+  calculations  Calculation[]
+  quoteRequests QuoteRequest[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Product {
+  id           String        @id @default(cuid())
+  type         ProductType
+  name         String
+  basePrice    Float
+  pricePerSqM  Float
+  minWidth     Float
+  maxWidth     Float
+  minDrop      Float
+  maxDrop      Float
+  fabrics      String[]      // available fabric codes
+  linings      String[]      // available lining options
+  headings     String[]      // available heading styles
+  isActive     Boolean       @default(true)
+  calculations Calculation[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+enum ProductType {
+  BLINDS
+  CURTAINS
+  SHUTTERS
+}
+
+model Calculation {
+  id            String      @id @default(cuid())
+  shop          Shop        @relation(fields: [shopId], references: [id])
+  shopId        String
+  product       Product     @relation(fields: [productId], references: [id])
+  productId     String
+  productType   ProductType
+  width         Float       // in mm
+  height        Float       // in mm (drop)
+  fabric        String
+  lining        String?
+  headingStyle  String?
+  region        String
+  unitSystem    String      // metric | imperial
+  calculatedPrice Float
+  currency      String      @default("GBP")
+  createdAt     DateTime    @default(now())
+}
+
+model QuoteRequest {
+  id              String   @id @default(cuid())
+  shop            Shop     @relation(fields: [shopId], references: [id])
+  shopId          String
+  customerName    String
+  customerEmail   String
+  productType     ProductType
+  width           Float
+  height          Float
+  fabric          String
+  lining          String?
+  headingStyle    String?
+  region          String
+  quotedPrice     Float
+  currency        String
+  status          QuoteStatus @default(PENDING)
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+enum QuoteStatus {
+  PENDING
+  SENT
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+model Region {
+  id             String   @id @default(cuid())
+  code           String   @unique // US, UK, AU, NZ, CA, EU
+  name           String
+  currency       String   // USD, GBP, AUD, NZD, CAD, EUR
+  currencySymbol String   // $, £, A$, NZ$, C$, €
+  defaultUnit    String   // metric | imperial
+  taxRate        Float    @default(0)
+  priceModifier  Float    @default(1.0) // multiplier for regional pricing
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}

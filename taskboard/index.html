@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InterioApp – Task Board</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--brand:#4F46E5;--bg:#0f111a;--surface:#181b2a;--surface2:#232740;--border:#2a2f45;--text:#e2e8f0;--text2:#94a3b8;--high:#ef4444;--med:#f59e0b;--low:#22c55e}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+header{background:linear-gradient(135deg,#1e1b4b,#312e81);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:36px;height:36px;background:var(--brand);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff}
+.logo h1{font-size:22px;font-weight:800;background:linear-gradient(135deg,#818cf8,#c7d2fe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo span{font-size:12px;color:var(--text2);font-weight:500}
+header button{background:var(--brand);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-family:inherit;font-weight:600;font-size:14px;cursor:pointer;transition:.2s}
+header button:hover{background:#4338ca}
+.board{display:flex;gap:20px;padding:24px;overflow-x:auto;min-height:calc(100vh - 80px);align-items:flex-start}
+.column{background:var(--surface);border-radius:14px;min-width:300px;flex:1;display:flex;flex-direction:column;border:1px solid var(--border)}
+.col-header{padding:16px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.col-header h2{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.col-count{background:var(--surface2);color:var(--text2);font-size:12px;font-weight:600;padding:2px 10px;border-radius:20px}
+.col-body{padding:12px;flex:1;min-height:120px;display:flex;flex-direction:column;gap:10px;transition:background .2s}
+.col-body.drag-over{background:rgba(79,70,229,.08);border-radius:0 0 14px 14px}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:grab;transition:.15s;position:relative}
+.card:hover{border-color:var(--brand);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.card.dragging{opacity:.4;transform:rotate(2deg)}
+.card-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.priority{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.priority.high{background:var(--high)}.priority.medium{background:var(--med)}.priority.low{background:var(--low)}
+.phase-tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;background:rgba(79,70,229,.15);color:#818cf8}
+.card h3{font-size:13px;font-weight:600;line-height:1.4}
+.card p{font-size:12px;color:var(--text2);margin-top:6px;line-height:1.5}
+.card .delete-btn{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--text2);cursor:pointer;opacity:0;transition:.15s;font-size:16px}
+.card:hover .delete-btn{opacity:.6}
+.card .delete-btn:hover{opacity:1;color:var(--high)}
+
+/* Modal */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center}
+.overlay.active{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:420px;max-width:90vw}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:20px}
+.modal label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.modal input,.modal textarea,.modal select{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-family:inherit;font-size:14px;margin-bottom:16px;outline:none;transition:.2s}
+.modal input:focus,.modal textarea:focus,.modal select:focus{border-color:var(--brand)}
+.modal textarea{resize:vertical;min-height:60px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:4px}
+.modal-actions button{padding:10px 20px;border-radius:8px;font-family:inherit;font-weight:600;font-size:14px;cursor:pointer;border:none;transition:.2s}
+.btn-cancel{background:var(--surface2);color:var(--text2)}.btn-cancel:hover{background:var(--border)}
+.btn-save{background:var(--brand);color:#fff}.btn-save:hover{background:#4338ca}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">I</div>
+    <div><h1>InterioApp</h1><span>Shopify App Development Board</span></div>
+  </div>
+  <button onclick="openModal()">+ New Task</button>
+</header>
+
+<div class="board" id="board"></div>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h2>Add Task</h2>
+    <label>Title</label><input id="f-title" placeholder="Task title…">
+    <label>Description</label><textarea id="f-desc" placeholder="Optional description…"></textarea>
+    <label>Priority</label>
+    <select id="f-priority"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+    <label>Phase</label>
+    <select id="f-phase"><option>Phase 0</option><option>Phase 1</option><option>Phase 2</option><option>Phase 3</option><option>Phase 4</option></select>
+    <label>Column</label>
+    <select id="f-col"><option value="backlog">Backlog</option><option value="progress">In Progress</option><option value="review">Review</option><option value="done">Done</option></select>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="saveTask()">Add Task</button></div>
+  </div>
+</div>
+
+<script>
+const COLS=[{id:'backlog',name:'Backlog'},{id:'progress',name:'In Progress'},{id:'review',name:'Review'},{id:'done',name:'Done'}];
+const STORAGE_KEY='interioapp_tasks_v3';
+
+const DEFAULT_TASKS=[
+  {id:d(),title:'Define mission, vision, values',desc:'',priority:'high',phase:'Phase 0',col:'backlog'},
+  {id:d(),title:'Set up task management platform',desc:'Kanban board built',priority:'high',phase:'Phase 0',col:'done'},
+  {id:d(),title:'Complete OpenClaw tool setup',desc:'Brave API configured',priority:'high',phase:'Phase 0',col:'done'},
+  {id:d(),title:'Create GitHub repo',desc:'github.com/dbaltunis/interioapp-shopify',priority:'high',phase:'Phase 0',col:'done'},
+  {id:d(),title:'Purchase domain',desc:'interiorshopapps.com',priority:'high',phase:'Phase 0',col:'done'},
+  {id:d(),title:'Create YouTube channel',desc:'@InteriorShopApps',priority:'high',phase:'Phase 0',col:'done'},
+  {id:d(),title:'Shopify App Store competitive analysis',desc:'10 competitors analysed. Report in docs/competitive-analysis.md',priority:'high',phase:'Phase 1',col:'done'},
+  {id:d(),title:'YouTube landscape research',desc:'Content calendar + first video script ready',priority:'high',phase:'Phase 1',col:'done'},
+  {id:d(),title:'Instagram content plan',desc:'10 post ideas with captions and hashtags ready',priority:'medium',phase:'Phase 1',col:'done'},
+  {id:d(),title:'Competitor gap analysis report',desc:'Key gaps identified: no AI, no multi-region, no services play',priority:'high',phase:'Phase 1',col:'done'},
+  {id:d(),title:'Build landing page',desc:'interiorshopapps.com launching soon page built',priority:'high',phase:'Phase 4',col:'review'},
+  {id:d(),title:'Point domain to hosting',desc:'Need GoDaddy DNS update',priority:'high',phase:'Phase 4',col:'progress'},
+  {id:d(),title:'Scaffold Remix + Polaris app',desc:'Building now',priority:'high',phase:'Phase 3',col:'progress'},
+  {id:d(),title:'Create Instagram account',desc:'@interiorshopapps',priority:'high',phase:'Phase 4',col:'progress'},
+  {id:d(),title:'Upload first YouTube video',desc:'Script ready, need to record/upload',priority:'high',phase:'Phase 4',col:'progress'},
+  {id:d(),title:'Design quoting engine (multi-region)',desc:'',priority:'high',phase:'Phase 2',col:'backlog'},
+  {id:d(),title:'AI backend architecture',desc:'',priority:'high',phase:'Phase 2',col:'backlog'},
+  {id:d(),title:'Shopify documentation deep-dive',desc:'',priority:'high',phase:'Phase 2',col:'backlog'},
+  {id:d(),title:'Technical architecture document',desc:'',priority:'high',phase:'Phase 2',col:'backlog'},
+  {id:d(),title:'AI calculator engine',desc:'',priority:'high',phase:'Phase 3',col:'backlog'},
+  {id:d(),title:'Multi-region quoting logic',desc:'',priority:'high',phase:'Phase 3',col:'backlog'},
+  {id:d(),title:'Deploy to Heroku + Supabase',desc:'',priority:'medium',phase:'Phase 3',col:'backlog'},
+  {id:d(),title:'YouTube channel + content plan',desc:'20 video ideas planned',priority:'high',phase:'Phase 4',col:'done'},
+  {id:d(),title:'Voice/chat support setup',desc:'',priority:'medium',phase:'Phase 4',col:'backlog'},
+  {id:d(),title:'Lead capture strategy (free tools)',desc:'',priority:'high',phase:'Phase 4',col:'backlog'},
+  {id:d(),title:'100 five-star reviews plan',desc:'',priority:'high',phase:'Phase 4',col:'backlog'},
+];
+
+function d(){return crypto.randomUUID()}
+function load(){const s=localStorage.getItem(STORAGE_KEY);return s?JSON.parse(s):null}
+function save(t){localStorage.setItem(STORAGE_KEY,JSON.stringify(t))}
+let tasks=load()||DEFAULT_TASKS;
+if(!load())save(tasks);
+
+let dragId=null;
+
+function render(){
+  const board=document.getElementById('board');
+  board.innerHTML='';
+  COLS.forEach(c=>{
+    const col=document.createElement('div');col.className='column';
+    const ct=tasks.filter(t=>t.col===c.id);
+    col.innerHTML=`<div class="col-header"><h2>${c.name}</h2><span class="col-count">${ct.length}</span></div>`;
+    const body=document.createElement('div');body.className='col-body';body.dataset.col=c.id;
+    body.addEventListener('dragover',e=>{e.preventDefault();body.classList.add('drag-over')});
+    body.addEventListener('dragleave',()=>body.classList.remove('drag-over'));
+    body.addEventListener('drop',e=>{e.preventDefault();body.classList.remove('drag-over');if(dragId){const t=tasks.find(x=>x.id===dragId);if(t){t.col=c.id;save(tasks);render()}}});
+    ct.forEach(t=>{
+      const card=document.createElement('div');card.className='card';card.draggable=true;card.dataset.id=t.id;
+      card.addEventListener('dragstart',()=>{dragId=t.id;setTimeout(()=>card.classList.add('dragging'),0)});
+      card.addEventListener('dragend',()=>{dragId=null;card.classList.remove('dragging')});
+      card.innerHTML=`<button class="delete-btn" onclick="delTask('${t.id}')" title="Delete">✕</button><div class="card-top"><span class="priority ${t.priority}"></span><span class="phase-tag">${t.phase}</span></div><h3>${esc(t.title)}</h3>${t.desc?'<p>'+esc(t.desc)+'</p>':''}`;
+      body.appendChild(card);
+    });
+    col.appendChild(body);board.appendChild(col);
+  });
+}
+
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function delTask(id){tasks=tasks.filter(t=>t.id!==id);save(tasks);render()}
+function openModal(){document.getElementById('overlay').classList.add('active');document.getElementById('f-title').focus()}
+function closeModal(){document.getElementById('overlay').classList.remove('active');['f-title','f-desc'].forEach(i=>document.getElementById(i).value='')}
+function saveTask(){
+  const title=document.getElementById('f-title').value.trim();if(!title)return;
+  tasks.push({id:d(),title,desc:document.getElementById('f-desc').value.trim(),priority:document.getElementById('f-priority').value,phase:document.getElementById('f-phase').value,col:document.getElementById('f-col').value});
+  save(tasks);closeModal();render();
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+render();
+</script>
+</body>
+</html>

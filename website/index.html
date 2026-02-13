@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InteriorShopApps — Made-to-Measure Blinds & Curtains Software for Shopify</title>
+<meta name="description" content="AI-powered Shopify calculator app for blind, curtain, and shutter retailers. Sell made-to-measure window furnishings online with confidence.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0a1628;--indigo:#1e2a4a;--accent:#4f7cff;--accent-light:#7ba1ff;
+  --mint:#34d399;--white:#f8fafc;--gray:#94a3b8;--dark-surface:#111b30;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--navy);color:var(--white);line-height:1.6;overflow-x:hidden}
+a{color:var(--accent-light);text-decoration:none;transition:color .2s}
+a:hover{color:var(--mint)}
+
+/* Animated gradient bg */
+.hero-bg{
+  position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;
+  background:linear-gradient(135deg,#0a1628 0%,#1a1040 25%,#0f2847 50%,#0a1628 75%,#151030 100%);
+  background-size:400% 400%;
+  animation:gradShift 20s ease infinite;
+}
+@keyframes gradShift{
+  0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}
+}
+
+/* Floating orbs */
+.orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:.12;z-index:-1;pointer-events:none}
+.orb-1{width:600px;height:600px;background:#4f7cff;top:-10%;right:-10%;animation:float1 25s ease-in-out infinite}
+.orb-2{width:400px;height:400px;background:#7c3aed;bottom:10%;left:-5%;animation:float2 30s ease-in-out infinite}
+@keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(-60px,80px)}}
+@keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,-60px)}}
+
+/* Nav */
+nav{position:fixed;top:0;width:100%;z-index:100;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(12px);background:rgba(10,22,40,.7);border-bottom:1px solid rgba(255,255,255,.05);transition:all .3s}
+.logo{font-weight:800;font-size:1.25rem;letter-spacing:-.02em}
+.logo span{color:var(--accent)}
+nav ul{list-style:none;display:flex;gap:2rem}
+nav ul a{color:var(--gray);font-size:.875rem;font-weight:500;transition:color .2s}
+nav ul a:hover{color:var(--white)}
+.nav-cta{background:var(--accent);color:#fff!important;padding:.5rem 1.25rem;border-radius:8px;font-weight:600;font-size:.875rem}
+.nav-cta:hover{background:var(--accent-light);color:#fff!important}
+
+/* Sections */
+section{padding:6rem 2rem}
+.container{max-width:1100px;margin:0 auto}
+
+/* Hero */
+.hero{min-height:100vh;display:flex;align-items:center;padding-top:5rem}
+.hero-content{text-align:center;max-width:800px;margin:0 auto}
+.badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(79,124,255,.15);border:1px solid rgba(79,124,255,.3);color:var(--accent-light);padding:.4rem 1rem;border-radius:100px;font-size:.8rem;font-weight:600;margin-bottom:2rem;animation:pulse 2.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(79,124,255,.3)}50%{box-shadow:0 0 0 12px rgba(79,124,255,0)}}
+.badge .dot{width:8px;height:8px;background:var(--mint);border-radius:50%;animation:blink 1.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:800;line-height:1.1;letter-spacing:-.03em;margin-bottom:1.5rem}
+h1 .highlight{background:linear-gradient(135deg,var(--accent),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{font-size:clamp(1rem,2vw,1.3rem);color:var(--gray);max-width:600px;margin:0 auto 2.5rem;font-weight:400}
+
+/* Email form */
+.email-form{display:flex;gap:.75rem;max-width:480px;margin:0 auto 1.5rem;flex-wrap:wrap;justify-content:center}
+.email-form input{flex:1;min-width:220px;padding:.875rem 1.25rem;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:#fff;font-size:1rem;font-family:inherit;outline:none;transition:border .2s}
+.email-form input:focus{border-color:var(--accent)}
+.email-form input::placeholder{color:rgba(255,255,255,.35)}
+.btn{padding:.875rem 2rem;border-radius:10px;border:none;background:linear-gradient(135deg,var(--accent),#6366f1);color:#fff;font-size:1rem;font-weight:600;cursor:pointer;font-family:inherit;transition:transform .15s,box-shadow .2s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(79,124,255,.3)}
+.form-note{color:var(--gray);font-size:.8rem}
+.form-success{display:none;color:var(--mint);font-weight:600;font-size:1rem;margin-top:1rem}
+
+/* Markets */
+.markets{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem;margin-top:2.5rem}
+.markets span{font-size:.75rem;color:var(--gray);background:rgba(255,255,255,.05);padding:.3rem .75rem;border-radius:6px;border:1px solid rgba(255,255,255,.06)}
+
+/* Features */
+.features{background:var(--dark-surface);border-radius:0;position:relative}
+.features::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(79,124,255,.3),transparent)}
+.section-label{text-transform:uppercase;font-size:.75rem;font-weight:700;letter-spacing:.1em;color:var(--accent);margin-bottom:.75rem}
+h2{font-size:clamp(1.8rem,3vw,2.5rem);font-weight:800;letter-spacing:-.02em;margin-bottom:1rem}
+.section-sub{color:var(--gray);max-width:550px;margin-bottom:3.5rem;font-size:1.05rem}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem}
+.feature-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:2rem;transition:transform .25s,border-color .25s}
+.feature-card:hover{transform:translateY(-4px);border-color:rgba(79,124,255,.25)}
+.feature-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.25rem}
+.fi-calc{background:rgba(79,124,255,.15)}
+.fi-price{background:rgba(52,211,153,.15)}
+.fi-setup{background:rgba(251,191,36,.15)}
+.fi-support{background:rgba(167,139,250,.15)}
+.feature-card h3{font-size:1.1rem;font-weight:700;margin-bottom:.5rem}
+.feature-card p{color:var(--gray);font-size:.9rem;line-height:1.6}
+
+/* Services */
+.services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:3rem}
+.service-card{padding:2rem;border-radius:16px;border:1px solid rgba(255,255,255,.06);background:linear-gradient(135deg,rgba(79,124,255,.05),rgba(99,102,241,.03));position:relative;overflow:hidden}
+.service-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--mint))}
+.service-card h3{font-size:1.15rem;font-weight:700;margin-bottom:.5rem}
+.service-card p{color:var(--gray);font-size:.9rem}
+
+/* CTA */
+.cta-section{text-align:center}
+.cta-box{background:linear-gradient(135deg,rgba(79,124,255,.1),rgba(99,102,241,.08));border:1px solid rgba(79,124,255,.2);border-radius:24px;padding:4rem 2rem;max-width:700px;margin:0 auto}
+
+/* Footer */
+footer{border-top:1px solid rgba(255,255,255,.06);padding:3rem 2rem;text-align:center}
+.footer-links{display:flex;justify-content:center;gap:2rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.footer-links a{color:var(--gray);font-size:.875rem;display:flex;align-items:center;gap:.4rem}
+.footer-links a:hover{color:var(--white)}
+.footer-copy{color:rgba(255,255,255,.25);font-size:.8rem}
+
+/* Scroll animations */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* Mobile */
+@media(max-width:640px){
+  nav ul{display:none}
+  section{padding:4rem 1.25rem}
+  .email-form{flex-direction:column}
+  .email-form input{min-width:0}
+  .cta-box{padding:2.5rem 1.5rem}
+}
+</style>
+</head>
+<body>
+
+<div class="hero-bg"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<nav>
+  <div class="logo">Interior<span>ShopApps</span></div>
+  <ul>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#early-access" class="nav-cta">Get Early Access</a></li>
+  </ul>
+</nav>
+
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <div class="badge"><span class="dot"></span> Launching Soon</div>
+    <h1>The Smartest Way to Sell <span class="highlight">Made-to-Measure Blinds & Curtains</span> Online</h1>
+    <p class="subtitle">AI-powered Shopify calculator app for blind, curtain, and shutter retailers. Give your customers instant, accurate pricing — no manual quotes needed.</p>
+    <form class="email-form" id="earlyForm" onsubmit="return handleSubmit(event)">
+      <input type="email" id="emailInput" placeholder="Enter your email for early access" required aria-label="Email address">
+      <button type="submit" class="btn">Join Waitlist</button>
+    </form>
+    <p class="form-note">Free early access · No credit card required</p>
+    <p class="form-success" id="formSuccess">✓ You're on the list! We'll be in touch soon.</p>
+    <div class="markets">
+      <span>🇬🇧 UK</span><span>🇺🇸 USA</span><span>🇦🇺 Australia</span><span>🇳🇿 New Zealand</span><span>🇨🇦 Canada</span><span>🇪🇺 EU</span>
+    </div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-label">What's Coming</p>
+      <h2>Everything you need to sell made-to-measure online</h2>
+      <p class="section-sub">Purpose-built for window furnishing retailers who want to scale their Shopify store without the headaches.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon fi-calc">🧠</div>
+        <h3>AI Calculator Engine</h3>
+        <p>Intelligent pricing that handles complex made-to-measure calculations — widths, drops, fabrics, and fittings — instantly and accurately.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon fi-price">🌍</div>
+        <h3>Multi-Region Pricing</h3>
+        <p>Serve customers across the UK, US, Australia, NZ, Canada, and Europe with localised currencies, taxes, and delivery rules.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon fi-setup">⚡</div>
+        <h3>Easy Setup</h3>
+        <p>Install from the Shopify App Store and configure your products in minutes. No developers required. We'll even help you get started.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon fi-support">🤝</div>
+        <h3>Expert Support</h3>
+        <p>Built by people who understand the made-to-measure industry. Real support from people who know blinds, curtains, and shutters.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-label">Beyond the App</p>
+      <h2>We don't just build software</h2>
+      <p class="section-sub">Need help getting your Shopify store off the ground? We offer hands-on services for retailers at every stage.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card reveal">
+        <h3>🏗️ Store Setup</h3>
+        <p>Complete Shopify store build-outs tailored to the made-to-measure industry. Theme customisation, product setup, and launch-ready configurations.</p>
+      </div>
+      <div class="service-card reveal">
+        <h3>🔧 Maintenance & Support</h3>
+        <p>Ongoing store maintenance, updates, and performance optimisation. Keep your store running smoothly while you focus on selling.</p>
+      </div>
+      <div class="service-card reveal">
+        <h3>🛠️ Digital Handyman</h3>
+        <p>Small fixes, tweaks, and customisations. From banner updates to checkout adjustments — no job too small.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section" id="early-access">
+  <div class="container">
+    <div class="cta-box reveal">
+      <div class="badge"><span class="dot"></span> Launching Soon</div>
+      <h2 style="margin-top:1.5rem">Be the first to know</h2>
+      <p class="section-sub" style="margin:1rem auto 2rem;max-width:450px">Join our early access list and get exclusive launch pricing when we go live.</p>
+      <form class="email-form" onsubmit="return handleSubmit(event)">
+        <input type="email" placeholder="you@yourstore.com" required aria-label="Email address">
+        <button type="submit" class="btn">Get Early Access</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-links">
+      <a href="https://www.youtube.com/@InteriorShopApps" target="_blank" rel="noopener">▶ YouTube</a>
+      <a href="https://www.instagram.com/interiorshopapps" target="_blank" rel="noopener">📷 Instagram</a>
+      <a href="mailto:hello@interiorshopapps.com">✉ hello@interiorshopapps.com</a>
+    </div>
+    <p class="footer-copy">© 2026 InteriorShopApps · interiorshopapps.com</p>
+  </div>
+</footer>
+
+<script>
+function handleSubmit(e){
+  e.preventDefault();
+  const input=e.target.querySelector('input[type="email"]');
+  const email=input.value.trim();
+  if(!email)return false;
+  const list=JSON.parse(localStorage.getItem('isa_waitlist')||'[]');
+  if(!list.includes(email)){list.push(email);localStorage.setItem('isa_waitlist',JSON.stringify(list))}
+  input.value='';
+  // Show success on hero form
+  const s=document.getElementById('formSuccess');
+  if(s){s.style.display='block'}
+  // Also flash the button
+  const btn=e.target.querySelector('button');
+  btn.textContent='✓ Added!';
+  setTimeout(()=>{btn.textContent='Join Waitlist'},2000);
+  return false;
+}
+
+// Scroll reveal
+const obs=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}});
+},{threshold:0.15});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
