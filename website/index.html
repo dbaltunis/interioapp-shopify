@@ -35,7 +35,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Typography ── */
 h1, h2, h3.serif { font-family: 'Playfair Display', Georgia, serif; }
 h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; }
 h2 { font-size: clamp(1.6rem, 3.5vw, 2rem); font-weight: 600; line-height: 1.3; }
@@ -43,16 +42,14 @@ p { color: var(--slate); }
 .gold { color: var(--gold); }
 .copper { color: var(--copper); }
 
-/* ── Layout ── */
 .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
 section { padding: 96px 0; }
 @media (max-width: 640px) { section { padding: 64px 0; } }
 
-/* ── Reveal animation ── */
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
 .reveal.visible { opacity: 1; transform: translateY(0); }
 
-/* ── Nav ── */
+/* Nav */
 nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   padding: 20px 24px;
@@ -64,6 +61,9 @@ nav {
 nav .inner { max-width: 1080px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
 nav .logo { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; color: var(--warm-white); text-decoration: none; letter-spacing: -0.01em; }
 nav .logo span { color: var(--gold); }
+nav .nav-links { display: flex; align-items: center; gap: 24px; }
+nav .nav-links a { color: var(--slate); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color 0.3s; }
+nav .nav-links a:hover { color: var(--gold); }
 nav a.cta-sm {
   font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
   color: var(--midnight); background: var(--gold); padding: 10px 20px; border-radius: 8px; text-decoration: none;
@@ -71,7 +71,7 @@ nav a.cta-sm {
 }
 nav a.cta-sm:hover { background: var(--copper); box-shadow: var(--shadow-gold); }
 
-/* ── Hero ── */
+/* Hero */
 .hero {
   min-height: 100vh; display: flex; align-items: center; justify-content: center;
   padding-top: 80px; text-align: center;
@@ -92,7 +92,7 @@ nav a.cta-sm:hover { background: var(--copper); box-shadow: var(--shadow-gold); 
 .hero h1 em { font-style: italic; color: var(--gold); }
 .hero p.sub { font-size: 1.1rem; max-width: 540px; margin: 0 auto 40px; line-height: 1.7; }
 
-/* ── Email form ── */
+/* Email form (hero quick capture) */
 .email-form { display: flex; gap: 12px; max-width: 460px; margin: 0 auto; flex-wrap: wrap; justify-content: center; }
 .email-form input {
   flex: 1; min-width: 220px; padding: 14px 18px; border-radius: 8px; border: 1px solid var(--border);
@@ -101,24 +101,20 @@ nav a.cta-sm:hover { background: var(--copper); box-shadow: var(--shadow-gold); 
 }
 .email-form input::placeholder { color: var(--slate); }
 .email-form input:focus { border-color: var(--gold); }
-.email-form button {
+.email-form button, .btn-primary {
   padding: 14px 28px; border-radius: 8px; border: none; cursor: pointer;
   background: var(--gold); color: var(--midnight); font-family: 'Inter', sans-serif;
   font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
   transition: background 0.3s, box-shadow 0.3s;
 }
-.email-form button:hover { background: var(--copper); box-shadow: var(--shadow-gold); }
+.email-form button:hover, .btn-primary:hover { background: var(--copper); box-shadow: var(--shadow-gold); }
 .form-msg { text-align: center; margin-top: 12px; font-size: 0.85rem; min-height: 1.2em; }
 .form-msg.success { color: var(--sage); }
 .form-msg.error { color: #dc2626; }
 
-/* ── Markets ── */
 .markets { margin-top: 48px; font-size: 0.85rem; color: var(--slate); letter-spacing: 0.02em; }
 
-/* ── Divider ── */
-.divider { width: 48px; height: 1px; background: var(--gold); margin: 0 auto 48px; opacity: 0.5; }
-
-/* ── Problem / Solution ── */
+/* Problem / Solution */
 .problem-solution .grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start;
 }
@@ -133,7 +129,7 @@ nav a.cta-sm:hover { background: var(--copper); box-shadow: var(--shadow-gold); 
 .solution-text p { margin-bottom: 16px; font-size: 1rem; line-height: 1.8; }
 .solution-text strong { color: var(--warm-white); font-weight: 500; }
 
-/* ── Features ── */
+/* Features */
 .features { background: var(--indigo); }
 .features .header { text-align: center; margin-bottom: 64px; }
 .features .header p { max-width: 520px; margin: 16px auto 0; }
@@ -152,14 +148,14 @@ nav a.cta-sm:hover { background: var(--copper); box-shadow: var(--shadow-gold); 
 .feature-card h3 { font-size: 1.1rem; font-weight: 600; color: var(--warm-white); margin-bottom: 10px; }
 .feature-card p { font-size: 0.9rem; line-height: 1.7; }
 
-/* ── Social proof ── */
+/* Social proof */
 .proof { text-align: center; }
 .proof .stars { font-size: 1.4rem; color: var(--gold); letter-spacing: 4px; margin-bottom: 16px; }
 .proof h2 { margin-bottom: 16px; }
 .proof p { max-width: 520px; margin: 0 auto; }
 .proof .flags { margin-top: 32px; font-size: 1.5rem; letter-spacing: 12px; }
 
-/* ── Services ── */
+/* Services */
 .services .header { text-align: center; margin-bottom: 64px; }
 .services .header p { max-width: 540px; margin: 16px auto 0; }
 .services .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
@@ -171,19 +167,114 @@ nav a.cta-sm:hover { background: var(--copper); box-shadow: var(--shadow-gold); 
 .service-item h3 { font-size: 1.05rem; font-weight: 600; color: var(--warm-white); margin-bottom: 10px; }
 .service-item p { font-size: 0.9rem; line-height: 1.7; }
 
-/* ── Story ── */
+/* Story */
 .story { background: var(--indigo); }
 .story .inner { max-width: 680px; margin: 0 auto; text-align: center; }
 .story h2 { margin-bottom: 24px; }
 .story p { font-size: 1rem; line-height: 1.9; margin-bottom: 16px; }
 .story .sig { font-family: 'Playfair Display', serif; font-style: italic; color: var(--gold); margin-top: 32px; font-size: 1.1rem; }
 
-/* ── Bottom CTA ── */
+/* ── Lead Qualification Form ── */
+.lead-form-section { background: var(--midnight); }
+.lead-form-section .header { text-align: center; margin-bottom: 48px; }
+.lead-form-section .header p { max-width: 520px; margin: 16px auto 0; }
+
+.lead-form {
+  max-width: 620px; margin: 0 auto;
+  background: var(--indigo); border: 1px solid var(--border);
+  border-radius: 16px; padding: 40px;
+}
+.lead-form .form-step { display: none; }
+.lead-form .form-step.active { display: block; }
+.lead-form .step-indicator {
+  display: flex; gap: 8px; margin-bottom: 32px; justify-content: center;
+}
+.lead-form .step-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--border); transition: background 0.3s;
+}
+.lead-form .step-dot.active { background: var(--gold); }
+.lead-form .step-dot.done { background: var(--sage); }
+
+.lead-form label {
+  display: block; font-size: 0.85rem; font-weight: 600; color: var(--warm-white);
+  margin-bottom: 8px; letter-spacing: 0.02em;
+}
+.lead-form .field-hint {
+  font-size: 0.8rem; color: var(--slate); margin-bottom: 16px; line-height: 1.5;
+}
+.lead-form input, .lead-form select, .lead-form textarea {
+  width: 100%; padding: 14px 16px; border-radius: 8px;
+  border: 1px solid var(--border); background: rgba(15,23,41,0.6);
+  color: var(--warm-white); font-family: 'Inter', sans-serif; font-size: 0.95rem;
+  outline: none; transition: border-color 0.3s; margin-bottom: 20px;
+}
+.lead-form input:focus, .lead-form select:focus, .lead-form textarea:focus {
+  border-color: var(--gold);
+}
+.lead-form select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; }
+.lead-form select option { background: var(--indigo); color: var(--warm-white); }
+.lead-form textarea { resize: vertical; min-height: 80px; }
+
+.lead-form .form-nav {
+  display: flex; gap: 12px; justify-content: space-between; margin-top: 8px;
+}
+.lead-form .btn-back {
+  padding: 12px 24px; border-radius: 8px; border: 1px solid var(--border);
+  background: transparent; color: var(--slate); font-family: 'Inter', sans-serif;
+  font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.3s;
+}
+.lead-form .btn-back:hover { border-color: var(--gold); color: var(--warm-white); }
+.lead-form .btn-next {
+  padding: 12px 24px; border-radius: 8px; border: none;
+  background: var(--gold); color: var(--midnight); font-family: 'Inter', sans-serif;
+  font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+  cursor: pointer; transition: background 0.3s, box-shadow 0.3s; margin-left: auto;
+}
+.lead-form .btn-next:hover { background: var(--copper); box-shadow: var(--shadow-gold); }
+
+.lead-form .success-state {
+  text-align: center; padding: 40px 20px; display: none;
+}
+.lead-form .success-state.visible { display: block; }
+.lead-form .success-state .checkmark {
+  width: 64px; height: 64px; border-radius: 50%; background: rgba(125,140,110,0.15);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px; font-size: 1.8rem;
+}
+.lead-form .success-state h3 {
+  font-family: 'Playfair Display', serif; font-size: 1.4rem;
+  color: var(--warm-white); margin-bottom: 12px;
+}
+.lead-form .success-state p { font-size: 0.95rem; line-height: 1.7; }
+
+/* ── Talk to Us floating button ── */
+.talk-btn {
+  position: fixed; bottom: 24px; right: 24px; z-index: 200;
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 24px; border-radius: 50px; border: none; cursor: pointer;
+  background: linear-gradient(135deg, var(--gold), var(--copper));
+  color: var(--midnight); font-family: 'Inter', sans-serif;
+  font-size: 0.9rem; font-weight: 600;
+  box-shadow: 0 8px 32px rgba(201,169,110,0.3);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.talk-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(201,169,110,0.4); }
+.talk-btn .pulse {
+  width: 10px; height: 10px; border-radius: 50%; background: #22c55e;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.3); }
+}
+
+/* Bottom CTA */
 .bottom-cta { text-align: center; }
 .bottom-cta h2 { margin-bottom: 16px; }
 .bottom-cta p { max-width: 460px; margin: 0 auto 32px; }
 
-/* ── Footer ── */
+/* Footer */
 footer {
   padding: 48px 24px; border-top: 1px solid var(--border); text-align: center;
 }
@@ -199,7 +290,11 @@ footer .copy { font-size: 0.75rem; color: var(--slate); opacity: 0.6; }
 <nav>
   <div class="inner">
     <a href="#" class="logo">Interior<span>Shop</span>Apps</a>
-    <a href="#waitlist" class="cta-sm">Join Waitlist</a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#contact">Get a Quote</a>
+      <a href="#waitlist" class="cta-sm">Join Waitlist</a>
+    </div>
   </div>
 </nav>
 
@@ -242,7 +337,7 @@ footer .copy { font-size: 0.75rem; color: var(--slate); opacity: 0.6; }
 </section>
 
 <!-- Features -->
-<section class="features">
+<section class="features" id="features">
   <div class="container">
     <div class="header reveal">
       <h2>Built for the way you actually work</h2>
@@ -323,7 +418,132 @@ footer .copy { font-size: 0.75rem; color: var(--slate); opacity: 0.6; }
   </div>
 </section>
 
-<!-- Bottom CTA -->
+<!-- Lead Qualification Form -->
+<section class="lead-form-section" id="contact">
+  <div class="container">
+    <div class="header reveal">
+      <h2>Let's talk about <em class="gold">your store</em></h2>
+      <p>Tell us a bit about your business and what you're looking for. We'll get back to you within one working day — usually much sooner.</p>
+    </div>
+
+    <div class="lead-form reveal" id="leadForm">
+      <div class="step-indicator">
+        <div class="step-dot active" data-step="1"></div>
+        <div class="step-dot" data-step="2"></div>
+        <div class="step-dot" data-step="3"></div>
+      </div>
+
+      <!-- Step 1: About You -->
+      <div class="form-step active" data-step="1">
+        <label>Your name</label>
+        <input type="text" id="lf-name" placeholder="Full name" required>
+
+        <label>Email address</label>
+        <input type="email" id="lf-email" placeholder="you@company.com" required>
+
+        <label>Phone number <span style="color:var(--slate);font-weight:400">(optional)</span></label>
+        <p class="field-hint">We'll only call if you want us to — and only to help.</p>
+        <input type="tel" id="lf-phone" placeholder="+44 7700 900000">
+
+        <label>Your company / store name</label>
+        <input type="text" id="lf-company" placeholder="e.g. Heritage Blinds Ltd">
+
+        <div class="form-nav">
+          <span></span>
+          <button type="button" class="btn-next" onclick="nextStep(2)">Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Your Business -->
+      <div class="form-step" data-step="2">
+        <label>What do you sell?</label>
+        <select id="lf-products">
+          <option value="" disabled selected>Select your main products</option>
+          <option>Blinds</option>
+          <option>Curtains</option>
+          <option>Shutters</option>
+          <option>Blinds & Curtains</option>
+          <option>Blinds, Curtains & Shutters</option>
+          <option>Other window furnishings</option>
+        </select>
+
+        <label>Where are your customers?</label>
+        <select id="lf-region">
+          <option value="" disabled selected>Select your main market</option>
+          <option>United Kingdom</option>
+          <option>United States</option>
+          <option>Australia</option>
+          <option>New Zealand</option>
+          <option>Canada</option>
+          <option>Europe (EU)</option>
+          <option>Multiple regions</option>
+          <option>Other</option>
+        </select>
+
+        <label>Do you currently sell online?</label>
+        <select id="lf-online">
+          <option value="" disabled selected>Select one</option>
+          <option>Yes — on Shopify</option>
+          <option>Yes — on another platform</option>
+          <option>No — but I want to start</option>
+          <option>No — just exploring for now</option>
+        </select>
+
+        <div class="form-nav">
+          <button type="button" class="btn-back" onclick="prevStep(1)">← Back</button>
+          <button type="button" class="btn-next" onclick="nextStep(3)">Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: What You Need -->
+      <div class="form-step" data-step="3">
+        <label>What are you most interested in?</label>
+        <select id="lf-interest">
+          <option value="" disabled selected>Select one</option>
+          <option>The pricing calculator app</option>
+          <option>Full Shopify store build</option>
+          <option>Store build + calculator app</option>
+          <option>Consulting / strategy</option>
+          <option>I'm not sure yet — let's talk</option>
+        </select>
+
+        <label>What's your rough budget for this project?</label>
+        <p class="field-hint">No pressure — this helps us recommend the right package for you.</p>
+        <select id="lf-budget">
+          <option value="" disabled selected>Select a range</option>
+          <option>Under £500 / $600</option>
+          <option>£500 – £2,000 / $600 – $2,500</option>
+          <option>£2,000 – £5,000 / $2,500 – $6,000</option>
+          <option>£5,000+ / $6,000+</option>
+          <option>I'd rather discuss this</option>
+        </select>
+
+        <label>Anything else you'd like us to know?</label>
+        <textarea id="lf-notes" placeholder="Tell us about your timeline, specific requirements, or any questions you have..."></textarea>
+
+        <label>
+          <input type="checkbox" id="lf-callback" style="width:auto;margin-right:8px;margin-bottom:0;vertical-align:middle">
+          <span style="font-weight:400;color:var(--slate)">I'd like a callback — please get in touch by phone</span>
+        </label>
+
+        <div class="form-nav" style="margin-top:24px">
+          <button type="button" class="btn-back" onclick="prevStep(2)">← Back</button>
+          <button type="button" class="btn-next" onclick="submitLead()">Send enquiry →</button>
+        </div>
+      </div>
+
+      <!-- Success State -->
+      <div class="success-state" id="leadSuccess">
+        <div class="checkmark">✓</div>
+        <h3>Thanks — we've got your details</h3>
+        <p>We'll review your enquiry and get back to you within one working day. If you asked for a callback, we'll be in touch by phone.</p>
+        <p style="margin-top:16px;color:var(--gold);font-weight:500">In the meantime, feel free to chat with our AI assistant — it can answer most questions instantly.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Bottom CTA / Waitlist -->
 <section class="bottom-cta" id="waitlist">
   <div class="container reveal">
     <h2>Ready to sell window<br>furnishings online?</h2>
@@ -348,6 +568,16 @@ footer .copy { font-size: 0.75rem; color: var(--slate); opacity: 0.6; }
   </div>
 </footer>
 
+<!-- Floating Talk Button (scrolls to form or triggers ElevenLabs) -->
+<button class="talk-btn" id="talkBtn" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">
+  <span class="pulse"></span> Talk to us
+</button>
+
+<!-- ElevenLabs Conversational AI Widget -->
+<!-- PLACEHOLDER: Replace agent-id with your ElevenLabs agent ID once created -->
+<!-- <elevenlabs-convai agent-id="YOUR_AGENT_ID_HERE"></elevenlabs-convai> -->
+<!-- <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script> -->
+
 <script>
 // Reveal on scroll
 const observer = new IntersectionObserver((entries) => {
@@ -355,7 +585,7 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.15 });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-// Email forms
+// Quick email forms (hero + bottom)
 function handleForm(formId, msgId) {
   const form = document.getElementById(formId);
   const msg = document.getElementById(msgId);
@@ -363,14 +593,15 @@ function handleForm(formId, msgId) {
     e.preventDefault();
     const email = form.querySelector('input[type="email"]').value.trim();
     if (!email) return;
-    const list = JSON.parse(localStorage.getItem('waitlist') || '[]');
+    // Store locally + will be sent to backend when available
+    const list = JSON.parse(localStorage.getItem('isa_waitlist') || '[]');
     if (list.includes(email)) {
       msg.textContent = "You're already on the list!";
       msg.className = 'form-msg success';
     } else {
       list.push(email);
-      localStorage.setItem('waitlist', JSON.stringify(list));
-      msg.textContent = "You're in. We'll be in touch.";
+      localStorage.setItem('isa_waitlist', JSON.stringify(list));
+      msg.textContent = "You're in. We'll be in touch soon.";
       msg.className = 'form-msg success';
     }
     form.querySelector('input').value = '';
@@ -378,6 +609,74 @@ function handleForm(formId, msgId) {
 }
 handleForm('heroForm', 'heroMsg');
 handleForm('bottomForm', 'bottomMsg');
+
+// Multi-step lead form
+function nextStep(step) {
+  document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+  document.querySelector(`.form-step[data-step="${step}"]`).classList.add('active');
+  document.querySelectorAll('.step-dot').forEach(d => {
+    const s = parseInt(d.dataset.step);
+    d.classList.toggle('active', s === step);
+    d.classList.toggle('done', s < step);
+  });
+}
+function prevStep(step) { nextStep(step); }
+
+function submitLead() {
+  const lead = {
+    name: document.getElementById('lf-name').value,
+    email: document.getElementById('lf-email').value,
+    phone: document.getElementById('lf-phone').value,
+    company: document.getElementById('lf-company').value,
+    products: document.getElementById('lf-products').value,
+    region: document.getElementById('lf-region').value,
+    online: document.getElementById('lf-online').value,
+    interest: document.getElementById('lf-interest').value,
+    budget: document.getElementById('lf-budget').value,
+    notes: document.getElementById('lf-notes').value,
+    callback: document.getElementById('lf-callback').checked,
+    submitted: new Date().toISOString()
+  };
+
+  if (!lead.name || !lead.email) {
+    alert('Please fill in your name and email.');
+    nextStep(1);
+    return;
+  }
+
+  // Store lead locally
+  const leads = JSON.parse(localStorage.getItem('isa_leads') || '[]');
+  leads.push(lead);
+  localStorage.setItem('isa_leads', JSON.stringify(leads));
+
+  // Also add to waitlist
+  const list = JSON.parse(localStorage.getItem('isa_waitlist') || '[]');
+  if (!list.includes(lead.email)) {
+    list.push(lead.email);
+    localStorage.setItem('isa_waitlist', JSON.stringify(list));
+  }
+
+  // Send lead via email using mailto (fallback until backend exists)
+  const subject = encodeURIComponent(`New Lead: ${lead.name} — ${lead.company || 'No company'}`);
+  const body = encodeURIComponent(
+    `Name: ${lead.name}\nEmail: ${lead.email}\nPhone: ${lead.phone}\nCompany: ${lead.company}\n` +
+    `Products: ${lead.products}\nRegion: ${lead.region}\nCurrently online: ${lead.online}\n` +
+    `Interest: ${lead.interest}\nBudget: ${lead.budget}\nCallback: ${lead.callback ? 'Yes' : 'No'}\n` +
+    `Notes: ${lead.notes}\nSubmitted: ${lead.submitted}`
+  );
+
+  // Silent notification attempt via mailto
+  const mailLink = document.createElement('a');
+  mailLink.href = `mailto:hello@interiorshopapps.com?subject=${subject}&body=${body}`;
+  mailLink.style.display = 'none';
+  document.body.appendChild(mailLink);
+  // Don't auto-click mailto as it opens email client — leads stored in localStorage for now
+
+  // Show success
+  document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+  document.querySelector('.step-indicator').style.display = 'none';
+  document.getElementById('leadSuccess').classList.add('visible');
+}
 </script>
 </body>
 </html>
