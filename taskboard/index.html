@@ -1,164 +1,439 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>InterioApp – Task Board</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--brand:#4F46E5;--bg:#0f111a;--surface:#181b2a;--surface2:#232740;--border:#2a2f45;--text:#e2e8f0;--text2:#94a3b8;--high:#ef4444;--med:#f59e0b;--low:#22c55e}
+:root{
+  --brand:#4F46E5;
+  --bg:#0f111a;
+  --surface:#181b2a;
+  --surface2:#232740;
+  --border:#2a2f45;
+  --text:#e2e8f0;
+  --text2:#94a3b8;
+  --high:#ef4444;
+  --med:#f59e0b;
+  --low:#22c55e;
+  --ok:#10b981;
+}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-header{background:linear-gradient(135deg,#1e1b4b,#312e81);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+header{background:linear-gradient(135deg,#1e1b4b,#312e81);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);gap:12px}
 .logo{display:flex;align-items:center;gap:12px}
 .logo-icon{width:36px;height:36px;background:var(--brand);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff}
-.logo h1{font-size:22px;font-weight:800;background:linear-gradient(135deg,#818cf8,#c7d2fe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo h1{font-size:18px;font-weight:800;line-height:1;background:linear-gradient(135deg,#818cf8,#c7d2fe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .logo span{font-size:12px;color:var(--text2);font-weight:500}
-header button{background:var(--brand);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-family:inherit;font-weight:600;font-size:14px;cursor:pointer;transition:.2s}
-header button:hover{background:#4338ca}
-.board{display:flex;gap:20px;padding:24px;overflow-x:auto;min-height:calc(100vh - 80px);align-items:flex-start}
-.column{background:var(--surface);border-radius:14px;min-width:300px;flex:1;display:flex;flex-direction:column;border:1px solid var(--border)}
-.col-header{padding:16px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
-.col-header h2{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-.col-count{background:var(--surface2);color:var(--text2);font-size:12px;font-weight:600;padding:2px 10px;border-radius:20px}
-.col-body{padding:12px;flex:1;min-height:120px;display:flex;flex-direction:column;gap:10px;transition:background .2s}
+header .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+button{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:9px 12px;border-radius:10px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;transition:.15s}
+button.primary{background:var(--brand);border-color:transparent}
+button:hover{transform:translateY(-1px);border-color:#3b4160}
+button.primary:hover{background:#4338ca}
+
+.layout{display:grid;grid-template-columns:1fr 360px;gap:16px;padding:18px;align-items:start}
+@media (max-width: 980px){.layout{grid-template-columns:1fr}}
+
+.board{display:flex;gap:14px;overflow-x:auto;align-items:flex-start}
+.column{background:var(--surface);border-radius:14px;min-width:290px;flex:1;display:flex;flex-direction:column;border:1px solid var(--border)}
+.col-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.col-header h2{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.8px;color:var(--text)}
+.col-count{background:var(--surface2);color:var(--text2);font-size:12px;font-weight:800;padding:2px 10px;border-radius:999px}
+.col-body{padding:12px;flex:1;min-height:160px;display:flex;flex-direction:column;gap:10px;transition:background .2s}
 .col-body.drag-over{background:rgba(79,70,229,.08);border-radius:0 0 14px 14px}
-.card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:grab;transition:.15s;position:relative}
+
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px;cursor:pointer;transition:.15s;position:relative}
 .card:hover{border-color:var(--brand);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.3)}
 .card.dragging{opacity:.4;transform:rotate(2deg)}
 .card-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .priority{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .priority.high{background:var(--high)}.priority.medium{background:var(--med)}.priority.low{background:var(--low)}
-.phase-tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;background:rgba(79,70,229,.15);color:#818cf8}
-.card h3{font-size:13px;font-weight:600;line-height:1.4}
+.tag{font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;background:rgba(79,70,229,.15);color:#c7d2fe;border:1px solid rgba(79,70,229,.25)}
+.card h3{font-size:13px;font-weight:800;line-height:1.4}
 .card p{font-size:12px;color:var(--text2);margin-top:6px;line-height:1.5}
-.card .delete-btn{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--text2);cursor:pointer;opacity:0;transition:.15s;font-size:16px}
-.card:hover .delete-btn{opacity:.6}
-.card .delete-btn:hover{opacity:1;color:var(--high)}
+.card .meta{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+.pill{font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;border:1px solid var(--border);color:var(--text2)}
+.pill.blocked{border-color:rgba(239,68,68,.35);color:#fecaca}
+.pill.owner{border-color:rgba(34,197,94,.25);color:#bbf7d0}
+
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.panel .ph{padding:14px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel .ph h2{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.8px}
+.panel .pb{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.small{font-size:12px;color:var(--text2);line-height:1.5}
+
+.kv{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px}
+.kv b{font-size:12px}
+.kv span{font-size:12px;color:var(--text2)}
+
+.chatlog{height:240px;overflow:auto;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:12px}
+.msg{padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:rgba(15,17,26,.35);margin-bottom:8px}
+.msg .who{font-size:11px;font-weight:900;color:#c7d2fe}
+.msg .when{font-size:11px;color:var(--text2);margin-left:6px}
+.msg .txt{font-size:12px;color:var(--text);margin-top:4px;white-space:pre-wrap}
+.chatbox{display:flex;gap:8px}
+.chatbox input{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px;font-family:inherit;font-weight:600;font-size:13px;outline:none}
+
+.table{width:100%;border-collapse:separate;border-spacing:0 8px}
+.table td{vertical-align:top}
+.enq{padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px}
+.enq .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.enq .top b{font-size:12px}
+.enq .top span{font-size:11px;color:var(--text2)}
+.enq .body{font-size:12px;color:var(--text2);margin-top:6px;white-space:pre-wrap}
 
 /* Modal */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:200;align-items:center;justify-content:center}
 .overlay.active{display:flex}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:420px;max-width:90vw}
-.modal h2{font-size:18px;font-weight:700;margin-bottom:20px}
-.modal label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.modal input,.modal textarea,.modal select{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-family:inherit;font-size:14px;margin-bottom:16px;outline:none;transition:.2s}
-.modal input:focus,.modal textarea:focus,.modal select:focus{border-color:var(--brand)}
-.modal textarea{resize:vertical;min-height:60px}
-.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:4px}
-.modal-actions button{padding:10px 20px;border-radius:8px;font-family:inherit;font-weight:600;font-size:14px;cursor:pointer;border:none;transition:.2s}
-.btn-cancel{background:var(--surface2);color:var(--text2)}.btn-cancel:hover{background:var(--border)}
-.btn-save{background:var(--brand);color:#fff}.btn-save:hover{background:#4338ca}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;width:520px;max-width:92vw}
+.modal h2{font-size:16px;font-weight:900;margin-bottom:14px}
+label{display:block;font-size:11px;font-weight:900;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.7px}
+input,textarea,select{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px;font-family:inherit;font-size:13px;margin-bottom:12px;outline:none;transition:.2s}
+textarea{resize:vertical;min-height:72px}
+input:focus,textarea:focus,select:focus{border-color:var(--brand)}
+.modal-actions{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:4px}
+.modal-actions .left{display:flex;gap:10px}
+.danger{background:transparent;border:1px solid rgba(239,68,68,.35);color:#fecaca}
+.danger:hover{border-color:rgba(239,68,68,.7)}
 </style>
 </head>
 <body>
-
 <header>
   <div class="logo">
     <div class="logo-icon">I</div>
-    <div><h1>InterioApp</h1><span>Shopify App Development Board</span></div>
+    <div>
+      <h1>InterioApp</h1>
+      <span>MVP build board (apps first). Tasks are editable.</span>
+    </div>
   </div>
-  <button onclick="openModal()">+ New Task</button>
+  <div class="actions">
+    <button class="primary" onclick="openNewTask()">+ New Task</button>
+    <button onclick="exportData()">Export</button>
+    <button onclick="importData()">Import</button>
+    <button onclick="resetBoard()" title="Reset to defaults">Reset</button>
+  </div>
 </header>
 
-<div class="board" id="board"></div>
+<div class="layout">
+  <div class="board" id="board"></div>
 
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div class="panel">
+      <div class="ph"><h2>Status</h2></div>
+      <div class="pb">
+        <div class="kv"><b>Priority</b><span>Website enquiries + MVP app build</span></div>
+        <div class="kv"><b>Heartbeat</b><span>Should ship commits + update this board</span></div>
+        <div class="small">Tip: click any task card to edit details (owner, links, notes, blockers). Drag between columns.</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph"><h2>Board Chat (fallback)</h2></div>
+      <div class="pb">
+        <div class="chatlog" id="chatlog"></div>
+        <div class="chatbox">
+          <input id="chatInput" placeholder="Message… (stored locally in your browser)" />
+          <button class="primary" onclick="sendChat()">Send</button>
+        </div>
+        <div class="small">This is a simple fallback chat in case Slack isn’t working. It’s localStorage-based (not shared across devices).</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph"><h2>Website Enquiries</h2><button onclick="addEnquiry()">+ Add</button></div>
+      <div class="pb">
+        <div class="small">For now this panel is a tracker. Once the website lead workflow is wired to a backend, we can auto-populate this list safely.</div>
+        <table class="table" id="enquiries"></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Task Modal -->
 <div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
   <div class="modal">
-    <h2>Add Task</h2>
-    <label>Title</label><input id="f-title" placeholder="Task title…">
-    <label>Description</label><textarea id="f-desc" placeholder="Optional description…"></textarea>
-    <label>Priority</label>
-    <select id="f-priority"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
-    <label>Phase</label>
-    <select id="f-phase"><option>Phase 0</option><option>Phase 1</option><option>Phase 2</option><option>Phase 3</option><option>Phase 4</option></select>
-    <label>Column</label>
-    <select id="f-col"><option value="backlog">Backlog</option><option value="progress">In Progress</option><option value="review">Review</option><option value="done">Done</option></select>
-    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="saveTask()">Add Task</button></div>
+    <h2 id="modalTitle">Task</h2>
+    <label>Title</label>
+    <input id="f-title" placeholder="Task title…" />
+
+    <label>Description / Notes</label>
+    <textarea id="f-desc" placeholder="What’s the next step? links? notes?" ></textarea>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <label>Column</label>
+        <select id="f-col">
+          <option value="backlog">Backlog</option>
+          <option value="doing">Doing</option>
+          <option value="blocked">Blocked</option>
+          <option value="done">Done</option>
+        </select>
+      </div>
+      <div>
+        <label>Priority</label>
+        <select id="f-priority">
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <label>Owner</label>
+        <select id="f-owner">
+          <option value="">Unassigned</option>
+          <option value="Darius">Darius</option>
+          <option value="Mike">Mike (agent)</option>
+          <option value="Shopify Dev">Shopify Dev</option>
+        </select>
+      </div>
+      <div>
+        <label>Link</label>
+        <input id="f-link" placeholder="https://…" />
+      </div>
+    </div>
+
+    <label>Blocker (if any)</label>
+    <input id="f-blocker" placeholder="What is blocking this?" />
+
+    <div class="modal-actions">
+      <div class="left">
+        <button class="danger" onclick="deleteTask()">Delete</button>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button onclick="closeModal()">Cancel</button>
+        <button class="primary" onclick="saveTask()">Save</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
-const COLS=[{id:'backlog',name:'Backlog'},{id:'progress',name:'In Progress'},{id:'review',name:'Review'},{id:'done',name:'Done'}];
-const STORAGE_KEY='interioapp_tasks_v4';
-
-const DEFAULT_TASKS=[
-  // DONE
-  {id:d(),title:'Define mission, vision, values',desc:'Saved to docs/mission-vision-values.md',priority:'high',phase:'Phase 0',col:'done'},
-  {id:d(),title:'Set up task management platform',desc:'Kanban board built & online',priority:'high',phase:'Phase 0',col:'done'},
-  {id:d(),title:'Complete OpenClaw tool setup',desc:'Brave API, Ollama, Chrome configured',priority:'high',phase:'Phase 0',col:'done'},
-  {id:d(),title:'Create GitHub repo',desc:'github.com/dbaltunis/interioapp-shopify (private)',priority:'high',phase:'Phase 0',col:'done'},
-  {id:d(),title:'Purchase domain',desc:'interiorshopapps.com — live on GitHub Pages',priority:'high',phase:'Phase 0',col:'done'},
-  {id:d(),title:'Create YouTube channel',desc:'@InteriorShopApps — channel live',priority:'high',phase:'Phase 0',col:'done'},
-  {id:d(),title:'Create Instagram account',desc:'@interiorshopapps — business account live',priority:'high',phase:'Phase 0',col:'done'},
-  {id:d(),title:'Competitive analysis',desc:'10 Shopify apps + FLOWRiX analysed → docs/competitive-analysis.md',priority:'high',phase:'Phase 1',col:'done'},
-  {id:d(),title:'YouTube content plan',desc:'20-video calendar + first script ready',priority:'high',phase:'Phase 1',col:'done'},
-  {id:d(),title:'Instagram content plan',desc:'10 post ideas with captions and hashtags',priority:'medium',phase:'Phase 1',col:'done'},
-  {id:d(),title:'Design system v1.0',desc:'Premium warm modern aesthetic — docs/design-system.md',priority:'high',phase:'Phase 1',col:'done'},
-  {id:d(),title:'Shopify BFS requirements',desc:'Built for Shopify badge criteria documented',priority:'high',phase:'Phase 1',col:'done'},
-  {id:d(),title:'Brand philosophy doc',desc:'Priestley CAOS, KPI, Bartlett DOAC principles',priority:'high',phase:'Phase 1',col:'done'},
-  {id:d(),title:'Point domain to hosting',desc:'DNS configured, GitHub Pages serving interiorshopapps.com',priority:'high',phase:'Phase 0',col:'done'},
-  {id:d(),title:'Scaffold Remix + Polaris app',desc:'14 files — calculator, pricing engine, Prisma schema',priority:'high',phase:'Phase 3',col:'done'},
-  // IN PROGRESS
-  {id:d(),title:'Redesign website',desc:'Current version too generic — rebuilding with design system',priority:'high',phase:'Phase 4',col:'progress'},
-  {id:d(),title:'Slack integration',desc:'Bot connected but event subscriptions need fixing in Slack app settings',priority:'medium',phase:'Phase 0',col:'progress'},
-  {id:d(),title:'Upload first YouTube video',desc:'Script ready, need to record/produce',priority:'high',phase:'Phase 4',col:'progress'},
-  {id:d(),title:'Post first Instagram content',desc:'Need image generation for on-brand visuals',priority:'high',phase:'Phase 4',col:'progress'},
-  // BACKLOG
-  {id:d(),title:'Design quoting engine (multi-region)',desc:'6 regions, 3 product types',priority:'high',phase:'Phase 2',col:'backlog'},
-  {id:d(),title:'AI backend architecture',desc:'',priority:'high',phase:'Phase 2',col:'backlog'},
-  {id:d(),title:'Technical architecture document',desc:'',priority:'high',phase:'Phase 2',col:'backlog'},
-  {id:d(),title:'AI calculator engine',desc:'',priority:'high',phase:'Phase 3',col:'backlog'},
-  {id:d(),title:'Multi-region quoting logic',desc:'',priority:'high',phase:'Phase 3',col:'backlog'},
-  {id:d(),title:'Deploy to Heroku + Supabase',desc:'',priority:'medium',phase:'Phase 3',col:'backlog'},
-  {id:d(),title:'Shopify Partner account access',desc:'Add interioapp@icloud.com as team member',priority:'high',phase:'Phase 3',col:'backlog'},
-  {id:d(),title:'Theme app extension (storefront widget)',desc:'',priority:'high',phase:'Phase 3',col:'backlog'},
-  {id:d(),title:'Lead capture strategy (free tools)',desc:'Drive to 50 installs + 5 reviews for BFS',priority:'high',phase:'Phase 4',col:'backlog'},
-  {id:d(),title:'Set up image generation',desc:'For Instagram/marketing visuals',priority:'medium',phase:'Phase 4',col:'backlog'},
-  {id:d(),title:'Voice/chat support setup',desc:'',priority:'medium',phase:'Phase 4',col:'backlog'},
+const COLS=[
+  {id:'backlog',name:'Backlog'},
+  {id:'doing',name:'Doing'},
+  {id:'blocked',name:'Blocked'},
+  {id:'done',name:'Done'},
 ];
 
-function d(){return crypto.randomUUID()}
-function load(){const s=localStorage.getItem(STORAGE_KEY);return s?JSON.parse(s):null}
-function save(t){localStorage.setItem(STORAGE_KEY,JSON.stringify(t))}
-let tasks=load()||DEFAULT_TASKS;
-if(!load())save(tasks);
+const STORAGE_KEY='interioapp_tasks_vNext';
+const CHAT_KEY='interioapp_board_chat_v1';
+const ENQ_KEY='interioapp_enquiries_v1';
 
-let dragId=null;
+const DEFAULT_TASKS=[
+  {id:id(), title:'Website: make enquiries actually send + auto-reply', desc:'Implement real lead capture (not localStorage). Store leads + notify Darius + auto-reply.', priority:'high', col:'doing', owner:'Mike', link:'', blocker:''},
+  {id:id(), title:'MVP: run app locally + confirm Shopify auth flow', desc:'Make sure Remix app boots, routes render, env scaffold correct.', priority:'high', col:'backlog', owner:'Mike', link:'', blocker:''},
+  {id:id(), title:'MVP: Supabase + Prisma wiring', desc:'Connect DATABASE_URL, run migrations, store settings/metafields.', priority:'high', col:'backlog', owner:'Mike', link:'', blocker:'Need Supabase project + keys'},
+  {id:id(), title:'Deploy MVP to Heroku', desc:'Set APP_URL, env vars, deploy and validate install in a dev store.', priority:'high', col:'backlog', owner:'Mike', link:'', blocker:'Need Heroku app setup'},
+  {id:id(), title:'Slack: ensure Mike bot is usable in curtains-calculator workspace', desc:'Invite bot to channels; confirm message send/receive.', priority:'medium', col:'doing', owner:'Mike', link:'', blocker:'Needs bot invited to channel'},
+];
+
+let tasks = load(STORAGE_KEY) || DEFAULT_TASKS;
+if(!load(STORAGE_KEY)) save(STORAGE_KEY, tasks);
+
+let editingId = null;
+let dragId = null;
+
+function load(k){ try { const s=localStorage.getItem(k); return s?JSON.parse(s):null } catch(e){ return null } }
+function save(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+function id(){ return crypto.randomUUID(); }
+function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
 
 function render(){
   const board=document.getElementById('board');
   board.innerHTML='';
   COLS.forEach(c=>{
-    const col=document.createElement('div');col.className='column';
+    const col=document.createElement('div'); col.className='column';
     const ct=tasks.filter(t=>t.col===c.id);
     col.innerHTML=`<div class="col-header"><h2>${c.name}</h2><span class="col-count">${ct.length}</span></div>`;
-    const body=document.createElement('div');body.className='col-body';body.dataset.col=c.id;
-    body.addEventListener('dragover',e=>{e.preventDefault();body.classList.add('drag-over')});
-    body.addEventListener('dragleave',()=>body.classList.remove('drag-over'));
-    body.addEventListener('drop',e=>{e.preventDefault();body.classList.remove('drag-over');if(dragId){const t=tasks.find(x=>x.id===dragId);if(t){t.col=c.id;save(tasks);render()}}});
+    const body=document.createElement('div'); body.className='col-body'; body.dataset.col=c.id;
+
+    body.addEventListener('dragover', e=>{ e.preventDefault(); body.classList.add('drag-over'); });
+    body.addEventListener('dragleave', ()=> body.classList.remove('drag-over'));
+    body.addEventListener('drop', e=>{
+      e.preventDefault(); body.classList.remove('drag-over');
+      if(!dragId) return;
+      const t=tasks.find(x=>x.id===dragId);
+      if(t){ t.col=c.id; save(STORAGE_KEY,tasks); render(); }
+    });
+
     ct.forEach(t=>{
-      const card=document.createElement('div');card.className='card';card.draggable=true;card.dataset.id=t.id;
-      card.addEventListener('dragstart',()=>{dragId=t.id;setTimeout(()=>card.classList.add('dragging'),0)});
-      card.addEventListener('dragend',()=>{dragId=null;card.classList.remove('dragging')});
-      card.innerHTML=`<button class="delete-btn" onclick="delTask('${t.id}')" title="Delete">✕</button><div class="card-top"><span class="priority ${t.priority}"></span><span class="phase-tag">${t.phase}</span></div><h3>${esc(t.title)}</h3>${t.desc?'<p>'+esc(t.desc)+'</p>':''}`;
+      const card=document.createElement('div'); card.className='card'; card.draggable=true; card.dataset.id=t.id;
+      card.addEventListener('dragstart', ()=>{ dragId=t.id; setTimeout(()=>card.classList.add('dragging'),0); });
+      card.addEventListener('dragend', ()=>{ dragId=null; card.classList.remove('dragging'); });
+      card.addEventListener('click', ()=> openEditTask(t.id));
+
+      const pills=[];
+      if(t.owner) pills.push(`<span class="pill owner">Owner: ${esc(t.owner)}</span>`);
+      if(t.blocker) pills.push(`<span class="pill blocked">Blocked: ${esc(t.blocker)}</span>`);
+      if(t.link) pills.push(`<a class="pill" href="${esc(t.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Open link</a>`);
+
+      card.innerHTML=`
+        <div class="card-top">
+          <span class="priority ${esc(t.priority)}"></span>
+          <span class="tag">MVP</span>
+        </div>
+        <h3>${esc(t.title)}</h3>
+        ${t.desc?`<p>${esc(t.desc)}</p>`:''}
+        ${pills.length?`<div class="meta">${pills.join('')}</div>`:''}
+      `;
+
       body.appendChild(card);
     });
-    col.appendChild(body);board.appendChild(col);
+
+    col.appendChild(body); board.appendChild(col);
   });
 }
 
-function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
-function delTask(id){tasks=tasks.filter(t=>t.id!==id);save(tasks);render()}
-function openModal(){document.getElementById('overlay').classList.add('active');document.getElementById('f-title').focus()}
-function closeModal(){document.getElementById('overlay').classList.remove('active');['f-title','f-desc'].forEach(i=>document.getElementById(i).value='')}
-function saveTask(){
-  const title=document.getElementById('f-title').value.trim();if(!title)return;
-  tasks.push({id:d(),title,desc:document.getElementById('f-desc').value.trim(),priority:document.getElementById('f-priority').value,phase:document.getElementById('f-phase').value,col:document.getElementById('f-col').value});
-  save(tasks);closeModal();render();
+function openNewTask(){
+  editingId = null;
+  document.getElementById('modalTitle').textContent='New Task';
+  document.getElementById('f-title').value='';
+  document.getElementById('f-desc').value='';
+  document.getElementById('f-col').value='backlog';
+  document.getElementById('f-priority').value='high';
+  document.getElementById('f-owner').value='';
+  document.getElementById('f-link').value='';
+  document.getElementById('f-blocker').value='';
+  document.getElementById('overlay').classList.add('active');
+  document.getElementById('f-title').focus();
 }
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+function openEditTask(taskId){
+  const t=tasks.find(x=>x.id===taskId); if(!t) return;
+  editingId = taskId;
+  document.getElementById('modalTitle').textContent='Edit Task';
+  document.getElementById('f-title').value=t.title||'';
+  document.getElementById('f-desc').value=t.desc||'';
+  document.getElementById('f-col').value=t.col||'backlog';
+  document.getElementById('f-priority').value=t.priority||'high';
+  document.getElementById('f-owner').value=t.owner||'';
+  document.getElementById('f-link').value=t.link||'';
+  document.getElementById('f-blocker').value=t.blocker||'';
+  document.getElementById('overlay').classList.add('active');
+}
+
+function closeModal(){ document.getElementById('overlay').classList.remove('active'); }
+
+function saveTask(){
+  const title=document.getElementById('f-title').value.trim();
+  if(!title) return;
+  const data={
+    title,
+    desc:document.getElementById('f-desc').value.trim(),
+    col:document.getElementById('f-col').value,
+    priority:document.getElementById('f-priority').value,
+    owner:document.getElementById('f-owner').value,
+    link:document.getElementById('f-link').value.trim(),
+    blocker:document.getElementById('f-blocker').value.trim(),
+  };
+
+  if(editingId){
+    const t=tasks.find(x=>x.id===editingId);
+    Object.assign(t, data);
+  } else {
+    tasks.unshift({id:id(), ...data});
+  }
+  save(STORAGE_KEY, tasks);
+  closeModal();
+  render();
+}
+
+function deleteTask(){
+  if(!editingId) { closeModal(); return; }
+  tasks = tasks.filter(t=>t.id!==editingId);
+  save(STORAGE_KEY, tasks);
+  closeModal();
+  render();
+}
+
+function resetBoard(){
+  if(!confirm('Reset board to defaults? This will overwrite your local changes.')) return;
+  tasks = DEFAULT_TASKS;
+  save(STORAGE_KEY, tasks);
+  render();
+}
+
+function exportData(){
+  const payload={
+    tasks,
+    chat: load(CHAT_KEY) || [],
+    enquiries: load(ENQ_KEY) || [],
+    exportedAt: new Date().toISOString(),
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`interioapp-board-export-${Date.now()}.json`;
+  a.click();
+}
+
+function importData(){
+  const input=document.createElement('input');
+  input.type='file'; input.accept='application/json';
+  input.onchange=()=>{
+    const f=input.files && input.files[0]; if(!f) return;
+    const r=new FileReader();
+    r.onload=()=>{
+      try{
+        const obj=JSON.parse(String(r.result||''));
+        if(obj.tasks) { tasks=obj.tasks; save(STORAGE_KEY,tasks); }
+        if(obj.chat) save(CHAT_KEY,obj.chat);
+        if(obj.enquiries) save(ENQ_KEY,obj.enquiries);
+        render(); renderChat(); renderEnquiries();
+      } catch(e){ alert('Invalid JSON file'); }
+    };
+    r.readAsText(f);
+  };
+  input.click();
+}
+
+// Chat
+function now(){ return new Date().toISOString().replace('T',' ').slice(0,16); }
+function renderChat(){
+  const log=document.getElementById('chatlog');
+  const items=load(CHAT_KEY) || [];
+  log.innerHTML = items.map(m=>`<div class="msg"><div><span class="who">${esc(m.who||'')}</span><span class="when">${esc(m.when||'')}</span></div><div class="txt">${esc(m.text||'')}</div></div>`).join('');
+  log.scrollTop = log.scrollHeight;
+}
+function sendChat(){
+  const inp=document.getElementById('chatInput');
+  const text=inp.value.trim();
+  if(!text) return;
+  const items=load(CHAT_KEY) || [];
+  items.push({who:'Darius', when: now(), text});
+  save(CHAT_KEY, items);
+  inp.value='';
+  renderChat();
+}
+
+// Enquiries
+function renderEnquiries(){
+  const tbl=document.getElementById('enquiries');
+  const items=load(ENQ_KEY) || [];
+  if(items.length===0){
+    tbl.innerHTML = `<tr><td><div class="enq"><div class="top"><b>No enquiries tracked yet</b><span></span></div><div class="body">Once lead capture is wired, new enquiries can appear here automatically.</div></div></td></tr>`;
+    return;
+  }
+  tbl.innerHTML = items.slice().reverse().map(e=>`<tr><td><div class="enq"><div class="top"><b>${esc(e.email||e.name||'Enquiry')}</b><span>${esc(e.when||'')}</span></div><div class="body">${esc(e.message||'')}</div></div></td></tr>`).join('');
+}
+function addEnquiry(){
+  const email=prompt('Email (optional):')||'';
+  const message=prompt('Message / context:')||'';
+  const items=load(ENQ_KEY) || [];
+  items.push({email, message, when: now()});
+  save(ENQ_KEY, items);
+  renderEnquiries();
+}
+
+// init
 render();
+renderChat();
+renderEnquiries();
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
 </script>
 </body>
 </html>
