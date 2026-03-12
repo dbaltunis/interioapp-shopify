@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InteriorShopApps — AI-Powered Apps &amp; Shopify Stores for Window Furnishings</title>
+<meta name="description" content="We build Shopify apps, Apple App Store apps, API integrations, and custom online stores for window furnishing retailers. Powered by AI. Built for real business.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --night:#080c17;--deep:#0d1120;--surf:#131726;--surf2:#1a1f32;
+  --warm:#f6f3ee;--gold:#c4a46a;--goldl:#d8bc8a;--copper:#a86830;
+  --sage:#7a8a6b;--slate:#8696a8;--muted:#5a6a7a;
+  --bdr:rgba(255,255,255,.06);--bdg:rgba(196,164,106,.11);
+  --sg:0 6px 24px rgba(196,164,106,.2);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--night);color:var(--warm);line-height:1.7;font-size:16px;-webkit-font-smoothing:antialiased}
+h1,h2,.serif{font-family:'Cormorant Garamond',Georgia,serif}
+h1{font-size:clamp(2.4rem,5.5vw,4.2rem);font-weight:600;line-height:1.08;letter-spacing:-.01em}
+h2{font-size:clamp(1.7rem,3.5vw,2.6rem);font-weight:600;line-height:1.2}
+h3{font-size:1.02rem;font-weight:600;color:var(--warm)}
+p{color:var(--slate)}
+.gold{color:var(--gold)}
+.container{max-width:1120px;margin:0 auto;padding:0 28px}
+section{padding:100px 0}
+@media(max-width:640px){section{padding:64px 0}.container{padding:0 18px}}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+.reveal.v{opacity:1;transform:none}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
+
+/* Nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:16px 28px;background:rgba(8,12,23,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--bdg)}
+nav .ni{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;color:var(--warm);text-decoration:none}
+.logo span{color:var(--gold)}
+.nl{display:flex;align-items:center;gap:28px}
+.nl a{color:var(--slate);text-decoration:none;font-size:.83rem;font-weight:500;transition:color .25s}
+.nl a:hover{color:var(--gold)}
+.nc{font-size:.75rem!important;font-weight:600!important;text-transform:uppercase;letter-spacing:.09em!important;color:var(--night)!important;background:var(--gold);padding:10px 22px;border-radius:6px;transition:background .25s,box-shadow .25s!important}
+.nc:hover{background:var(--goldl)!important;box-shadow:var(--sg)!important}
+@media(max-width:720px){.nl a:not(.nc){display:none}}
+.il{color:var(--warm);text-decoration:none;border-bottom:1px solid rgba(196,164,106,.3);transition:color .2s,border-color .2s}
+.il:hover{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* Hero */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding-top:80px;text-align:center;position:relative;overflow:hidden}
+.hbg{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 65% 55% at 72% 18%,rgba(196,164,106,.055) 0%,transparent 60%),radial-gradient(ellipse 45% 45% at 18% 78%,rgba(90,70,150,.04) 0%,transparent 60%)}
+.hrl{position:absolute;top:0;left:50%;width:1px;height:100%;background:linear-gradient(to bottom,transparent,rgba(196,164,106,.07) 25%,rgba(196,164,106,.07) 75%,transparent);pointer-events:none}
+.ey{display:inline-flex;align-items:center;gap:10px;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:var(--gold);margin-bottom:26px}
+.ey::before,.ey::after{content:'';width:22px;height:1px;background:var(--gold);opacity:.5}
+.hero h1{margin-bottom:22px;max-width:740px;margin-left:auto;margin-right:auto}
+.hero h1 em{font-style:italic;color:var(--gold)}
+.hero p.sub{font-size:1.05rem;max-width:530px;margin:0 auto 42px;line-height:1.78}
+.hbadges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:36px}
+.hb{display:inline-flex;align-items:center;gap:6px;font-size:.75rem;font-weight:500;color:var(--slate);border:1px solid var(--bdr);padding:7px 14px;border-radius:40px;background:rgba(255,255,255,.025)}
+.hb .d{width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.7}
+
+/* Email form */
+.eform{display:flex;gap:10px;max-width:470px;margin:0 auto;flex-wrap:wrap;justify-content:center}
+.eform input{flex:1;min-width:220px;padding:14px 18px;border-radius:6px;border:1px solid var(--bdg);background:rgba(255,255,255,.04);color:var(--warm);font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .3s}
+.eform input::placeholder{color:var(--muted)}
+.eform input:focus{border-color:var(--gold)}
+.eform button,.btn{padding:14px 28px;border-radius:6px;border:none;cursor:pointer;background:var(--gold);color:var(--night);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;transition:background .3s,box-shadow .3s;text-decoration:none;display:inline-block}
+.eform button:hover,.btn:hover{background:var(--goldl);box-shadow:var(--sg)}
+.btn-g{background:transparent!important;border:1px solid var(--bdr)!important;color:var(--slate)!important}
+.btn-g:hover{border-color:var(--gold)!important;color:var(--warm)!important;box-shadow:none!important}
+.fmsg{text-align:center;margin-top:14px;font-size:.85rem;min-height:1.2em}
+.fmsg.ok{color:var(--sage)}.fmsg.er{color:#dc2626}
+
+/* Stats */
+.stats{background:var(--surf);border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr);padding:44px 0}
+.stats .sg{display:grid;grid-template-columns:repeat(4,1fr)}
+@media(max-width:640px){.stats .sg{grid-template-columns:repeat(2,1fr)}}
+.st{text-align:center;padding:16px 18px;border-right:1px solid var(--bdr)}
+.st:last-child{border-right:none}
+.stn{font-family:'Cormorant Garamond',serif;font-size:2.6rem;font-weight:600;color:var(--gold);line-height:1;margin-bottom:6px}
+.stl{font-size:.77rem;color:var(--slate);letter-spacing:.04em}
+
+/* Section labels */
+.sl{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:var(--gold);margin-bottom:16px}
+.sdiv{width:40px;height:1px;background:var(--gold);opacity:.35;margin:24px auto}
+
+/* Build grid */
+.bg{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:44px}
+@media(max-width:640px){.bg{grid-template-columns:1fr}}
+.bc{border:1px solid var(--bdr);border-radius:12px;padding:28px;background:var(--surf);transition:border-color .3s,box-shadow .3s;position:relative;overflow:hidden}
+.bc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,rgba(196,164,106,.25),transparent);opacity:0;transition:opacity .3s}
+.bc:hover{border-color:rgba(196,164,106,.25);box-shadow:0 8px 32px rgba(0,0,0,.22)}
+.bc:hover::after{opacity:1}
+.bi{font-size:1.5rem;margin-bottom:16px;display:block}
+.bc h3{margin-bottom:10px}
+.bc p{font-size:.88rem;line-height:1.75}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.tag{font-size:.7rem;font-weight:500;padding:4px 10px;border-radius:4px;background:rgba(196,164,106,.08);color:var(--gold);border:1px solid rgba(196,164,106,.15)}
+
+/* Platform */
+.plat{background:var(--surf)}
+.pi{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+@media(max-width:768px){.pi{grid-template-columns:1fr;gap:44px}}
+.pv{border:1px solid var(--bdg);border-radius:14px;background:var(--surf2);padding:28px;position:relative;overflow:hidden}
+.pv::before{content:'';position:absolute;top:-60px;right:-60px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(196,164,106,.06),transparent 70%);pointer-events:none}
+.pvb{background:rgba(255,255,255,.04);border-radius:8px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--slate)}
+.pd{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pd.g{background:#22c55e}.pd.o{background:var(--gold)}.pd.b{background:#60a5fa}
+.pn{margin-left:auto;color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:1.1rem}
+.il-list{list-style:none;margin-top:20px}
+.il-list li{padding:12px 0;border-bottom:1px solid var(--bdr);font-size:.88rem;color:var(--slate);display:flex;align-items:center;gap:8px}
+.il-list li::before{content:'→';color:var(--gold);font-size:.75rem}
+
+/* Cases */
+.cg{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px}
+@media(max-width:900px){.cg{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.cg{grid-template-columns:1fr}}
+.cc{border:1px solid var(--bdr);border-radius:12px;overflow:hidden;background:var(--surf);transition:transform .2s,border-color .2s,box-shadow .2s}
+.cc:hover{transform:translateY(-3px);border-color:rgba(196,164,106,.25);box-shadow:0 12px 36px rgba(0,0,0,.25)}
+.ct{height:88px;display:flex;align-items:center;justify-content:center;font-size:2rem;border-bottom:1px solid var(--bdr)}
+.cb{padding:20px}
+.ctype{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:8px}
+.cc h3{font-size:.93rem;margin-bottom:8px}
+.cc p{font-size:.84rem;line-height:1.65;margin-bottom:12px}
+.cr{font-size:.8rem;color:var(--sage);font-weight:500;display:flex;align-items:center;gap:5px}
+.cr::before{content:'↑'}
+
+/* Roadmap */
+.rm{background:var(--surf)}
+.rmg{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:44px;border:1px solid var(--bdr);border-radius:12px;overflow:hidden}
+@media(max-width:768px){.rmg{grid-template-columns:1fr}}
+.rmc{padding:28px;border-right:1px solid var(--bdr)}
+.rmc:last-child{border-right:none}
+@media(max-width:768px){.rmc{border-right:none;border-bottom:1px solid var(--bdr)}}
+.rmp{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.rmp::after{content:'';flex:1;height:1px;background:rgba(196,164,106,.2)}
+.rmc h3{font-size:1rem;margin-bottom:14px}
+.rml{list-style:none}
+.rml li{font-size:.84rem;color:var(--slate);padding:8px 0;border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+.rml li:last-child{border-bottom:none}
+.chk{color:var(--sage);flex-shrink:0;font-size:.8rem}
+.soon{color:var(--gold);flex-shrink:0;font-size:.8rem}
+
+/* Catalog */
+.cat{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px}
+@media(max-width:900px){.cat{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.cat{grid-template-columns:1fr}}
+a.prod{display:block;color:inherit;text-decoration:none}
+.prod{border:1px solid var(--bdr);border-radius:12px;overflow:hidden;background:var(--surf);transition:transform .2s,border-color .2s,box-shadow .2s}
+.prod:hover{transform:translateY(-3px);border-color:rgba(196,164,106,.28);box-shadow:0 12px 36px rgba(0,0,0,.25)}
+.pt{height:88px;background:radial-gradient(circle at 30% 20%,rgba(196,164,106,.14),transparent 55%),radial-gradient(circle at 80% 60%,rgba(168,104,48,.1),transparent 52%),linear-gradient(135deg,var(--surf2),var(--night));border-bottom:1px solid var(--bdr);background-size:cover;background-position:center}
+.pt.hi{background-blend-mode:overlay,overlay,normal}
+.pb{padding:18px 18px 12px}
+.prod h3{font-size:.93rem;line-height:1.3;margin-bottom:6px}
+.pb>p{font-size:.82rem;color:var(--slate);margin-bottom:0}
+.pp{display:flex;align-items:baseline;gap:8px;margin:10px 0 12px}
+.pp b{font-size:1rem;color:var(--gold);font-family:'Cormorant Garamond',serif}
+.pp span{font-size:.77rem;color:var(--muted)}
+.prod ul{list-style:none}
+.prod li{color:var(--slate);font-size:.82rem;line-height:1.55;padding:6px 0;border-top:1px solid var(--bdr)}
+.pcta{padding:0 18px 18px}
+.pcta button{width:100%}
+
+/* Testimonials */
+.tg{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:36px}
+@media(max-width:900px){.tg{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.tg{grid-template-columns:1fr}}
+.tc{border:1px solid var(--bdr);border-radius:12px;background:var(--surf);padding:20px;transition:border-color .3s}
+.tc:hover{border-color:rgba(196,164,106,.2)}
+.tcs{color:var(--gold);font-size:.72rem;letter-spacing:2px;margin-bottom:10px}
+.tc p{color:var(--warm);opacity:.88;font-size:.87rem;line-height:1.65}
+.tc .who{margin-top:12px;color:var(--muted);font-size:.8rem}
+
+/* Lead form */
+.lfw{max-width:660px;margin:0 auto;background:var(--surf);border:1px solid var(--bdg);border-radius:14px;padding:44px}
+@media(max-width:640px){.lfw{padding:26px}}
+.si{display:flex;gap:8px;margin-bottom:36px;justify-content:center}
+.sd{width:8px;height:8px;border-radius:50%;background:var(--bdr);transition:background .3s}
+.sd.a{background:var(--gold)}.sd.dn{background:var(--sage)}
+.fs{display:none}.fs.a{display:block}
+.lfw label{display:block;font-size:.76rem;font-weight:600;color:var(--warm);margin-bottom:7px;letter-spacing:.04em;text-transform:uppercase}
+.fh{font-size:.78rem;color:var(--muted);margin-bottom:12px;line-height:1.5;text-transform:none;letter-spacing:0}
+.lfw input,.lfw select,.lfw textarea{width:100%;padding:12px 15px;border-radius:7px;border:1px solid var(--bdr);background:rgba(8,12,23,.6);color:var(--warm);font-family:'DM Sans',sans-serif;font-size:.93rem;outline:none;transition:border-color .3s;margin-bottom:18px}
+.lfw input:focus,.lfw select:focus,.lfw textarea:focus{border-color:var(--gold)}
+.lfw select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238696a8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.lfw select option{background:var(--surf);color:var(--warm)}
+.lfw textarea{resize:vertical;min-height:76px}
+.fn{display:flex;gap:10px;justify-content:space-between;margin-top:6px}
+.fbk{padding:11px 22px;border-radius:6px;border:1px solid var(--bdr);background:transparent;color:var(--slate);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .3s}
+.fbk:hover{border-color:var(--gold);color:var(--warm)}
+.fnxt{padding:11px 26px;border-radius:6px;border:none;background:var(--gold);color:var(--night);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;cursor:pointer;transition:background .3s,box-shadow .3s;margin-left:auto}
+.fnxt:hover{background:var(--goldl);box-shadow:var(--sg)}
+.sx{text-align:center;padding:48px 20px;display:none}
+.sx.v{display:block}
+.sx .ck{width:62px;height:62px;border-radius:50%;background:rgba(122,138,107,.1);border:1px solid rgba(122,138,107,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 22px;font-size:1.5rem}
+.sx h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--warm);margin-bottom:12px}
+.sx p{font-size:.93rem;line-height:1.7}
+
+/* CTA band */
+.ctab{background:linear-gradient(135deg,rgba(196,164,106,.07) 0%,rgba(168,104,48,.05) 100%);border-top:1px solid var(--bdg);border-bottom:1px solid var(--bdg);padding:64px 0;text-align:center}
+.ctab h2{margin-bottom:14px}
+.ctab>div>p{max-width:420px;margin:0 auto 36px}
+
+/* Footer */
+footer{padding:52px 28px 40px;border-top:1px solid var(--bdr);text-align:center}
+.fl{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--warm);text-decoration:none;display:inline-block;margin-bottom:18px}
+.fl span{color:var(--gold)}
+footer .links{display:flex;gap:26px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+footer .links a{color:var(--muted);text-decoration:none;font-size:.82rem;transition:color .3s}
+footer .links a:hover{color:var(--gold)}
+.ftb{margin:16px 0 12px;font-size:.8rem;color:var(--muted);line-height:1.8}
+.ftb a{color:var(--muted);text-decoration:none;border-bottom:1px solid rgba(196,164,106,.2);transition:color .2s,border-color .2s}
+.ftb a:hover{color:var(--gold);border-bottom-color:var(--gold)}
+footer .copy{font-size:.72rem;color:var(--muted);opacity:.5}
+
+/* FAB */
+.fab{position:fixed;bottom:24px;right:24px;z-index:300;display:flex;align-items:center;gap:9px;padding:12px 22px;border-radius:40px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--gold),var(--copper));color:var(--night);font-family:'DM Sans',sans-serif;font-size:.83rem;font-weight:600;box-shadow:0 8px 28px rgba(196,164,106,.28);transition:transform .3s,box-shadow .3s}
+.fab:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(196,164,106,.4)}
+.pls{width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.35)}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="ni">
+    <a href="#" class="logo">Interior<span>Shop</span>Apps</a>
+    <div class="nl">
+      <a href="#build">What We Build</a>
+      <a href="#platform">InterioApp</a>
+      <a href="#cases">Case Studies</a>
+      <a href="#services">Services</a>
+      <a href="#contact" class="nc">Start a Project</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hbg"></div><div class="hrl"></div>
+  <div class="container">
+    <div class="ey reveal">AI-Powered Apps &amp; Shopify Stores</div>
+    <h1 class="reveal d1">We build the tech that lets<br>window furnishing <em>businesses scale</em></h1>
+    <p class="sub reveal d2">Shopify apps, Apple App Store apps, API integrations, custom quoting platforms — built by people who understand made-to-measure from the ground up.</p>
+    <div class="reveal d3">
+      <form class="eform" id="heroForm">
+        <input type="email" placeholder="Your email — get our free digital playbook" required>
+        <button type="submit">Download free</button>
+      </form>
+      <div class="fmsg" id="heroMsg"></div>
+    </div>
+    <div class="hbadges reveal d4">
+      <span class="hb"><span class="d"></span>Shopify App Store</span>
+      <span class="hb"><span class="d"></span>Apple App Store</span>
+      <span class="hb"><span class="d"></span>API Integrations</span>
+      <span class="hb"><span class="d"></span>Custom SaaS</span>
+      <span class="hb"><span class="d"></span>UK · US · AU · NZ · EU</span>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="container">
+    <div class="sg">
+      <div class="st reveal"><div class="stn">5.0</div><div class="stl">App Store rating</div></div>
+      <div class="st reveal d1"><div class="stn">5yr</div><div class="stl">Industry expertise</div></div>
+      <div class="st reveal d2"><div class="stn">3+</div><div class="stl">Continents served</div></div>
+      <div class="st reveal d3"><div class="stn">&lt;7d</div><div class="stl">Typical go-live</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT WE BUILD -->
+<section id="build">
+  <div class="container">
+    <div style="text-align:center;max-width:580px;margin:0 auto" class="reveal">
+      <div class="sl">What We Build</div>
+      <h2>From concept to App Store — powered by AI</h2>
+      <p style="margin-top:14px">We build software products — apps, platforms, and integrations — that let window furnishing businesses quote accurately, sell online, and operate at scale.</p>
+    </div>
+    <div class="bg">
+      <div class="bc reveal">
+        <span class="bi">🛍️</span>
+        <h3>Shopify App Development</h3>
+        <p>Full Shopify apps — either deployed to the public Shopify App Store under your brand, or installed as a private custom solution into your store. We handle architecture, Remix + Polaris UI, hosting, and App Store submission.</p>
+        <div class="tags"><span class="tag">Public app</span><span class="tag">Private app</span><span class="tag">App Store listing</span><span class="tag">Remix + Polaris</span></div>
+      </div>
+      <div class="bc reveal d1">
+        <span class="bi">📱</span>
+        <h3>Apple App Store Apps</h3>
+        <p>Native and hybrid iOS/iPadOS apps for retail and trade — showroom tools, measurement assistants, customer-facing quoting apps. Built with modern frameworks and submitted under your Apple Developer account.</p>
+        <div class="tags"><span class="tag">iOS / iPadOS</span><span class="tag">React Native</span><span class="tag">App Store submission</span></div>
+      </div>
+      <div class="bc reveal d2">
+        <span class="bi">⚡</span>
+        <h3>API Integrations &amp; Backends</h3>
+        <p>Connect your quoting platform to suppliers, ERPs, accounting software, or internal tools. We design clean REST APIs, webhooks, and data pipelines — built on Supabase, Node, or your existing stack.</p>
+        <div class="tags"><span class="tag">REST API</span><span class="tag">Webhooks</span><span class="tag">Supabase</span><span class="tag">Supplier feeds</span></div>
+      </div>
+      <div class="bc reveal d3">
+        <span class="bi">🏪</span>
+        <h3>Online Store Builds</h3>
+        <p>Shopify stores tailored for made-to-measure products — accurate pricing calculators, smart navigation, trust-building layouts, and the conversion flow that custom-product buyers actually need.</p>
+        <div class="tags"><span class="tag">Shopify theme</span><span class="tag">MTM calculator</span><span class="tag">Conversion optimisation</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLATFORM SHOWCASE -->
+<section class="plat" id="platform">
+  <div class="container">
+    <div class="pi">
+      <div class="reveal">
+        <div class="sl">Live Platform</div>
+        <h2>InterioApp — our flagship quoting SaaS</h2>
+        <p style="margin-top:16px;margin-bottom:18px">We didn't just study the industry — we built <a class="il" href="https://interioapp.com" target="_blank" rel="noopener">InterioApp</a>, a fully operational cloud platform used by retailers and manufacturers to quote, manage orders, and run their made-to-measure business.</p>
+        <ul class="il-list">
+          <li>Made-to-measure quoting with width × drop pricing logic</li>
+          <li>Multi-supplier, multi-currency, multi-region pricing rules</li>
+          <li>Order management, job numbers, and PDF quote generation</li>
+          <li>WhatsApp integration and window photo upload</li>
+          <li>Dealer permissions and client-specific pricing tiers</li>
+          <li>Shopify integration via the MTM Calculator app</li>
+        </ul>
+        <div style="margin-top:26px;display:flex;gap:12px;flex-wrap:wrap">
+          <a class="btn" href="https://appinterio.app/auth" target="_blank" rel="noopener">Try InterioApp free →</a>
+          <a class="btn btn-g" href="https://interioapp.com" target="_blank" rel="noopener">Learn more</a>
+        </div>
+      </div>
+      <div class="reveal d2">
+        <div class="pv">
+          <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:16px">InterioApp — live activity</div>
+          <div class="pvb"><span class="pd g"></span>New quote submitted<span class="pn">+1</span></div>
+          <div class="pvb"><span class="pd o"></span>Order #JB-0041 awaiting approval</div>
+          <div class="pvb"><span class="pd b"></span>Supplier price list updated</div>
+          <div class="pvb"><span class="pd g"></span>Quote PDF generated &amp; sent</div>
+          <div class="pvb"><span class="pd o"></span>3 new Shopify orders synced<span class="pn">+3</span></div>
+          <div style="border-top:1px solid var(--bdr);margin-top:16px;padding-top:16px;display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted)">
+            <span>UK · AU · NZ · EU</span>
+            <span style="color:var(--sage)">● Live</span>
+          </div>
+        </div>
+        <p style="font-size:.77rem;color:var(--muted);margin-top:12px;text-align:center">Also available at <a class="il" href="https://interioapp.co.nz" target="_blank" rel="noopener">interioapp.co.nz</a> for New Zealand retailers</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CASE STUDIES -->
+<section id="cases">
+  <div class="container">
+    <div style="text-align:center;max-width:520px;margin:0 auto" class="reveal">
+      <div class="sl">Case Studies</div>
+      <h2>What we've actually shipped</h2>
+      <p style="margin-top:14px">Real projects, real outcomes — from Shopify calculator apps to full SaaS platforms.</p>
+    </div>
+    <div class="cg">
+      <div class="cc reveal">
+        <div class="ct" style="background:linear-gradient(135deg,rgba(196,164,106,.08),rgba(168,104,48,.06))">🧮</div>
+        <div class="cb">
+          <div class="ctype">Shopify App · Public</div>
+          <h3>MTM Calculator — Curtains &amp; Blinds</h3>
+          <p>A Shopify app turning custom product complexity into a clean quoting UI. Width × drop pricing, fabric tiers, bracket options — configurable from an admin panel.</p>
+          <div class="cr">5.0 Shopify App Store · UK, AU, NZ</div>
+        </div>
+      </div>
+      <div class="cc reveal d1">
+        <div class="ct" style="background:linear-gradient(135deg,rgba(100,160,250,.06),rgba(60,80,200,.04))">☁️</div>
+        <div class="cb">
+          <div class="ctype">SaaS Platform · Full Build</div>
+          <h3>InterioApp — Quoting &amp; Order Platform</h3>
+          <p>A multi-tenant SaaS from scratch: supplier price processing, quoting engine, PDF generation, WhatsApp delivery, Shopify sync, and multi-region pricing.</p>
+          <div class="cr">Live across 4 markets, serving retailers daily</div>
+        </div>
+      </div>
+      <div class="cc reveal d2">
+        <div class="ct" style="background:linear-gradient(135deg,rgba(130,200,130,.06),rgba(80,150,80,.04))">🏪</div>
+        <div class="cb">
+          <div class="ctype">Shopify Store · Window Furnishings</div>
+          <h3>UK Blinds Retailer — Full Store Build</h3>
+          <p>Shopify store for a UK retailer: theme setup, made-to-measure product structure, trust optimisation, and calculator integration from day one.</p>
+          <div class="cr">Online quoting launched within 5 days</div>
+        </div>
+      </div>
+      <div class="cc reveal">
+        <div class="ct" style="background:linear-gradient(135deg,rgba(220,100,100,.06),rgba(180,60,60,.04))">📦</div>
+        <div class="cb">
+          <div class="ctype">API Integration · Supplier Data</div>
+          <h3>Automated Supplier Price Pipeline</h3>
+          <p>PDF and Excel price lists from Roletas, LAELA, RIDEX, Dormax auto-processed into structured CSV formats for platform import — saving hours weekly.</p>
+          <div class="cr">5 suppliers automated, hours saved weekly</div>
+        </div>
+      </div>
+      <div class="cc reveal d1">
+        <div class="ct" style="background:linear-gradient(135deg,rgba(180,130,220,.06),rgba(130,80,180,.04))">📱</div>
+        <div class="cb">
+          <div class="ctype">Demo Tool · 3D Visualiser</div>
+          <h3>3D Showroom Simulator</h3>
+          <p>An interactive Three.js-powered 3D showroom for client presentations — letting retailers visualise blind and curtain configurations in real time.</p>
+          <div class="cr">Used in sales demos across multiple clients</div>
+        </div>
+      </div>
+      <div class="cc reveal d2">
+        <div class="ct" style="background:linear-gradient(135deg,rgba(100,200,200,.06),rgba(60,150,180,.04))">🌍</div>
+        <div class="cb">
+          <div class="ctype">Market Expansion · EU Strategy</div>
+          <h3>EU Market Entry — B2B SaaS</h3>
+          <p>Full go-to-market strategy for expanding a window furnishing SaaS into France, UK, and Belgium — targeting retailers and manufacturers.</p>
+          <div class="cr">Roadmap, pricing strategy &amp; partner plan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section class="rm" id="roadmap">
+  <div class="container">
+    <div style="text-align:center;max-width:560px;margin:0 auto" class="reveal">
+      <div class="sl">Capabilities Roadmap</div>
+      <h2>What we can definitely do for you</h2>
+      <p style="margin-top:14px">A clear picture of our current and upcoming capabilities — no vague promises.</p>
+    </div>
+    <div class="rmg reveal">
+      <div class="rmc">
+        <div class="rmp">Live now</div>
+        <h3>Available today</h3>
+        <ul class="rml">
+          <li><span class="chk">✓</span>Made-to-measure Shopify app (public or private)</li>
+          <li><span class="chk">✓</span>Custom Shopify store build (window furnishings)</li>
+          <li><span class="chk">✓</span>InterioApp platform setup &amp; onboarding</li>
+          <li><span class="chk">✓</span>Supplier price list processing (PDF/Excel → CSV)</li>
+          <li><span class="chk">✓</span>API integration &amp; webhook development</li>
+          <li><span class="chk">✓</span>SEO + speed optimisation (one-time)</li>
+          <li><span class="chk">✓</span>Monthly maintenance &amp; support plan</li>
+          <li><span class="chk">✓</span>Product catalog setup (up to 50 SKUs)</li>
+        </ul>
+      </div>
+      <div class="rmc">
+        <div class="rmp">In progress</div>
+        <h3>Coming soon</h3>
+        <ul class="rml">
+          <li><span class="soon">→</span>White-label InterioApp for your brand</li>
+          <li><span class="soon">→</span>Shopify App Store public listing &amp; reviews</li>
+          <li><span class="soon">→</span>iOS companion app for showroom sales teams</li>
+          <li><span class="soon">→</span>AI-powered quote assistant (chat-to-quote)</li>
+          <li><span class="soon">→</span>Multi-region pricing dashboard (US / UK / AU)</li>
+          <li><span class="soon">→</span>WhatsApp quote delivery integration</li>
+        </ul>
+      </div>
+      <div class="rmc">
+        <div class="rmp">On the roadmap</div>
+        <h3>Planned &amp; scoped</h3>
+        <ul class="rml">
+          <li><span class="soon">◇</span>Apple App Store app (full submission)</li>
+          <li><span class="soon">◇</span>B2B trade portal with dealer login</li>
+          <li><span class="soon">◇</span>Manufacturer order routing &amp; job management</li>
+          <li><span class="soon">◇</span>ERP integration (Xero, QuickBooks)</li>
+          <li><span class="soon">◇</span>AI measurement guide (photo-to-quote)</li>
+          <li><span class="soon">◇</span>EU multi-language platform</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="container">
+    <div style="text-align:center;max-width:560px;margin:0 auto" class="reveal">
+      <div class="sl">Services &amp; Pricing</div>
+      <h2>Packages available now</h2>
+      <p style="margin-top:14px">No subscriptions on most — one-time delivery with clear scope and timeline. See <a class="il" href="https://interioapp.com/apps" target="_blank" rel="noopener">live apps</a> from the same team.</p>
+    </div>
+    <div class="cat reveal">
+      <a class="prod" href="/services/made-to-measure-calculator/">
+        <div class="pt hi" style="background-image:url('/services/assets/001-cohesive-set-of-premium-abstract-banner-.webp')"></div>
+        <div class="pb"><h3>Made-to-Measure Calculator</h3><p>Your pricing rules turned into a live Shopify quoting flow.</p>
+        <div class="pp"><b>from £3,500</b><span>ISA-CALC</span></div>
+        <ul><li>Quote UI + rules engine (sizes, fabrics, options)</li><li>Admin panel to manage pricing logic</li><li>Test scenarios + handover docs</li></ul></div>
+        <div class="pcta"><button class="btn" type="button" style="font-size:.72rem;padding:10px 0">View product →</button></div>
+      </a>
+      <a class="prod" href="/services/custom-shopify-app-mvp/">
+        <div class="pt hi" style="background-image:url('/services/assets/002-cohesive-set-of-premium-abstract-banner-.webp')"></div>
+        <div class="pb"><h3>Custom Shopify App MVP</h3><p>A real private app — clean scope, predictable delivery.</p>
+        <div class="pp"><b>from £2,500</b><span>ISA-APP-MVP</span></div>
+        <ul><li>Remix + Polaris admin UI</li><li>Supabase / Heroku hosting</li><li>Install + full walkthrough</li></ul></div>
+        <div class="pcta"><button class="btn" type="button" style="font-size:.72rem;padding:10px 0">View product →</button></div>
+      </a>
+      <a class="prod" href="/services/shopify-store-build-window-furnishings/">
+        <div class="pt hi" style="background-image:url('/services/assets/003-cohesive-set-of-premium-abstract-banner-.webp')"></div>
+        <div class="pb"><h3>Shopify Store Build</h3><p>Theme, structure, and launch QA for made-to-measure.</p>
+        <div class="pp"><b>from £1,800</b><span>ISA-STORE-BUILD</span></div>
+        <ul><li>Theme setup + key pages</li><li>Collections, conversion basics</li><li>Launch checklist + training</li></ul></div>
+        <div class="pcta"><button class="btn" type="button" style="font-size:.72rem;padding:10px 0">View product →</button></div>
+      </a>
+      <a class="prod" href="/services/product-catalog-setup/">
+        <div class="pt hi" style="background-image:url('/services/assets/004-cohesive-set-of-premium-abstract-banner-.webp')"></div>
+        <div class="pb"><h3>Product Catalog Setup</h3><p>Clean data, variants, collections — up to 50 SKUs.</p>
+        <div class="pp"><b>£600</b><span>ISA-PRODUCTS</span></div>
+        <ul><li>Bulk import + cleanup</li><li>Collections + filters</li><li>QA + polish</li></ul></div>
+        <div class="pcta"><button class="btn" type="button" style="font-size:.72rem;padding:10px 0">View product →</button></div>
+      </a>
+      <a class="prod" href="/services/seo-speed-tune/">
+        <div class="pt hi" style="background-image:url('/services/assets/001-cohesive-set-of-premium-abstract-banner-.webp')"></div>
+        <div class="pb"><h3>SEO + Speed Tune</h3><p>Fix blockers, improve load time, tidy technical SEO.</p>
+        <div class="pp"><b>£350</b><span>ISA-SEO</span></div>
+        <ul><li>Speed + Core Web Vitals</li><li>Metadata + structure</li><li>Image optimisation</li></ul></div>
+        <div class="pcta"><button class="btn" type="button" style="font-size:.72rem;padding:10px 0">View product →</button></div>
+      </a>
+      <a class="prod" href="/services/maintenance-plan/">
+        <div class="pt hi" style="background-image:url('/services/assets/002-cohesive-set-of-premium-abstract-banner-.webp')"></div>
+        <div class="pb"><h3>Maintenance Plan</h3><p>Steady fixes and monitoring while you focus on selling.</p>
+        <div class="pp"><b>£249/mo</b><span>ISA-MAINT</span></div>
+        <ul><li>Monitoring + app updates</li><li>Reasonable bug fixes</li><li>Priority support window</li></ul></div>
+        <div class="pcta"><button class="btn" type="button" style="font-size:.72rem;padding:10px 0">View product →</button></div>
+      </a>
+    </div>
+    <div class="reveal" style="text-align:center;margin-top:30px">
+      <a class="btn" href="/services/">All services &amp; pricing →</a>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section style="background:var(--surf)" id="testimonials">
+  <div class="container">
+    <div style="text-align:center" class="reveal">
+      <div style="font-size:1rem;color:var(--gold);letter-spacing:4px;margin-bottom:10px">★★★★★</div>
+      <h2>Trusted by retailers across three continents</h2>
+      <p style="max-width:500px;margin:14px auto 0">From UK blinds specialists to Australian curtain retailers — our apps and stores are live and working.</p>
+    </div>
+    <div class="tg reveal" id="tgrid"></div>
+    <p style="text-align:center;margin-top:20px;color:var(--muted);font-size:.84rem">Want to speak with an existing client? Ask and we'll connect you directly.</p>
+  </div>
+</section>
+
+<!-- LEAD FORM -->
+<section id="contact" style="background:var(--night)">
+  <div class="container">
+    <div style="text-align:center;max-width:580px;margin:0 auto" class="reveal">
+      <div class="sl">Start a Project</div>
+      <h2>Tell us about <em class="gold">your business</em></h2>
+      <p style="margin-top:14px">Two ways to work with us: we can <strong style="color:var(--warm)">build and deploy a full Shopify app</strong> for you on the App Store, or we can <strong style="color:var(--warm)">install our existing platform</strong> and build a custom solution around your products and pricing. Tell us what fits.</p>
+    </div>
+    <div class="lfw reveal" id="leadForm">
+      <div class="si">
+        <div class="sd a" data-step="1"></div>
+        <div class="sd" data-step="2"></div>
+        <div class="sd" data-step="3"></div>
+      </div>
+      <div class="fs a" data-step="1">
+        <label>Your name</label>
+        <input type="text" id="lf-name" placeholder="Full name" required>
+        <label>Email</label>
+        <input type="email" id="lf-email" placeholder="you@company.com" required>
+        <label>Phone <span style="color:var(--muted);text-transform:none;font-size:.8rem;font-weight:400">(optional)</span></label>
+        <input type="tel" id="lf-phone" placeholder="+44 7700 900000">
+        <label>Company / store</label>
+        <input type="text" id="lf-company" placeholder="e.g. Heritage Blinds Ltd">
+        <div class="fn"><span></span><button type="button" class="fnxt" onclick="ns(2)">Next →</button></div>
+      </div>
+      <div class="fs" data-step="2">
+        <label>What do you sell?</label>
+        <select id="lf-products"><option value="" disabled selected>Select your main products</option>
+          <option>Blinds</option><option>Curtains</option><option>Shutters</option>
+          <option>Blinds &amp; Curtains</option><option>Blinds, Curtains &amp; Shutters</option>
+          <option>Other window furnishings</option></select>
+        <label>Your main market</label>
+        <select id="lf-region"><option value="" disabled selected>Select region</option>
+          <option>United Kingdom</option><option>United States</option><option>Australia</option>
+          <option>New Zealand</option><option>Canada</option><option>Europe (EU)</option>
+          <option>Multiple regions</option><option>Other</option></select>
+        <label>Currently selling online?</label>
+        <select id="lf-online"><option value="" disabled selected>Select one</option>
+          <option>Yes — on Shopify</option><option>Yes — on another platform</option>
+          <option>No — but I want to start</option><option>No — just exploring</option></select>
+        <div class="fn"><button type="button" class="fbk" onclick="ns(1)">← Back</button><button type="button" class="fnxt" onclick="ns(3)">Next →</button></div>
+      </div>
+      <div class="fs" data-step="3">
+        <label>What are you looking for?</label>
+        <select id="lf-interest"><option value="" disabled selected>Select one</option>
+          <option>Build &amp; deploy a Shopify app for me (App Store)</option>
+          <option>Install your existing app + build custom solution</option>
+          <option>Full Shopify store build</option>
+          <option>API integration or backend development</option>
+          <option>Apple App Store app</option>
+          <option>I'm not sure — let's talk it through</option></select>
+        <label>Rough budget?</label>
+        <p class="fh">Helps us recommend the right starting point.</p>
+        <select id="lf-budget"><option value="" disabled selected>Select a range</option>
+          <option>Under £500 / $600</option>
+          <option>£500 – £2,000 / $600 – $2,500</option>
+          <option>£2,000 – £5,000 / $2,500 – $6,000</option>
+          <option>£5,000+ / $6,000+</option>
+          <option>I'd rather discuss this</option></select>
+        <label>Anything else?</label>
+        <textarea id="lf-notes" placeholder="Timeline, requirements, questions, or anything that helps us understand your project..."></textarea>
+        <label style="text-transform:none;font-size:.88rem;font-weight:400;display:flex;align-items:center;gap:10px;cursor:pointer;letter-spacing:0">
+          <input type="checkbox" id="lf-cb" style="width:auto;margin-bottom:0;flex-shrink:0">
+          <span style="color:var(--muted)">I'd like a callback — please get in touch by phone</span>
+        </label>
+        <div class="fn" style="margin-top:24px"><button type="button" class="fbk" onclick="ns(2)">← Back</button><button type="button" class="fnxt" onclick="submitLead()">Send enquiry →</button></div>
+      </div>
+      <div class="sx" id="lsuccess">
+        <div class="ck">✓</div>
+        <h3>We've got your details</h3>
+        <p>We'll come back within one working day with a clear proposal. You can also explore <a class="il" href="https://appinterio.app/auth" target="_blank" rel="noopener">InterioApp</a> right now — create a free account and see the platform firsthand.</p>
+        <div style="margin-top:22px"><a class="btn" href="https://appinterio.app/auth" target="_blank" rel="noopener">Try InterioApp free →</a></div>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:18px;font-size:.82rem;color:var(--muted)">Or email us directly: <a class="il" href="mailto:hello@interiorshopapps.com">hello@interiorshopapps.com</a></p>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="ctab">
+  <div class="container reveal">
+    <div class="sl" style="margin-bottom:14px">Free Download</div>
+    <h2>The Window Furnishing Retailer's<br>Digital Playbook</h2>
+    <p>Quoting automation, Shopify setup, app selection, and what tech actually moves the needle. Practical checklist, free download.</p>
+    <form class="eform" id="bottomForm" style="margin-top:32px">
+      <input type="email" placeholder="Your email address" required>
+      <button type="submit">Download free</button>
+    </form>
+    <div class="fmsg" id="bottomMsg"></div>
+    <p style="margin-top:14px;font-size:.77rem;color:var(--muted)">No spam. Your email is stored securely in our system — no third-party tools.</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <a href="#" class="fl">Interior<span>Shop</span>Apps</a>
+    <div class="links">
+      <a href="https://youtube.com/@InteriorShopApps" target="_blank" rel="noopener">YouTube</a>
+      <a href="https://instagram.com/interiorshopapps" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://appinterio.app" target="_blank" rel="noopener">InterioApp platform</a>
+      <a href="https://interioapp.com" target="_blank" rel="noopener">InterioApp.com</a>
+      <a href="mailto:hello@interiorshopapps.com">Email us</a>
+    </div>
+    <div class="ftb">
+      Powered by <a href="https://interioapp.com" target="_blank" rel="noopener">InterioApp</a> — made-to-measure quoting &amp; order management ·
+      Founded by <a href="https://interioapp.com" target="_blank" rel="noopener">Darius Baltunis</a>
+    </div>
+    <p class="copy">&copy; 2026 InteriorShopApps. All rights reserved.</p>
+  </div>
+</footer>
+
+<button class="fab" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">
+  <span class="pls"></span> Start a project
+</button>
+
+<script>
+// Scroll reveal
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('v');obs.unobserve(x.target)}})},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// Testimonials
+const TD=[
+  {t:'We finally stopped quoting manually. Customers self-serve and orders come through clean.',w:'Owner — UK blinds retailer'},
+  {t:'Structured properly for made-to-measure. Way less chaos for our team.',w:'Ops Lead — AU curtains business'},
+  {t:'Fast, practical, honest. We shipped improvements the same week.',w:'Founder — ecommerce brand'},
+  {t:'The calculator matched our real-world pricing rules exactly. No more spreadsheet nightmares.',w:'Sales Manager — shutters retailer'},
+  {t:'Right design plus right apps. Conversion improved without a full redesign.',w:'Marketing — NZ window furnishings'},
+  {t:'Clear scope, clear delivery. Exactly what we needed and nothing we didn\'t.',w:'Director — home interiors'},
+];
+document.getElementById('tgrid').innerHTML=TD.map(t=>`<div class="tc"><div class="tcs">★★★★★</div><p>"${t.t}"</p><div class="who">— ${t.w}</div></div>`).join('');
+
+// ── appinterio.app lead API ──
+// TODO: Confirm the exact POST endpoint with your backend team.
+// Replace the path below with the real route once available.
+// Expected request: POST https://appinterio.app/api/public/leads
+// Expected body: { name, email, phone, company, products, region, interest, budget, notes, source }
+// Expected response: 200/201 on success
+const LEAD_API='https://appinterio.app/api/public/leads';
+
+async function postLead(payload){
+  try{
+    const r=await fetch(LEAD_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(r.ok)return true;
+  }catch(e){}
+  return false;
+}
+
+// Guide download (client-side HTML file)
+function dlGuide(){
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Window Furnishing Digital Playbook</title>
+<style>body{font-family:Georgia,serif;max-width:680px;margin:48px auto;padding:0 28px;color:#1a1a1a;line-height:1.75}
+h1{font-size:2.1rem;margin-bottom:6px;color:#111}h2{font-size:1.18rem;margin-top:38px;border-bottom:1px solid #e0e0e0;padding-bottom:8px;color:#222}
+ul{padding-left:20px}li{margin-bottom:7px}.meta{color:#888;font-size:.83rem;margin-bottom:32px;border-bottom:1px solid #eee;padding-bottom:16px}
+a{color:#b07640}.footer{margin-top:48px;padding-top:16px;border-top:1px solid #ddd;font-size:.8rem;color:#aaa}</style></head>
+<body><h1>Window Furnishing Retailer's Digital Playbook</h1>
+<p class="meta">By InteriorShopApps &amp; InterioApp · 2026 Edition · interiorshopapps.com</p>
+<h2>1. Quoting Automation Checklist</h2><ul>
+<li>Map your pricing logic: width brackets, drop ranges, fabric tiers</li>
+<li>List every option that changes price: headrail, control type, lining, installation</li>
+<li>Identify your top 3 most-ordered product types to automate first</li>
+<li>Decide: public Shopify app vs private custom app vs standalone platform</li>
+<li>Test with real orders before going live — run 10 manual quotes through the system</li></ul>
+<h2>2. Shopify Setup for Made-to-Measure</h2><ul>
+<li>Use a theme that supports custom product fields</li>
+<li>Structure products by type + brand — variants handle the rest</li>
+<li>Install a calculator app before building anything custom</li>
+<li>Add trust elements: measurement guide, installation FAQ, returns policy</li>
+<li>Set up abandoned cart recovery — MTM customers often measure before buying</li></ul>
+<h2>3. App Selection Framework</h2><ul>
+<li>Does it support width × drop pricing (not just variant selectors)?</li>
+<li>Can you configure fabric tiers and size brackets from an admin panel?</li>
+<li>Does it handle multiple product types separately (blinds, curtains, shutters)?</li>
+<li>Is multi-currency / multi-region supported?</li>
+<li>Who supports it — a real team, or a solo developer?</li></ul>
+<h2>4. What Actually Moves the Needle</h2><ul>
+<li>Accurate online pricing — this alone significantly increases add-to-cart rates</li>
+<li>A measurement guide embedded in the product page (reduces abandonment)</li>
+<li>WhatsApp or chat for last-mile questions before purchase</li>
+<li>PDF quote on demand — trade customers expect this</li>
+<li>Under 2 seconds load time on mobile is non-negotiable</li></ul>
+<h2>5. Next Steps</h2><ul>
+<li>Try InterioApp free: <a href="https://appinterio.app/auth">appinterio.app/auth</a></li>
+<li>Start a project: <a href="https://interiorshopapps.com/#contact">interiorshopapps.com/#contact</a></li>
+<li>See live apps: <a href="https://interioapp.com/apps">interioapp.com/apps</a></li></ul>
+<div class="footer">InteriorShopApps · hello@interiorshopapps.com · interiorshopapps.com<br>
+Part of the InterioApp group · Founded by Darius Baltunis</div></body></html>`;
+  const b=new Blob([html],{type:'text/html'});
+  const u=URL.createObjectURL(b);
+  const a=document.createElement('a');a.href=u;a.download='window-furnishing-digital-playbook.html';
+  a.style.display='none';document.body.appendChild(a);a.click();URL.revokeObjectURL(u);a.remove();
+}
+
+// Email forms
+function handleForm(id,mid,isGuide){
+  const f=document.getElementById(id),m=document.getElementById(mid);
+  f.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const email=f.querySelector('input[type="email"]').value.trim();
+    if(!email)return;
+    const ok=await postLead({email,source:isGuide?'guide-download':'newsletter'});
+    if(isGuide)dlGuide();
+    if(!ok){
+      const s=encodeURIComponent(`New lead: ${email}`),b=encodeURIComponent(`Email: ${email}\nSource: ${isGuide?'guide':'newsletter'}`);
+      window.open(`mailto:hello@interiorshopapps.com?subject=${s}&body=${b}`);
+    }
+    m.textContent=isGuide?'✓ Your playbook is downloading now.':'✓ You\'re subscribed — thank you.';
+    m.className='fmsg ok';f.querySelector('input').value='';
+  });
+}
+handleForm('heroForm','heroMsg',true);
+handleForm('bottomForm','bottomMsg',false);
+
+// Multi-step form
+function ns(step){
+  document.querySelectorAll('.fs').forEach(s=>s.classList.remove('a'));
+  const el=document.querySelector(`.fs[data-step="${step}"]`);
+  if(el)el.classList.add('a');
+  document.querySelectorAll('.sd').forEach(d=>{
+    const s=parseInt(d.dataset.step);
+    d.classList.toggle('a',s===step);d.classList.toggle('dn',s<step);
+  });
+}
+
+async function submitLead(){
+  const lead={
+    name:document.getElementById('lf-name').value,
+    email:document.getElementById('lf-email').value,
+    phone:document.getElementById('lf-phone').value,
+    company:document.getElementById('lf-company').value,
+    products:document.getElementById('lf-products').value,
+    region:document.getElementById('lf-region').value,
+    online:document.getElementById('lf-online').value,
+    interest:document.getElementById('lf-interest').value,
+    budget:document.getElementById('lf-budget').value,
+    notes:document.getElementById('lf-notes').value,
+    callback:document.getElementById('lf-cb').checked,
+    source:'lead-form',submitted:new Date().toISOString()
+  };
+  if(!lead.name||!lead.email){alert('Please fill in your name and email on step 1.');ns(1);return;}
+  const ok=await postLead(lead);
+  if(!ok){
+    const s=encodeURIComponent(`New Lead: ${lead.name} — ${lead.company||'No company'}`);
+    const b=encodeURIComponent(`Name: ${lead.name}\nEmail: ${lead.email}\nPhone: ${lead.phone}\nCompany: ${lead.company}\nProducts: ${lead.products}\nRegion: ${lead.region}\nOnline: ${lead.online}\nInterest: ${lead.interest}\nBudget: ${lead.budget}\nCallback: ${lead.callback?'Yes':'No'}\nNotes: ${lead.notes}`);
+    const a=document.createElement('a');a.href=`mailto:hello@interiorshopapps.com?subject=${s}&body=${b}`;
+    a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+  }
+  document.querySelectorAll('.fs').forEach(s=>s.classList.remove('a'));
+  document.querySelector('.si').style.display='none';
+  document.getElementById('lsuccess').classList.add('v');
+}
+</script>
+</body>
+</html>
