@@ -1,0 +1,20 @@
+<div id="measureright-calculator" data-template-id="{{ block.settings.template_id }}">
+  <p style="padding: 2rem; text-align: center; background: #f5f5f5; border-radius: 8px; color: #666;">
+    MeasureRight Calculator — Loading...
+  </p>
+</div>
+
+{% schema %}
+{
+  "name": "MeasureRight Calculator",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "template_id",
+      "label": "Product Template ID",
+      "info": "The MeasureRight template code to load"
+    }
+  ]
+}
+{% endschema %}

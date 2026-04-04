@@ -1,0 +1,12 @@
+api_version = "2024-01"
+type = "theme"
+
+[[extensions.blocks]]
+name = "MeasureRight Calculator"
+target = "section"
+
+[extensions.settings]
+  [extensions.settings.template_id]
+  type = "text"
+  label = "Template ID"
+  default = ""
