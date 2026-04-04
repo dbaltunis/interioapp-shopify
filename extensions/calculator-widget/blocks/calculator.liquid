@@ -1,8 +1,254 @@
-<div id="measureright-calculator" data-template-id="{{ block.settings.template_id }}">
-  <p style="padding: 2rem; text-align: center; background: #f5f5f5; border-radius: 8px; color: #666;">
-    MeasureRight Calculator — Loading...
-  </p>
+<div id="measureright-calculator"
+     data-template-id="{{ block.settings.template_id }}"
+     data-shop="{{ shop.permanent_domain }}">
+  <div class="mr-loading" style="padding: 2rem; text-align: center; background: #f5f5f5; border-radius: 8px; color: #666;">
+    Loading calculator...
+  </div>
 </div>
+
+<style>
+  #measureright-calculator {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    max-width: 480px;
+    margin: 1.5rem 0;
+  }
+  .mr-calc-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .mr-calc-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+  }
+  .mr-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .mr-field label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #333;
+  }
+  .mr-field input,
+  .mr-field select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.9375rem;
+    background: #fff;
+  }
+  .mr-field input:focus,
+  .mr-field select:focus {
+    outline: none;
+    border-color: #333;
+    box-shadow: 0 0 0 1px #333;
+  }
+  .mr-field .mr-help {
+    font-size: 0.75rem;
+    color: #888;
+  }
+  .mr-row {
+    display: flex;
+    gap: 1rem;
+  }
+  .mr-row .mr-field {
+    flex: 1;
+  }
+  .mr-price-display {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .mr-price-label {
+    font-size: 0.8125rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+  }
+  .mr-price-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111;
+  }
+  .mr-price-breakdown {
+    font-size: 0.75rem;
+    color: #888;
+    margin-top: 0.5rem;
+  }
+  .mr-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 1rem;
+    color: #991b1b;
+    text-align: center;
+  }
+  .mr-error-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+</style>
+
+<script>
+(function() {
+  var container = document.getElementById('measureright-calculator');
+  if (!container) return;
+
+  var templateId = container.getAttribute('data-template-id');
+  var shop = container.getAttribute('data-shop');
+  var proxyBase = '/apps/measureright';
+
+  if (!templateId) {
+    container.innerHTML = '<div class="mr-error"><div class="mr-error-title">Configuration needed</div><p>No template ID configured for this calculator block.</p></div>';
+    return;
+  }
+
+  // Fetch calculator data from the app proxy
+  var url = proxyBase + '/api/calculator?template_code=' + encodeURIComponent(templateId) + '&shop=' + encodeURIComponent(shop);
+
+  fetch(url)
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(data) {
+      renderCalculator(data);
+    })
+    .catch(function(err) {
+      container.innerHTML = '<div class="mr-error"><div class="mr-error-title">Calculator Error</div><p>Could not load pricing. ' + err.message + '</p></div>';
+    });
+
+  function renderCalculator(data) {
+    var t = data.template;
+    var grids = data.grids;
+    var fabrics = data.fabrics;
+    var defaultGrid = grids.length > 0 ? grids.find(function(g) { return !g.fabric_id; }) || grids[0] : null;
+
+    var fabricOptions = '';
+    if (fabrics.length > 0) {
+      fabricOptions = '<div class="mr-field"><label for="mr-fabric">Fabric</label><select id="mr-fabric"><option value="">Select fabric...</option>';
+      fabrics.forEach(function(f) {
+        fabricOptions += '<option value="' + f.id + '" data-surcharge="' + (f.surcharge || 0) + '">' + f.name + (f.category ? ' (' + f.category + ')' : '') + '</option>';
+      });
+      fabricOptions += '</select></div>';
+    }
+
+    var minW = t.min_width || 300;
+    var maxW = t.max_width || 3000;
+    var minD = t.min_drop || 300;
+    var maxD = t.max_drop || 3000;
+
+    container.innerHTML =
+      '<div class="mr-calc-form">' +
+        '<p class="mr-calc-title">Calculate Your Price</p>' +
+        '<div class="mr-row">' +
+          '<div class="mr-field">' +
+            '<label for="mr-width">Width (mm)</label>' +
+            '<input type="number" id="mr-width" min="' + minW + '" max="' + maxW + '" step="1" placeholder="e.g. 1200">' +
+            '<span class="mr-help">' + minW + ' – ' + maxW + ' mm</span>' +
+          '</div>' +
+          '<div class="mr-field">' +
+            '<label for="mr-drop">Drop (mm)</label>' +
+            '<input type="number" id="mr-drop" min="' + minD + '" max="' + maxD + '" step="1" placeholder="e.g. 1500">' +
+            '<span class="mr-help">' + minD + ' – ' + maxD + ' mm</span>' +
+          '</div>' +
+        '</div>' +
+        fabricOptions +
+        '<div class="mr-price-display" id="mr-price-box" style="display:none;">' +
+          '<div class="mr-price-label">Estimated Price</div>' +
+          '<div class="mr-price-value" id="mr-price">—</div>' +
+          '<div class="mr-price-breakdown" id="mr-breakdown"></div>' +
+        '</div>' +
+      '</div>';
+
+    var widthInput = document.getElementById('mr-width');
+    var dropInput = document.getElementById('mr-drop');
+    var fabricSelect = document.getElementById('mr-fabric');
+    var priceBox = document.getElementById('mr-price-box');
+    var priceEl = document.getElementById('mr-price');
+    var breakdownEl = document.getElementById('mr-breakdown');
+
+    function calculate() {
+      var width = parseInt(widthInput.value, 10);
+      var drop = parseInt(dropInput.value, 10);
+
+      if (!width || !drop || width < minW || width > maxW || drop < minD || drop > maxD) {
+        priceBox.style.display = 'none';
+        return;
+      }
+
+      // Find the right grid (fabric-specific or default)
+      var selectedFabricId = fabricSelect ? fabricSelect.value : '';
+      var grid = defaultGrid;
+      if (selectedFabricId) {
+        var fabricGrid = grids.find(function(g) { return g.fabric_id === selectedFabricId; });
+        if (fabricGrid) grid = fabricGrid;
+      }
+
+      if (!grid || !grid.width_bands || !grid.drop_bands || !grid.prices) {
+        priceBox.style.display = 'block';
+        priceEl.textContent = 'N/A';
+        breakdownEl.textContent = 'No pricing grid available';
+        return;
+      }
+
+      // Grid lookup: find the band index for width and drop
+      var wBands = grid.width_bands;
+      var dBands = grid.drop_bands;
+      var prices = grid.prices;
+
+      var wIdx = findBandIndex(wBands, width);
+      var dIdx = findBandIndex(dBands, drop);
+
+      var basePrice = prices[dIdx * wBands.length + wIdx];
+      if (basePrice === undefined || basePrice === null) {
+        priceBox.style.display = 'block';
+        priceEl.textContent = 'N/A';
+        breakdownEl.textContent = 'Size outside pricing range';
+        return;
+      }
+
+      // Add surcharges
+      var fabricSurcharge = 0;
+      if (fabricSelect && fabricSelect.value) {
+        var opt = fabricSelect.options[fabricSelect.selectedIndex];
+        fabricSurcharge = parseFloat(opt.getAttribute('data-surcharge')) || 0;
+      }
+
+      var wastage = t.wastage_percent ? basePrice * (t.wastage_percent / 100) : 0;
+      var labour = t.labour_cost || 0;
+      var installation = t.installation_cost || 0;
+      var total = basePrice + fabricSurcharge + wastage + labour + installation;
+
+      priceBox.style.display = 'block';
+      priceEl.textContent = '$' + total.toFixed(2);
+
+      var parts = [];
+      parts.push('Base: $' + basePrice.toFixed(2));
+      if (fabricSurcharge > 0) parts.push('Fabric: +$' + fabricSurcharge.toFixed(2));
+      if (wastage > 0) parts.push('Wastage (' + t.wastage_percent + '%): +$' + wastage.toFixed(2));
+      if (labour > 0) parts.push('Labour: +$' + labour.toFixed(2));
+      if (installation > 0) parts.push('Install: +$' + installation.toFixed(2));
+      breakdownEl.textContent = parts.join(' · ');
+    }
+
+    function findBandIndex(bands, value) {
+      for (var i = 0; i < bands.length; i++) {
+        if (value <= bands[i]) return i;
+      }
+      return bands.length - 1;
+    }
+
+    widthInput.addEventListener('input', calculate);
+    dropInput.addEventListener('input', calculate);
+    if (fabricSelect) fabricSelect.addEventListener('change', calculate);
+  }
+})();
+</script>
 
 {% schema %}
 {
@@ -13,7 +259,7 @@
       "type": "text",
       "id": "template_id",
       "label": "Product Template ID",
-      "info": "The MeasureRight template code to load"
+      "info": "The MeasureRight template code (e.g. roller-blind)"
     }
   ]
 }

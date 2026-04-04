@@ -20,6 +20,7 @@ import analyticsRoutes from "./routes/analytics.js";
 import settingsRoutes from "./routes/settings.js";
 import billingRoutes from "./routes/billing.js";
 import seedRoutes from "./routes/seed.js";
+import proxyRoutes from "./routes/proxy.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -51,6 +52,9 @@ app.use("/api/analytics", authenticateRequest, analyticsRoutes);
 app.use("/api/settings", authenticateRequest, settingsRoutes);
 app.use("/api/billing", authenticateRequest, billingRoutes);
 app.use("/api/seed", authenticateRequest, seedRoutes);
+
+// Public proxy routes (no auth — Shopify App Proxy forwards storefront requests here)
+app.use("/proxy", proxyRoutes);
 
 // In production, serve the built Vite app
 if (isProduction) {
