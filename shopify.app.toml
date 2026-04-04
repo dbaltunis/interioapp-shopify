@@ -1,16 +1,16 @@
 name = "MeasureRight"
-client_id = ""
-application_url = "https://your-app-url.com"
+client_id = "4fb82d0df17fa7c58057ed8604f4fe0b"
+application_url = "https://measureright-production-4bef.up.railway.app"
 embedded = true
 
 [access_scopes]
-scopes = "read_products,write_products,read_orders,write_orders,read_inventory"
+scopes = "read_orders,read_products,read_themes,write_draft_orders,write_products,write_themes"
 
 [auth]
-redirect_urls = [ "https://your-app-url.com/api/auth/callback" ]
+redirect_urls = [ "https://measureright-production-4bef.up.railway.app/api/auth/callback" ]
 
 [webhooks]
-api_version = "2024-01"
+api_version = "2024-10"
 
   [[webhooks.subscriptions]]
   topics = [ "app/uninstalled" ]
@@ -19,6 +19,11 @@ api_version = "2024-01"
   [[webhooks.subscriptions]]
   topics = [ "orders/paid" ]
   uri = "/api/webhooks/orders-paid"
+
+[app_proxy]
+url = "https://measureright-production-4bef.up.railway.app/proxy"
+subpath = "measureright"
+prefix = "apps"
 
 [pos]
 embedded = false
