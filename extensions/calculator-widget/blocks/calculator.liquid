@@ -20,6 +20,73 @@
   .product__info-container--sticky {
     position: relative !important;
   }
+
+  /* ── Dawn theme layout gap fix ──
+     Dawn's .product uses flex-wrap which causes a large white gap between
+     the media column and the info column when the info (calculator) is taller
+     than the media (video/images). Switch to CSS grid so both columns
+     align to start independently and neither stretches to match the other. */
+
+  /* Override Dawn's flex layout with grid on desktop */
+  .product {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    align-items: start !important;
+    gap: 0 !important;
+  }
+
+  /* Let the media column size naturally without forcing equal height */
+  .product__media-wrapper,
+  .product__media-list {
+    align-self: start !important;
+    max-height: none !important;
+  }
+
+  /* Ensure the info (right) column also starts at the top */
+  .product__info-wrapper {
+    align-self: start !important;
+  }
+
+  /* Cap media column height so tall videos/banners don't push content down */
+  .product__media-wrapper {
+    max-height: 85vh !important;
+    overflow: hidden !important;
+  }
+
+  /* Hide "Pre-Generated Video" banners and similar app-injected badges
+     that add extra height above product media */
+  .product__media-wrapper [class*="pre-generated"],
+  .product__media-wrapper [class*="PreGenerated"],
+  .product__media-wrapper [class*="video-banner"],
+  .product__media-wrapper [data-app-block] .badge,
+  .product__media-wrapper .product__media-item--video .badge {
+    display: none !important;
+  }
+
+  /* Dawn sometimes nests a grid inside .product for wider layouts;
+     ensure those inner grids also don't re-introduce the gap */
+  .product--medium:not(.product--no-media),
+  .product--large:not(.product--no-media),
+  .product--small:not(.product--no-media) {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    align-items: start !important;
+  }
+
+  /* On mobile, collapse back to single column */
+  @media (max-width: 749px) {
+    .product,
+    .product--medium:not(.product--no-media),
+    .product--large:not(.product--no-media),
+    .product--small:not(.product--no-media) {
+      display: block !important;
+      grid-template-columns: none !important;
+    }
+    .product__media-wrapper {
+      max-height: none !important;
+      overflow: visible !important;
+    }
+  }
 </style>
 {% endif %}
 
@@ -572,6 +639,13 @@
       });
       html += '</select>';
       html += '</div>';
+
+      // Colour selector (populated dynamically when a fabric is selected)
+      html += '<div class="mr-field" id="mr-colour-field" style="display:none;">';
+      html += '<label for="mr-colour">Colour <span class="mr-required">*</span></label>';
+      html += '<select id="mr-colour"><option value="">Select colour...</option>';
+      html += '</select>';
+      html += '</div>';
     }
 
     // Dynamic options from template
@@ -630,6 +704,35 @@
     bindEvents();
   }
 
+  // Update colour selector when fabric changes
+  function updateColourSelector(fabricId) {
+    var colourField = document.getElementById('mr-colour-field');
+    var colourSelect = document.getElementById('mr-colour');
+    if (!colourField || !colourSelect) return;
+
+    if (!fabricId) {
+      colourField.style.display = 'none';
+      colourSelect.innerHTML = '<option value="">Select colour...</option>';
+      return;
+    }
+
+    var fabric = fabricsData.find(function(f) { return f.id === fabricId; });
+    var colours = (fabric && fabric.colours) ? fabric.colours : [];
+
+    if (colours.length === 0) {
+      colourField.style.display = 'none';
+      colourSelect.innerHTML = '<option value="">Select colour...</option>';
+      return;
+    }
+
+    colourField.style.display = '';
+    var html = '<option value="">Select colour...</option>';
+    for (var i = 0; i < colours.length; i++) {
+      html += '<option value="' + escapeHtml(colours[i]) + '">' + escapeHtml(colours[i]) + '</option>';
+    }
+    colourSelect.innerHTML = html;
+  }
+
   // Bind all events
   function bindEvents() {
     var widthInput = document.getElementById('mr-width');
@@ -646,10 +749,18 @@
 
     widthInput.addEventListener('input', debouncedCalc);
     dropInput.addEventListener('input', debouncedCalc);
-    if (fabricSelect) fabricSelect.addEventListener('change', debouncedCalc);
+    if (fabricSelect) {
+      fabricSelect.addEventListener('change', function() {
+        updateColourSelector(fabricSelect.value);
+        debouncedCalc();
+      });
+    }
     for (var i = 0; i < optionSelects.length; i++) {
       optionSelects[i].addEventListener('change', debouncedCalc);
     }
+
+    var colourSelect = document.getElementById('mr-colour');
+    if (colourSelect) colourSelect.addEventListener('change', debouncedCalc);
 
     atcBtn.addEventListener('click', handleAddToCart);
 
@@ -884,6 +995,9 @@
       label.innerHTML = '<span class="mr-btn-spinner"></span> Processing...';
       atcBtn.disabled = true;
 
+      var colourSelect = document.getElementById('mr-colour');
+      var selectedColour = (colourSelect && colourSelect.value) ? colourSelect.value : '';
+
       var payload = {
         shop: shop,
         template_code: templateCode,
@@ -891,7 +1005,7 @@
         drop: drop,
         fabric_id: fabricId,
         fabric_name: fabricName,
-        colour: '',
+        colour: selectedColour,
         options: selectedOptions,
         quantity: 1
       };

@@ -410,7 +410,9 @@ router.post("/api/validate-price", async (req: Request, res: Response) => {
       });
     }
 
-    const result = await resolveTemplateData(shop, template_code, fabric_id);
+    // Treat empty string fabric_id as no fabric selected
+    const resolvedFabricId = fabric_id || undefined;
+    const result = await resolveTemplateData(shop, template_code, resolvedFabricId);
     if ("error" in result) {
       return res.status(result.status).json({ error: result.error });
     }
@@ -472,7 +474,9 @@ router.post("/api/create-checkout", async (req: Request, res: Response) => {
       });
     }
 
-    const result = await resolveTemplateData(shop, template_code, fabric_id);
+    // Treat empty string fabric_id as no fabric selected
+    const resolvedFabricId = fabric_id || undefined;
+    const result = await resolveTemplateData(shop, template_code, resolvedFabricId);
     if ("error" in result) {
       return res.status(result.status).json({ error: result.error });
     }
@@ -547,7 +551,7 @@ router.post("/api/create-checkout", async (req: Request, res: Response) => {
     };
 
     const shopifyResponse = await fetch(
-      `https://${shop}/admin/api/2024-01/draft_orders.json`,
+      `https://${shop}/admin/api/2025-01/draft_orders.json`,
       {
         method: "POST",
         headers: {
@@ -566,25 +570,9 @@ router.post("/api/create-checkout", async (req: Request, res: Response) => {
 
     const { draft_order } = await shopifyResponse.json();
 
-    // Send invoice to get checkout URL
-    const invoiceResponse = await fetch(
-      `https://${shop}/admin/api/2024-01/draft_orders/${draft_order.id}/send_invoice.json`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Shopify-Access-Token": merchant.access_token,
-        },
-        body: JSON.stringify({ draft_order_invoice: {} }),
-      }
-    );
-
-    let checkoutUrl = draft_order.invoice_url || null;
-
-    if (invoiceResponse.ok) {
-      const invoiceData = await invoiceResponse.json();
-      checkoutUrl = invoiceData?.draft_order_invoice?.invoice_url || checkoutUrl;
-    }
+    // The draft order response includes invoice_url which is the checkout URL.
+    // No need to call send_invoice — that would email the customer prematurely.
+    const checkoutUrl = draft_order.invoice_url || null;
 
     res.json({
       checkout_url: checkoutUrl,
