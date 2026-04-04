@@ -103,8 +103,9 @@ export interface Vendor {
   id: string;
   merchant_id: string;
   name: string;
-  contact_email: string | null;
-  contact_phone: string | null;
+  contact_name: string | null;
+  email: string | null;
+  phone: string | null;
   address: string | null;
   notes: string | null;
   created_at: string;
@@ -129,14 +130,19 @@ export interface QuoteItem {
 export interface Quote {
   id: string;
   merchant_id: string;
+  quote_id: string | null;
   customer_name: string;
   customer_email: string | null;
   customer_phone: string | null;
-  items: QuoteItem[];
+  region: string | null;
+  line_items: QuoteItem[];
+  total_ex_tax: number;
+  total_tax: number;
+  total_inc_tax: number;
   status: QuoteStatus;
-  total: number;
   notes: string | null;
   created_at: string;
+  updated_at: string | null;
 }
 
 // ── Work Order ──

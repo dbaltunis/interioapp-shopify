@@ -2,12 +2,15 @@ import "dotenv/config";
 import express from "express";
 import compression from "compression";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
 import { authenticateRequest } from "./middleware/auth.js";
 import { errorHandler } from "./middleware/error-handler.js";
 
 // Route imports
+import authRoutes from "./routes/auth.js";
+import webhookRoutes, { captureRawBody } from "./routes/webhooks.js";
 import shopRoutes from "./routes/shop.js";
 import templateRoutes from "./routes/templates.js";
 import gridRoutes from "./routes/grids.js";
@@ -32,12 +35,21 @@ const app = express();
 // Middleware
 app.use(compression());
 app.use(cors());
+
+app.use(cookieParser());
+
+// Webhook routes must be registered BEFORE express.json() to capture raw body for HMAC verification
+app.use("/api/webhooks", express.json({ verify: captureRawBody }), webhookRoutes);
+
 app.use(express.json());
 
 // Health check
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
+
+// OAuth routes (public — handles install + callback)
+app.use("/api/auth", authRoutes);
 
 // Authenticated API routes
 app.use("/api/shop", authenticateRequest, shopRoutes);
