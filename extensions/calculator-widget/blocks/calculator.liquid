@@ -486,13 +486,18 @@
     var model = templateData.pricing_model || 'grid';
     var minPrice = Infinity;
 
-    if (model === 'grid') {
+    var hasMatrix = defaultGrid.width_bands && defaultGrid.width_bands.length > 0 &&
+                    defaultGrid.drop_bands && defaultGrid.drop_bands.length > 0 &&
+                    defaultGrid.prices && defaultGrid.prices.length > 0;
+
+    if (model === 'grid' || ((model === 'area' || model === 'sqm') && hasMatrix)) {
+      // Grid matrix — find minimum price in the prices array
       var prices = defaultGrid.prices || [];
       for (var i = 0; i < prices.length; i++) {
         if (prices[i] != null && prices[i] < minPrice) minPrice = prices[i];
       }
     } else if (model === 'sqm' || model === 'area') {
-      // Minimum area from min dims
+      // No grid matrix — use price_per_sqm
       var minW = (templateData.min_width || 300) / 1000;
       var minD = (templateData.min_drop || 300) / 1000;
       minPrice = minW * minD * (defaultGrid.price_per_sqm || 0);
@@ -687,8 +692,14 @@
       var dropM = drop / 1000;
       var areaSqm = widthM * dropM;
 
-      if (model === 'grid') {
-        if (!grid.width_bands || !grid.drop_bands || !grid.prices) {
+      // Check if grid has a full band/price matrix (grid lookup)
+      var hasGridMatrix = grid.width_bands && grid.width_bands.length > 0 &&
+                          grid.drop_bands && grid.drop_bands.length > 0 &&
+                          grid.prices && grid.prices.length > 0;
+
+      if (model === 'grid' || ((model === 'area' || model === 'sqm') && hasGridMatrix)) {
+        // Grid lookup — find price from width/drop band matrix
+        if (!hasGridMatrix) {
           showPriceError(priceBox, priceEl, priceNote, breakdownDiv, 'Pricing grid not configured');
           atcBtn.disabled = true;
           return;

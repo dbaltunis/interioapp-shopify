@@ -68,24 +68,33 @@ function computeBasePrice(
   width: number,
   drop: number
 ): number {
+  if (!grid) return 0;
+
+  // Check if grid has a full band/price matrix
+  const hasGridMatrix =
+    grid.width_bands?.length > 0 &&
+    grid.drop_bands?.length > 0 &&
+    grid.prices?.length > 0;
+
+  // If model is area/sqm but grid has a matrix, use grid lookup
+  if (model === "grid" || ((model === "area" || model === "sqm") && hasGridMatrix)) {
+    const wIdx = findBandIndex(grid.width_bands, width);
+    const dIdx = findBandIndex(grid.drop_bands, drop);
+    return grid.prices[dIdx * grid.width_bands.length + wIdx] ?? 0;
+  }
+
   switch (model) {
-    case "grid": {
-      if (!grid) return 0;
-      const wIdx = findBandIndex(grid.width_bands, width);
-      const dIdx = findBandIndex(grid.drop_bands, drop);
-      return grid.prices[dIdx * grid.width_bands.length + wIdx] ?? 0;
-    }
     case "sqm":
     case "area": {
-      const ppsqm = grid?.price_per_sqm ?? (grid?.prices?.[0] ?? 0);
+      const ppsqm = grid.price_per_sqm ?? 0;
       return (width / 1000) * (drop / 1000) * ppsqm;
     }
     case "linear_metre": {
-      const pplm = grid?.price_per_linear_metre ?? (grid?.prices?.[0] ?? 0);
+      const pplm = grid.price_per_linear_metre ?? 0;
       return (width / 1000) * pplm;
     }
     case "fixed": {
-      return grid?.prices?.[0] ?? 0;
+      return grid.prices?.[0] ?? 0;
     }
     default:
       return 0;
@@ -102,16 +111,25 @@ function computeMinimumPrice(
   template: Template
 ): number {
   if (!grid) return 0;
+
+  const hasGridMatrix =
+    grid.width_bands?.length > 0 &&
+    grid.drop_bands?.length > 0 &&
+    grid.prices?.length > 0;
+
+  // If the grid has a matrix, find minimum from it regardless of model name
+  if (model === "grid" || ((model === "area" || model === "sqm") && hasGridMatrix)) {
+    return Math.min(...grid.prices.filter((p) => p > 0));
+  }
+
   switch (model) {
-    case "grid":
-      return Math.min(...grid.prices.filter((p) => p > 0));
     case "sqm":
     case "area": {
-      const ppsqm = grid.price_per_sqm ?? (grid.prices?.[0] ?? 0);
+      const ppsqm = grid.price_per_sqm ?? 0;
       return (template.min_width / 1000) * (template.min_drop / 1000) * ppsqm;
     }
     case "linear_metre": {
-      const pplm = grid.price_per_linear_metre ?? (grid.prices?.[0] ?? 0);
+      const pplm = grid.price_per_linear_metre ?? 0;
       return (template.min_width / 1000) * pplm;
     }
     case "fixed":
