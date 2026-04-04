@@ -54,7 +54,7 @@ app.use("/api/seed", authenticateRequest, seedRoutes);
 
 // In production, serve the built Vite app
 if (isProduction) {
-  const clientDir = resolve(__dirname, "../dist/client");
+  const clientDir = resolve(__dirname, "../client");
   app.use(express.static(clientDir));
   app.get("*", (_req, res) => {
     res.sendFile(resolve(clientDir, "index.html"));
