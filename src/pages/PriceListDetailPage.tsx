@@ -1,25 +1,25 @@
-import { useEffect, useState, useCallback, memo } from "react";
+import { useEffect, useState, useCallback, memo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { PageLayout } from "@/components/layout/PageLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import {
+  Page,
+  Card,
+  BlockStack,
+  InlineStack,
+  Text,
+  FormLayout,
+  TextField,
   Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
+  Button,
+  ButtonGroup,
+  SkeletonPage,
+  SkeletonBodyText,
+} from "@shopify/polaris";
+import { PlusCircleIcon, DeleteIcon, ExportIcon, ImportIcon } from "@shopify/polaris-icons";
 import { useApiGet, useApiCreate, useApiUpdate, useApiList } from "@/hooks/useApi";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
 import type { PricingGrid, ProductTemplate, Fabric } from "@/lib/types";
-import { Plus, Trash2, Download, Upload } from "lucide-react";
 import Papa from "papaparse";
 
-// Flat array <-> 2D matrix helpers
 function toMatrix(prices: number[], widthCount: number, dropCount: number): number[][] {
   const matrix: number[][] = [];
   for (let d = 0; d < dropCount; d++) {
@@ -36,7 +36,25 @@ function toFlat(matrix: number[][]): number[] {
   return matrix.flat();
 }
 
-// Memoized cell to prevent unnecessary re-renders
+const cellStyle: React.CSSProperties = {
+  width: "80px",
+  height: "32px",
+  padding: "0 4px",
+  textAlign: "right",
+  fontSize: "var(--p-font-size-300)",
+  border: "var(--p-border-width-025) solid var(--p-color-border)",
+  borderRadius: "var(--p-border-radius-200)",
+  fontFamily: "var(--p-font-family-mono)",
+  outline: "none",
+};
+
+const headerCellStyle: React.CSSProperties = {
+  ...cellStyle,
+  textAlign: "center",
+  fontWeight: 600,
+  background: "var(--p-color-bg-surface-secondary)",
+};
+
 const GridCell = memo(function GridCell({
   value,
   onChange,
@@ -49,7 +67,7 @@ const GridCell = memo(function GridCell({
   return (
     <input
       type="number"
-      className="w-20 h-8 px-1 text-right text-sm border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+      style={cellStyle}
       value={value || ""}
       onChange={(e) => onChange(Number(e.target.value) || 0)}
       onKeyDown={onKeyDown}
@@ -61,6 +79,7 @@ export default function PriceListDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isNew = !id || id === "new";
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: existing, isLoading } = useApiGet<PricingGrid>("grids", isNew ? undefined : id);
   const { data: templates } = useApiList<ProductTemplate>("templates");
@@ -78,11 +97,8 @@ export default function PriceListDetailPage() {
   const [priceLm, setPriceLm] = useState<number | null>(null);
   const [patternRepeat, setPatternRepeat] = useState<number | null>(null);
 
-  // Initialize matrix when bands change
   const initMatrix = useCallback(() => {
-    setMatrix(
-      dropBands.map(() => widthBands.map(() => 0))
-    );
+    setMatrix(dropBands.map(() => widthBands.map(() => 0)));
   }, [widthBands, dropBands]);
 
   useEffect(() => {
@@ -111,11 +127,7 @@ export default function PriceListDetailPage() {
     });
   };
 
-  const handleCellKeyDown = (
-    e: React.KeyboardEvent,
-    dropIdx: number,
-    widthIdx: number
-  ) => {
+  const handleCellKeyDown = (e: React.KeyboardEvent, dropIdx: number, widthIdx: number) => {
     const target = e.target as HTMLInputElement;
     if (e.key === "Tab" || e.key === "Enter") {
       e.preventDefault();
@@ -123,14 +135,9 @@ export default function PriceListDetailPage() {
       const nextD = dropIdx + 1;
       let nextCell: HTMLInputElement | null = null;
       if (nextW < widthBands.length) {
-        nextCell = target
-          .closest("tr")
-          ?.querySelectorAll("input")[nextW] as HTMLInputElement;
+        nextCell = target.closest("tr")?.querySelectorAll("input")[nextW] as HTMLInputElement;
       } else if (nextD < dropBands.length) {
-        nextCell = target
-          .closest("tbody")
-          ?.querySelectorAll("tr")
-          [nextD]?.querySelector("input") as HTMLInputElement;
+        nextCell = target.closest("tbody")?.querySelectorAll("tr")[nextD]?.querySelector("input") as HTMLInputElement;
       }
       nextCell?.focus();
       nextCell?.select();
@@ -139,15 +146,13 @@ export default function PriceListDetailPage() {
 
   const addWidthBand = () => {
     const lastBand = widthBands[widthBands.length - 1] || 0;
-    const newBand = lastBand + 300;
-    setWidthBands([...widthBands, newBand]);
+    setWidthBands([...widthBands, lastBand + 300]);
     setMatrix((prev) => prev.map((row) => [...row, 0]));
   };
 
   const addDropBand = () => {
     const lastBand = dropBands[dropBands.length - 1] || 0;
-    const newBand = lastBand + 500;
-    setDropBands([...dropBands, newBand]);
+    setDropBands([...dropBands, lastBand + 500]);
     setMatrix((prev) => [...prev, widthBands.map(() => 0)]);
   };
 
@@ -199,19 +204,19 @@ export default function PriceListDetailPage() {
           setWidthBands(newWidths);
           setDropBands(newDrops);
           setMatrix(newMatrix);
-          toast.success("CSV imported successfully");
+          showToast("CSV imported successfully");
         } catch {
-          toast.error("Invalid CSV format");
+          showToast("Invalid CSV format", { isError: true });
         }
       },
-      error: () => toast.error("Failed to parse CSV"),
+      error: () => showToast("Failed to parse CSV", { isError: true }),
     });
     e.target.value = "";
   };
 
   const handleSave = async () => {
     if (!templateId) {
-      toast.error("Please select a template");
+      showToast("Please select a template", { isError: true });
       return;
     }
     const data = {
@@ -228,219 +233,145 @@ export default function PriceListDetailPage() {
     try {
       if (isNew) {
         await createMutation.mutateAsync(data as Partial<PricingGrid>);
-        toast.success("Price list created");
+        showToast("Price list created");
       } else {
         await updateMutation.mutateAsync({ id: id!, ...data } as { id: string } & Partial<PricingGrid>);
-        toast.success("Price list updated");
+        showToast("Price list updated");
       }
       navigate("/price-lists");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save");
+      showToast(err instanceof Error ? err.message : "Failed to save", { isError: true });
     }
   };
 
+  const templateOptions = [
+    { label: "Select template...", value: "" },
+    ...(templates?.map((t) => ({ label: t.name, value: t.id })) || []),
+  ];
+
+  const fabricOptions = [
+    { label: "None", value: "" },
+    ...(fabrics?.map((f) => ({ label: f.name, value: f.id })) || []),
+  ];
+
   if (!isNew && isLoading) {
     return (
-      <PageLayout title="Loading..." backTo="/price-lists">
-        <Skeleton className="h-96 w-full" />
-      </PageLayout>
+      <SkeletonPage title="Loading..." backAction={{ content: "Price Lists", url: "/price-lists" }}>
+        <Card><SkeletonBodyText lines={6} /></Card>
+        <Card><SkeletonBodyText lines={10} /></Card>
+      </SkeletonPage>
     );
   }
 
   return (
-    <PageLayout
+    <Page
       title={isNew ? "New Price List" : "Edit Price List"}
-      backTo="/price-lists"
-      action={{ label: "Save", onClick: handleSave }}
+      backAction={{ content: "Price Lists", onAction: () => navigate("/price-lists") }}
+      primaryAction={{ content: "Save", onAction: handleSave }}
     >
-      {/* Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Settings</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <div className="space-y-2">
-            <Label>Product Template</Label>
-            <Select value={templateId} onValueChange={setTemplateId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select template..." />
-              </SelectTrigger>
-              <SelectContent>
-                {templates?.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>Fabric (optional)</Label>
-            <Select value={fabricId || "none"} onValueChange={(val) => setFabricId(val === "none" ? "" : val)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Any fabric" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                {fabrics?.map((f) => (
-                  <SelectItem key={f.id} value={f.id}>
-                    {f.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>Roll Width (mm)</Label>
-            <Input
-              type="number"
-              value={rollWidth ?? ""}
-              onChange={(e) => setRollWidth(e.target.value ? Number(e.target.value) : null)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Price per sqm</Label>
-            <Input
-              type="number"
-              step="0.01"
-              value={priceSqm ?? ""}
-              onChange={(e) => setPriceSqm(e.target.value ? Number(e.target.value) : null)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Price per linear metre</Label>
-            <Input
-              type="number"
-              step="0.01"
-              value={priceLm ?? ""}
-              onChange={(e) => setPriceLm(e.target.value ? Number(e.target.value) : null)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Pattern Repeat (mm)</Label>
-            <Input
-              type="number"
-              value={patternRepeat ?? ""}
-              onChange={(e) => setPatternRepeat(e.target.value ? Number(e.target.value) : null)}
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <BlockStack gap="400">
+        <Card>
+          <BlockStack gap="400">
+            <Text as="h2" variant="headingMd">Settings</Text>
+            <FormLayout>
+              <FormLayout.Group>
+                <Select label="Product Template" options={templateOptions} value={templateId} onChange={setTemplateId} />
+                <Select label="Fabric (optional)" options={fabricOptions} value={fabricId} onChange={setFabricId} />
+                <TextField label="Roll Width (mm)" type="number" value={String(rollWidth ?? "")} onChange={(val) => setRollWidth(val ? Number(val) : null)} autoComplete="off" />
+              </FormLayout.Group>
+              <FormLayout.Group>
+                <TextField label="Price per sqm" type="number" value={String(priceSqm ?? "")} onChange={(val) => setPriceSqm(val ? Number(val) : null)} autoComplete="off" />
+                <TextField label="Price per linear metre" type="number" value={String(priceLm ?? "")} onChange={(val) => setPriceLm(val ? Number(val) : null)} autoComplete="off" />
+                <TextField label="Pattern Repeat (mm)" type="number" value={String(patternRepeat ?? "")} onChange={(val) => setPatternRepeat(val ? Number(val) : null)} autoComplete="off" />
+              </FormLayout.Group>
+            </FormLayout>
+          </BlockStack>
+        </Card>
 
-      {/* Grid Editor */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Price Grid</CardTitle>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={addWidthBand}>
-              <Plus className="h-4 w-4 mr-1" /> Width
-            </Button>
-            <Button variant="outline" size="sm" onClick={addDropBand}>
-              <Plus className="h-4 w-4 mr-1" /> Drop
-            </Button>
-            <Button variant="outline" size="sm" onClick={exportCsv}>
-              <Download className="h-4 w-4 mr-1" /> CSV
-            </Button>
-            <label>
-              <Button variant="outline" size="sm" asChild>
-                <span>
-                  <Upload className="h-4 w-4 mr-1" /> Import
-                </span>
-              </Button>
+        <Card>
+          <BlockStack gap="400">
+            <InlineStack align="space-between" blockAlign="center">
+              <Text as="h2" variant="headingMd">Price Grid</Text>
+              <ButtonGroup>
+                <Button icon={PlusCircleIcon} size="slim" onClick={addWidthBand}>Width</Button>
+                <Button icon={PlusCircleIcon} size="slim" onClick={addDropBand}>Drop</Button>
+                <Button icon={ExportIcon} size="slim" onClick={exportCsv}>CSV</Button>
+                <Button icon={ImportIcon} size="slim" onClick={() => fileInputRef.current?.click()}>Import</Button>
+              </ButtonGroup>
               <input
+                ref={fileInputRef}
                 type="file"
                 accept=".csv"
-                className="hidden"
+                style={{ display: "none" }}
                 onChange={importCsv}
               />
-            </label>
-          </div>
-        </CardHeader>
-        <CardContent className="overflow-x-auto">
-          {widthBands.length > 0 && dropBands.length > 0 ? (
-            <table className="border-collapse">
-              <thead>
-                <tr>
-                  <th className="p-2 text-sm font-medium text-muted-foreground">
-                    Drop \ Width
-                  </th>
-                  {widthBands.map((w, wi) => (
-                    <th key={wi} className="p-1">
-                      <div className="flex items-center gap-1">
-                        <input
-                          type="number"
-                          className="w-20 h-8 px-1 text-center text-sm font-medium border rounded bg-muted"
-                          value={w}
-                          onChange={(e) => {
-                            const val = Number(e.target.value);
-                            if (val > 0) {
-                              setWidthBands((prev) => {
-                                const next = [...prev];
-                                next[wi] = val;
-                                return next;
-                              });
-                            }
-                          }}
-                        />
-                        <button
-                          onClick={() => removeWidthBand(wi)}
-                          className="text-muted-foreground hover:text-destructive"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </button>
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {dropBands.map((d, di) => (
-                  <tr key={di}>
-                    <td className="p-1">
-                      <div className="flex items-center gap-1">
-                        <input
-                          type="number"
-                          className="w-20 h-8 px-1 text-center text-sm font-medium border rounded bg-muted"
-                          value={d}
-                          onChange={(e) => {
-                            const val = Number(e.target.value);
-                            if (val > 0) {
-                              setDropBands((prev) => {
-                                const next = [...prev];
-                                next[di] = val;
-                                return next;
-                              });
-                            }
-                          }}
-                        />
-                        <button
-                          onClick={() => removeDropBand(di)}
-                          className="text-muted-foreground hover:text-destructive"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </button>
-                      </div>
-                    </td>
-                    {widthBands.map((_, wi) => (
-                      <td key={wi} className="p-1">
-                        <GridCell
-                          value={matrix[di]?.[wi] ?? 0}
-                          onChange={(val) => updateCell(di, wi, val)}
-                          onKeyDown={(e) => handleCellKeyDown(e, di, wi)}
-                        />
-                      </td>
+            </InlineStack>
+
+            {widthBands.length > 0 && dropBands.length > 0 ? (
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr>
+                      <th style={{ padding: "4px", fontSize: "var(--p-font-size-300)", color: "var(--p-color-text-subdued)" }}>
+                        Drop \ Width
+                      </th>
+                      {widthBands.map((w, wi) => (
+                        <th key={wi} style={{ padding: "4px" }}>
+                          <InlineStack gap="100" blockAlign="center">
+                            <input
+                              type="number"
+                              style={headerCellStyle}
+                              value={w}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                if (val > 0) setWidthBands((prev) => { const next = [...prev]; next[wi] = val; return next; });
+                              }}
+                            />
+                            <Button icon={DeleteIcon} variant="plain" tone="critical" size="micro" onClick={() => removeWidthBand(wi)} accessibilityLabel="Remove width band" />
+                          </InlineStack>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dropBands.map((d, di) => (
+                      <tr key={di}>
+                        <td style={{ padding: "4px" }}>
+                          <InlineStack gap="100" blockAlign="center">
+                            <input
+                              type="number"
+                              style={headerCellStyle}
+                              value={d}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                if (val > 0) setDropBands((prev) => { const next = [...prev]; next[di] = val; return next; });
+                              }}
+                            />
+                            <Button icon={DeleteIcon} variant="plain" tone="critical" size="micro" onClick={() => removeDropBand(di)} accessibilityLabel="Remove drop band" />
+                          </InlineStack>
+                        </td>
+                        {widthBands.map((_, wi) => (
+                          <td key={wi} style={{ padding: "4px" }}>
+                            <GridCell
+                              value={matrix[di]?.[wi] ?? 0}
+                              onChange={(val) => updateCell(di, wi, val)}
+                              onKeyDown={(e) => handleCellKeyDown(e, di, wi)}
+                            />
+                          </td>
+                        ))}
+                      </tr>
                     ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p className="text-muted-foreground text-center py-8">
-              Add width and drop bands to start building your price grid.
-            </p>
-          )}
-        </CardContent>
-      </Card>
-    </PageLayout>
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <Text as="p" tone="subdued" alignment="center">
+                Add width and drop bands to start building your price grid.
+              </Text>
+            )}
+          </BlockStack>
+        </Card>
+      </BlockStack>
+    </Page>
   );
 }

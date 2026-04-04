@@ -7,9 +7,9 @@ router.get("/", async (_req, res) => {
   const { merchantId } = res.locals;
 
   try {
-    // Check if data already exists
+    // Check if fabrics already exist
     const { count } = await supabase
-      .from("product_templates")
+      .from("fabrics")
       .select("id", { count: "exact" })
       .eq("merchant_id", merchantId);
 
@@ -24,16 +24,16 @@ router.get("/", async (_req, res) => {
         {
           merchant_id: merchantId,
           name: "Blinds Direct",
-          contact_email: "orders@blindsdirect.com",
-          contact_phone: "+44 7700 900000",
-          address: "123 Factory Lane, Manchester, UK",
+          contact_name: "John Smith",
+          email: "orders@blindsdirect.com",
+          phone: "+44 7700 900000",
         },
         {
           merchant_id: merchantId,
           name: "Fabric World",
-          contact_email: "sales@fabricworld.com",
-          contact_phone: "+44 7700 900001",
-          address: "456 Textile Road, Birmingham, UK",
+          contact_name: "Sarah Jones",
+          email: "sales@fabricworld.com",
+          phone: "+44 7700 900001",
         },
       ])
       .select();
@@ -75,59 +75,74 @@ router.get("/", async (_req, res) => {
       ])
       .select();
 
-    // Seed templates
-    const { data: templates } = await supabase
+    // Seed templates (if not already present)
+    const { count: templateCount } = await supabase
       .from("product_templates")
-      .insert([
-        {
-          merchant_id: merchantId,
-          code: "roller-blind",
-          name: "Roller Blind",
-          category: "blind",
-          pricing_model: "grid",
-          min_width: 300,
-          max_width: 3000,
-          min_drop: 300,
-          max_drop: 3000,
-          vendor_id: vendors?.[0]?.id || null,
-          wastage_percent: 5,
-          labour_cost: 15,
-          installation_cost: 25,
-        },
-        {
-          merchant_id: merchantId,
-          code: "venetian-blind",
-          name: "Venetian Blind",
-          category: "blind",
-          pricing_model: "grid",
-          min_width: 250,
-          max_width: 2400,
-          min_drop: 300,
-          max_drop: 2400,
-          vendor_id: vendors?.[0]?.id || null,
-          wastage_percent: 3,
-          labour_cost: 20,
-          installation_cost: 30,
-        },
-        {
-          merchant_id: merchantId,
-          code: "curtains",
-          name: "Curtains",
-          category: "curtain",
-          pricing_model: "sqm",
-          min_width: 500,
-          max_width: 6000,
-          min_drop: 1000,
-          max_drop: 3500,
-          vendor_id: vendors?.[1]?.id || null,
-          wastage_percent: 10,
-          labour_cost: 25,
-          installation_cost: 35,
-        },
-      ])
-      .select();
+      .select("id", { count: "exact" })
+      .eq("merchant_id", merchantId);
 
-    // Seed a pricing grid for roller blind
+    let templates: { id: string }[] = [];
+    if (!templateCount || templateCount === 0) {
+      const { data: newTemplates } = await supabase
+        .from("product_templates")
+        .insert([
+          {
+            merchant_id: merchantId,
+            code: "roller-blind",
+            name: "Roller Blind",
+            category: "blind",
+            pricing_model: "grid",
+            min_width: 300,
+            max_width: 3000,
+            min_drop: 300,
+            max_drop: 3000,
+            vendor_id: vendors?.[0]?.id || null,
+            wastage_percent: 5,
+            labour_cost: 15,
+            installation_cost: 25,
+          },
+          {
+            merchant_id: merchantId,
+            code: "venetian-blind",
+            name: "Venetian Blind",
+            category: "blind",
+            pricing_model: "grid",
+            min_width: 250,
+            max_width: 2400,
+            min_drop: 300,
+            max_drop: 2400,
+            vendor_id: vendors?.[0]?.id || null,
+            wastage_percent: 3,
+            labour_cost: 20,
+            installation_cost: 30,
+          },
+          {
+            merchant_id: merchantId,
+            code: "curtains",
+            name: "Curtains",
+            category: "curtain",
+            pricing_model: "sqm",
+            min_width: 500,
+            max_width: 6000,
+            min_drop: 1000,
+            max_drop: 3500,
+            vendor_id: vendors?.[1]?.id || null,
+            wastage_percent: 10,
+            labour_cost: 25,
+            installation_cost: 35,
+          },
+        ])
+        .select();
+      templates = newTemplates || [];
+    } else {
+      const { data: existingTemplates } = await supabase
+        .from("product_templates")
+        .select("id")
+        .eq("merchant_id", merchantId);
+      templates = existingTemplates || [];
+    }
+
+    // Seed a pricing grid for first template
     if (templates?.[0]) {
       await supabase.from("pricing_grids").insert({
         merchant_id: merchantId,
@@ -136,7 +151,6 @@ router.get("/", async (_req, res) => {
         width_bands: [600, 900, 1200, 1500, 1800, 2100, 2400, 3000],
         drop_bands: [1000, 1200, 1500, 1800, 2000, 2200, 2500, 3000],
         prices: [
-          // 8 widths × 8 drops = 64 prices (row-major: all widths for drop[0], then drop[1], etc.)
           85, 95, 110, 125, 140, 160, 180, 220,
           90, 100, 120, 135, 150, 170, 195, 240,
           100, 115, 135, 155, 175, 195, 220, 270,
@@ -156,8 +170,10 @@ router.get("/", async (_req, res) => {
       customer_email: "jane@example.com",
       customer_phone: "+44 7700 900123",
       status: "sent",
-      total: 295,
-      items: [
+      total_ex_tax: 250.85,
+      total_tax: 44.15,
+      total_inc_tax: 295,
+      line_items: [
         {
           template_code: "roller-blind",
           template_name: "Roller Blind",

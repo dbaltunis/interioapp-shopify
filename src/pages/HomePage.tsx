@@ -1,11 +1,20 @@
-import { PageLayout } from "@/components/layout/PageLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useApiList } from "@/hooks/useApi";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import type { ProductTemplate, Quote, WorkOrder, AnalyticsData } from "@/lib/types";
-import { CheckCircle2, Circle, LayoutTemplate, FileText, Package } from "lucide-react";
+import {
+  Page,
+  Card,
+  BlockStack,
+  InlineStack,
+  InlineGrid,
+  Text,
+  Button,
+  Icon,
+  SkeletonDisplayText,
+  ResourceList,
+  ResourceItem,
+} from "@shopify/polaris";
+import { CheckCircleIcon, MinusCircleIcon } from "@shopify/polaris-icons";
+import { useApiList } from "@/hooks/useApi";
+import type { ProductTemplate, Quote, WorkOrder } from "@/lib/types";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -15,125 +24,101 @@ export default function HomePage() {
 
   const hasTemplates = (templates?.length ?? 0) > 0;
   const hasQuotes = (quotes?.length ?? 0) > 0;
-  const hasOrders = (orders?.length ?? 0) > 0;
+  const isLoading = loadingTemplates || loadingQuotes || loadingOrders;
 
   const checklist = [
     { label: "Create your first product template", done: hasTemplates, path: "/templates/new" },
     { label: "Set up a pricing grid", done: false, path: "/price-lists/new" },
     { label: "Link a Shopify product", done: false, path: "/shopify-products" },
-    { label: "Preview the calculator on your store", done: false, path: null },
+    { label: "Preview the calculator on your store", done: false, path: null as string | null },
   ];
 
-  const isLoading = loadingTemplates || loadingQuotes || loadingOrders;
+  const stats = [
+    { title: "Templates", value: templates?.length ?? 0 },
+    { title: "Quotes", value: quotes?.length ?? 0 },
+    { title: "Orders", value: orders?.length ?? 0 },
+  ];
 
   return (
-    <PageLayout title="Dashboard" description="Welcome to MeasureRight">
-      {/* Onboarding Checklist */}
-      {!hasTemplates && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Getting Started</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-3">
-              {checklist.map((item) => (
-                <li key={item.label} className="flex items-center gap-3">
-                  {item.done ? (
-                    <CheckCircle2 className="h-5 w-5 text-primary" />
-                  ) : (
-                    <Circle className="h-5 w-5 text-muted-foreground" />
-                  )}
-                  <span className={item.done ? "line-through text-muted-foreground" : ""}>
-                    {item.label}
-                  </span>
-                  {!item.done && item.path && (
-                    <Button
-                      variant="link"
-                      size="sm"
-                      className="ml-auto"
-                      onClick={() => navigate(item.path!)}
-                    >
-                      Start
-                    </Button>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
+    <Page title="Dashboard" subtitle="Welcome to MeasureRight">
+      <BlockStack gap="400">
+        {!hasTemplates && (
+          <Card>
+            <BlockStack gap="400">
+              <Text as="h2" variant="headingMd">Getting Started</Text>
+              <BlockStack gap="300">
+                {checklist.map((item) => (
+                  <InlineStack key={item.label} align="space-between" blockAlign="center">
+                    <InlineStack gap="200" blockAlign="center">
+                      <Icon
+                        source={item.done ? CheckCircleIcon : MinusCircleIcon}
+                        tone={item.done ? "success" : "subdued"}
+                      />
+                      <Text
+                        as="span"
+                        variant="bodyMd"
+                        tone={item.done ? "subdued" : undefined}
+                      >
+                        {item.done ? <s>{item.label}</s> : item.label}
+                      </Text>
+                    </InlineStack>
+                    {!item.done && item.path && (
+                      <Button variant="plain" onClick={() => navigate(item.path!)}>
+                        Start
+                      </Button>
+                    )}
+                  </InlineStack>
+                ))}
+              </BlockStack>
+            </BlockStack>
+          </Card>
+        )}
 
-      {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Templates</CardTitle>
-            <LayoutTemplate className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">{templates?.length ?? 0}</div>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Quotes</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">{quotes?.length ?? 0}</div>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Orders</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">{orders?.length ?? 0}</div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+        <InlineGrid columns={3} gap="400">
+          {stats.map((stat) => (
+            <Card key={stat.title}>
+              <BlockStack gap="200">
+                <Text as="p" variant="bodyMd" tone="subdued">{stat.title}</Text>
+                {isLoading ? (
+                  <SkeletonDisplayText size="medium" />
+                ) : (
+                  <Text as="p" variant="heading2xl">{String(stat.value)}</Text>
+                )}
+              </BlockStack>
+            </Card>
+          ))}
+        </InlineGrid>
 
-      {/* Recent Quotes */}
-      {hasQuotes && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Recent Quotes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {quotes?.slice(0, 5).map((q) => (
-                <div
-                  key={q.id}
-                  className="flex items-center justify-between py-2 border-b last:border-0 cursor-pointer hover:bg-muted/50 px-2 rounded"
-                  onClick={() => navigate(`/quotes/${q.id}`)}
-                >
-                  <div>
-                    <p className="font-medium">{q.customer_name}</p>
-                    <p className="text-sm text-muted-foreground">{q.customer_email}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">${q.total?.toFixed(2)}</p>
-                    <p className="text-sm text-muted-foreground capitalize">{q.status}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </PageLayout>
+        {hasQuotes && (
+          <Card>
+            <BlockStack gap="300">
+              <Text as="h2" variant="headingMd">Recent Quotes</Text>
+              <ResourceList
+                resourceName={{ singular: "quote", plural: "quotes" }}
+                items={quotes?.slice(0, 5) || []}
+                renderItem={(q: Quote) => (
+                  <ResourceItem
+                    id={q.id}
+                    onClick={() => navigate(`/quotes/${q.id}`)}
+                    accessibilityLabel={`View quote for ${q.customer_name}`}
+                  >
+                    <InlineStack align="space-between" blockAlign="center">
+                      <BlockStack gap="050">
+                        <Text as="span" variant="bodyMd" fontWeight="semibold">{q.customer_name}</Text>
+                        <Text as="span" variant="bodySm" tone="subdued">{q.customer_email}</Text>
+                      </BlockStack>
+                      <BlockStack gap="050" inlineAlign="end">
+                        <Text as="span" variant="bodyMd" fontWeight="semibold">${q.total_inc_tax?.toFixed(2)}</Text>
+                        <Text as="span" variant="bodySm" tone="subdued">{q.status}</Text>
+                      </BlockStack>
+                    </InlineStack>
+                  </ResourceItem>
+                )}
+              />
+            </BlockStack>
+          </Card>
+        )}
+      </BlockStack>
+    </Page>
   );
 }

@@ -1,30 +1,20 @@
 import { useState } from "react";
-import { PageLayout } from "@/components/layout/PageLayout";
-import { Card, CardContent } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+  Page,
+  Card,
+  IndexTable,
+  Button,
+  Modal,
+  FormLayout,
+  TextField,
+  SkeletonBodyText,
+  EmptyState,
+  InlineStack,
+} from "@shopify/polaris";
+import { DeleteIcon, EditIcon } from "@shopify/polaris-icons";
 import { useApiList, useApiCreate, useApiUpdate, useApiDelete } from "@/hooks/useApi";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
 import type { Vendor } from "@/lib/types";
-import { Pencil, Trash2 } from "lucide-react";
 
 type VendorForm = Partial<Vendor>;
 
@@ -40,7 +30,7 @@ export default function VendorsPage() {
 
   const openNew = () => {
     setEditingId(null);
-    setForm({ name: "", contact_email: "", contact_phone: "", address: "", notes: "" });
+    setForm({ name: "", email: "", phone: "", contact_name: "", website: "", notes: "" });
     setDialogOpen(true);
   };
 
@@ -52,20 +42,20 @@ export default function VendorsPage() {
 
   const handleSave = async () => {
     if (!form.name) {
-      toast.error("Name is required");
+      showToast("Name is required", { isError: true });
       return;
     }
     try {
       if (editingId) {
         await updateMutation.mutateAsync({ id: editingId, ...form } as { id: string } & Partial<Vendor>);
-        toast.success("Vendor updated");
+        showToast("Vendor updated");
       } else {
         await createMutation.mutateAsync(form as Partial<Vendor>);
-        toast.success("Vendor created");
+        showToast("Vendor created");
       }
       setDialogOpen(false);
     } catch {
-      toast.error("Failed to save vendor");
+      showToast("Failed to save vendor", { isError: true });
     }
   };
 
@@ -73,127 +63,84 @@ export default function VendorsPage() {
     if (!confirm(`Delete vendor "${name}"?`)) return;
     try {
       await deleteMutation.mutateAsync(id);
-      toast.success(`Vendor "${name}" deleted`);
+      showToast(`Vendor "${name}" deleted`);
     } catch {
-      toast.error("Failed to delete vendor");
+      showToast("Failed to delete vendor", { isError: true });
     }
   };
 
+  const resourceName = { singular: "vendor", plural: "vendors" };
+
   return (
-    <PageLayout
+    <Page
       title="Vendors"
-      description="Manage your suppliers and vendors"
-      action={{ label: "Add Vendor", onClick: openNew }}
+      subtitle="Manage your suppliers and vendors"
+      primaryAction={{ content: "Add Vendor", onAction: openNew }}
     >
-      <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="p-6 space-y-4">
-              {[...Array(3)].map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
-              ))}
-            </div>
-          ) : !vendors?.length ? (
-            <div className="p-12 text-center">
-              <p className="text-muted-foreground mb-4">No vendors yet.</p>
-              <Button onClick={openNew}>Add Vendor</Button>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Address</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {vendors.map((v) => (
-                  <TableRow key={v.id}>
-                    <TableCell className="font-medium">{v.name}</TableCell>
-                    <TableCell>{v.contact_email || "—"}</TableCell>
-                    <TableCell>{v.contact_phone || "—"}</TableCell>
-                    <TableCell className="max-w-[200px] truncate">
-                      {v.address || "—"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(v)}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(v.id, v.name)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
+      <Card padding="0">
+        {isLoading ? (
+          <div style={{ padding: "16px" }}>
+            <SkeletonBodyText lines={3} />
+          </div>
+        ) : !vendors?.length ? (
+          <EmptyState
+            heading="No vendors yet"
+            action={{ content: "Add Vendor", onAction: openNew }}
+            image=""
+          >
+            <p>Add your first vendor or supplier.</p>
+          </EmptyState>
+        ) : (
+          <IndexTable
+            resourceName={resourceName}
+            itemCount={vendors.length}
+            headings={[
+              { title: "Name" },
+              { title: "Contact" },
+              { title: "Email" },
+              { title: "Phone" },
+              { title: "Actions", alignment: "end" },
+            ]}
+            selectable={false}
+          >
+            {vendors.map((v, index) => (
+              <IndexTable.Row id={v.id} key={v.id} position={index}>
+                <IndexTable.Cell>
+                  <span style={{ fontWeight: 600 }}>{v.name}</span>
+                </IndexTable.Cell>
+                <IndexTable.Cell>{v.contact_name || "—"}</IndexTable.Cell>
+                <IndexTable.Cell>{v.email || "—"}</IndexTable.Cell>
+                <IndexTable.Cell>{v.phone || "—"}</IndexTable.Cell>
+                <IndexTable.Cell>
+                  <InlineStack gap="100" align="end">
+                    <Button icon={EditIcon} variant="plain" onClick={() => openEdit(v)} accessibilityLabel={`Edit ${v.name}`} />
+                    <Button icon={DeleteIcon} variant="plain" tone="critical" onClick={() => handleDelete(v.id, v.name)} accessibilityLabel={`Delete ${v.name}`} />
+                  </InlineStack>
+                </IndexTable.Cell>
+              </IndexTable.Row>
+            ))}
+          </IndexTable>
+        )}
       </Card>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingId ? "Edit Vendor" : "New Vendor"}</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label>Name</Label>
-              <Input
-                value={form.name || ""}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Email</Label>
-              <Input
-                type="email"
-                value={form.contact_email || ""}
-                onChange={(e) => setForm({ ...form, contact_email: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Phone</Label>
-              <Input
-                value={form.contact_phone || ""}
-                onChange={(e) => setForm({ ...form, contact_phone: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Address</Label>
-              <Input
-                value={form.address || ""}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Notes</Label>
-              <Textarea
-                value={form.notes || ""}
-                onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                rows={3}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave}>
-              {editingId ? "Save" : "Create"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </PageLayout>
+      <Modal
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        title={editingId ? "Edit Vendor" : "New Vendor"}
+        primaryAction={{ content: editingId ? "Save" : "Create", onAction: handleSave }}
+        secondaryActions={[{ content: "Cancel", onAction: () => setDialogOpen(false) }]}
+      >
+        <Modal.Section>
+          <FormLayout>
+            <TextField label="Name" value={form.name || ""} onChange={(val) => setForm({ ...form, name: val })} autoComplete="off" />
+            <TextField label="Contact Name" value={form.contact_name || ""} onChange={(val) => setForm({ ...form, contact_name: val })} autoComplete="off" />
+            <TextField label="Email" type="email" value={form.email || ""} onChange={(val) => setForm({ ...form, email: val })} autoComplete="off" />
+            <TextField label="Phone" value={form.phone || ""} onChange={(val) => setForm({ ...form, phone: val })} autoComplete="off" />
+            <TextField label="Website" value={form.website || ""} onChange={(val) => setForm({ ...form, website: val })} autoComplete="off" />
+            <TextField label="Notes" value={form.notes || ""} onChange={(val) => setForm({ ...form, notes: val })} multiline={3} autoComplete="off" />
+          </FormLayout>
+        </Modal.Section>
+      </Modal>
+    </Page>
   );
 }

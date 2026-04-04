@@ -1,82 +1,78 @@
 import { useNavigate } from "react-router-dom";
-import { PageLayout } from "@/components/layout/PageLayout";
-import { Card, CardContent } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+  Page,
+  Card,
+  IndexTable,
+  Badge,
+  SkeletonBodyText,
+  EmptyState,
+} from "@shopify/polaris";
+import type { BadgeProps } from "@shopify/polaris";
 import { useApiList } from "@/hooks/useApi";
 import type { Quote, QuoteStatus } from "@/lib/types";
 
-const STATUS_VARIANT: Record<QuoteStatus, "secondary" | "info" | "success" | "destructive"> = {
-  draft: "secondary",
+const STATUS_TONE: Record<QuoteStatus, BadgeProps["tone"]> = {
+  draft: undefined,
   sent: "info",
   accepted: "success",
-  rejected: "destructive",
+  rejected: "critical",
 };
 
 export default function QuotesPage() {
   const navigate = useNavigate();
   const { data: quotes, isLoading } = useApiList<Quote>("quotes");
 
+  const resourceName = { singular: "quote", plural: "quotes" };
+
   return (
-    <PageLayout title="Quotes" description="View and manage customer quotes">
-      <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="p-6 space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
-              ))}
-            </div>
-          ) : !quotes?.length ? (
-            <div className="p-12 text-center text-muted-foreground">
-              No quotes yet. Quotes will appear here when customers use the calculator.
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Items</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {quotes.map((q) => (
-                  <TableRow
-                    key={q.id}
-                    className="cursor-pointer"
-                    onClick={() => navigate(`/quotes/${q.id}`)}
-                  >
-                    <TableCell className="font-medium">{q.customer_name}</TableCell>
-                    <TableCell>{q.customer_email || "—"}</TableCell>
-                    <TableCell>{q.items?.length || 0}</TableCell>
-                    <TableCell>${q.total?.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <Badge variant={STATUS_VARIANT[q.status]} className="capitalize">
-                        {q.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {new Date(q.created_at).toLocaleDateString()}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
+    <Page title="Quotes" subtitle="View and manage customer quotes">
+      <Card padding="0">
+        {isLoading ? (
+          <div style={{ padding: "16px" }}>
+            <SkeletonBodyText lines={5} />
+          </div>
+        ) : !quotes?.length ? (
+          <EmptyState heading="No quotes yet" image="">
+            <p>Quotes will appear here when customers use the calculator.</p>
+          </EmptyState>
+        ) : (
+          <IndexTable
+            resourceName={resourceName}
+            itemCount={quotes.length}
+            headings={[
+              { title: "Customer" },
+              { title: "Email" },
+              { title: "Items" },
+              { title: "Total" },
+              { title: "Status" },
+              { title: "Date" },
+            ]}
+            selectable={false}
+          >
+            {quotes.map((q, index) => (
+              <IndexTable.Row
+                id={q.id}
+                key={q.id}
+                position={index}
+                onClick={() => navigate(`/quotes/${q.id}`)}
+              >
+                <IndexTable.Cell>
+                  <span style={{ fontWeight: 600 }}>{q.customer_name}</span>
+                </IndexTable.Cell>
+                <IndexTable.Cell>{q.customer_email || "—"}</IndexTable.Cell>
+                <IndexTable.Cell>{q.line_items?.length || 0}</IndexTable.Cell>
+                <IndexTable.Cell>${q.total_inc_tax?.toFixed(2)}</IndexTable.Cell>
+                <IndexTable.Cell>
+                  <Badge tone={STATUS_TONE[q.status]}>{q.status}</Badge>
+                </IndexTable.Cell>
+                <IndexTable.Cell>
+                  {new Date(q.created_at).toLocaleDateString()}
+                </IndexTable.Cell>
+              </IndexTable.Row>
+            ))}
+          </IndexTable>
+        )}
       </Card>
-    </PageLayout>
+    </Page>
   );
 }

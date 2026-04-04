@@ -1,29 +1,21 @@
 import { useState } from "react";
-import { PageLayout } from "@/components/layout/PageLayout";
-import { Card, CardContent } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
+  Page,
+  Card,
+  IndexTable,
+  Badge,
+  Button,
   Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+  Thumbnail,
+  SkeletonBodyText,
+  EmptyState,
+  InlineStack,
+} from "@shopify/polaris";
+import { ImageIcon } from "@shopify/polaris-icons";
 import { useApiList } from "@/hooks/useApi";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
 import type { ShopifyProduct, ProductTemplate } from "@/lib/types";
-import { Link2, Unlink } from "lucide-react";
 
 export default function ShopifyProductsPage() {
   const { data: products, isLoading, refetch } = useApiList<ShopifyProduct>("products");
@@ -31,17 +23,23 @@ export default function ShopifyProductsPage() {
   const fetch = useAuthenticatedFetch();
   const [linking, setLinking] = useState<string | null>(null);
 
+  const templateOptions = [
+    { label: "Select template...", value: "" },
+    ...(templates?.map((t) => ({ label: t.name, value: t.id })) || []),
+  ];
+
   const handleLink = async (productId: string, templateId: string) => {
+    if (!templateId) return;
     setLinking(productId);
     try {
       await fetch(`/api/products/${productId}/metafields`, {
         method: "POST",
         body: JSON.stringify({ template_id: templateId }),
       });
-      toast.success("Product linked to template");
+      showToast("Product linked to template");
       refetch();
     } catch {
-      toast.error("Failed to link product");
+      showToast("Failed to link product", { isError: true });
     } finally {
       setLinking(null);
     }
@@ -54,106 +52,94 @@ export default function ShopifyProductsPage() {
         method: "POST",
         body: JSON.stringify({ template_id: null }),
       });
-      toast.success("Product unlinked");
+      showToast("Product unlinked");
       refetch();
     } catch {
-      toast.error("Failed to unlink product");
+      showToast("Failed to unlink product", { isError: true });
     } finally {
       setLinking(null);
     }
   };
 
+  const resourceName = { singular: "product", plural: "products" };
+
   return (
-    <PageLayout
-      title="Shopify Products"
-      description="Link your Shopify products to MeasureRight templates"
-    >
-      <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="p-6 space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
-              ))}
-            </div>
-          ) : !products?.length ? (
-            <div className="p-12 text-center text-muted-foreground">
-              No products found in your Shopify store.
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead>Vendor</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Linked Template</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {products.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        {product.image ? (
-                          <img
-                            src={product.image.src}
-                            alt={product.image.alt || product.title}
-                            className="h-10 w-10 rounded object-cover"
-                          />
-                        ) : (
-                          <div className="h-10 w-10 rounded bg-muted" />
-                        )}
-                        <span className="font-medium">{product.title}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{product.vendor}</TableCell>
-                    <TableCell>{product.product_type}</TableCell>
-                    <TableCell>
-                      {product.template_id ? (
-                        <Badge variant="success">
-                          <Link2 className="h-3 w-3 mr-1" />
-                          {templates?.find((t) => t.id === product.template_id)?.name || "Linked"}
-                        </Badge>
-                      ) : (
-                        <Select
-                          onValueChange={(val) => handleLink(product.id, val)}
-                          disabled={linking === product.id}
-                        >
-                          <SelectTrigger className="w-48">
-                            <SelectValue placeholder="Select template..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {templates?.map((t) => (
-                              <SelectItem key={t.id} value={t.id}>
-                                {t.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {product.template_id && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleUnlink(product.id)}
-                          disabled={linking === product.id}
-                        >
-                          <Unlink className="h-4 w-4 mr-1" />
-                          Unlink
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
+    <Page title="Shopify Products" subtitle="Link your Shopify products to MeasureRight templates">
+      <Card padding="0">
+        {isLoading ? (
+          <div style={{ padding: "16px" }}>
+            <SkeletonBodyText lines={5} />
+          </div>
+        ) : !products?.length ? (
+          <EmptyState heading="No products found" image="">
+            <p>No products found in your Shopify store.</p>
+          </EmptyState>
+        ) : (
+          <IndexTable
+            resourceName={resourceName}
+            itemCount={products.length}
+            headings={[
+              { title: "Product" },
+              { title: "Vendor" },
+              { title: "Type" },
+              { title: "Linked Template" },
+              { title: "Actions", alignment: "end" },
+            ]}
+            selectable={false}
+          >
+            {products.map((product, index) => (
+              <IndexTable.Row
+                id={product.id}
+                key={product.id}
+                position={index}
+              >
+                <IndexTable.Cell>
+                  <InlineStack gap="300" blockAlign="center">
+                    <Thumbnail
+                      source={product.image?.src || ImageIcon}
+                      alt={product.image?.alt || product.title}
+                      size="small"
+                    />
+                    <span style={{ fontWeight: 600 }}>{product.title}</span>
+                  </InlineStack>
+                </IndexTable.Cell>
+                <IndexTable.Cell>{product.vendor}</IndexTable.Cell>
+                <IndexTable.Cell>{product.product_type}</IndexTable.Cell>
+                <IndexTable.Cell>
+                  {product.template_id ? (
+                    <Badge tone="success">
+                      {templates?.find((t) => t.id === product.template_id)?.name || "Linked"}
+                    </Badge>
+                  ) : (
+                    <div style={{ maxWidth: "200px" }}>
+                      <Select
+                        label=""
+                        labelHidden
+                        options={templateOptions}
+                        value=""
+                        onChange={(val) => handleLink(product.id, val)}
+                        disabled={linking === product.id}
+                      />
+                    </div>
+                  )}
+                </IndexTable.Cell>
+                <IndexTable.Cell>
+                  {product.template_id && (
+                    <Button
+                      variant="plain"
+                      tone="critical"
+                      onClick={() => handleUnlink(product.id)}
+                      disabled={linking === product.id}
+                    >
+                      Unlink
+                    </Button>
+                  )}
+                </IndexTable.Cell>
+              </IndexTable.Row>
+            ))}
+          </IndexTable>
+        )}
       </Card>
-    </PageLayout>
+    </Page>
   );
 }

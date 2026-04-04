@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AppBridgeProvider } from "./providers/AppBridgeProvider";
+import { AppProvider } from "@shopify/polaris";
+import { NavMenu } from "@shopify/app-bridge-react";
+import enTranslations from "@shopify/polaris/locales/en.json";
 import { QueryProvider } from "./providers/QueryProvider";
-import { Toaster } from "./components/ui/sonner";
 
-// Pages (will be created in later phases)
 import HomePage from "./pages/HomePage";
 import ShopifyProductsPage from "./pages/ShopifyProductsPage";
 import TemplatesPage from "./pages/TemplatesPage";
@@ -45,18 +45,23 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppBridgeProvider>
+      <AppProvider i18n={enTranslations}>
         <QueryProvider>
-          <nav className="sr-only">
-            {/* Shopify App Bridge NavMenu renders in the Shopify admin frame */}
-            {/* These links are for App Bridge NavMenu integration */}
-          </nav>
-          <main className="p-4 max-w-7xl mx-auto">
-            <AppRoutes />
-          </main>
-          <Toaster />
+          <NavMenu>
+            <a href="/" rel="home">Home</a>
+            <a href="/templates">Templates</a>
+            <a href="/price-lists">Price Lists</a>
+            <a href="/fabrics">Fabrics</a>
+            <a href="/vendors">Vendors</a>
+            <a href="/quotes">Quotes</a>
+            <a href="/orders">Work Orders</a>
+            <a href="/shopify-products">Products</a>
+            <a href="/analytics">Analytics</a>
+            <a href="/settings">Settings</a>
+          </NavMenu>
+          <AppRoutes />
         </QueryProvider>
-      </AppBridgeProvider>
+      </AppProvider>
     </BrowserRouter>
   );
 }

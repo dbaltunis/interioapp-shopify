@@ -1,10 +1,19 @@
-import { PageLayout } from "@/components/layout/PageLayout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import {
+  Page,
+  Card,
+  BlockStack,
+  InlineGrid,
+  InlineStack,
+  Text,
+  Button,
+  Badge,
+  Icon,
+  Box,
+  Divider,
+} from "@shopify/polaris";
+import { CheckIcon } from "@shopify/polaris-icons";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
-import { toast } from "sonner";
-import { Check } from "lucide-react";
+import { showToast } from "@/lib/toast";
 
 const PLANS = [
   {
@@ -43,70 +52,72 @@ export default function SettingsPage() {
   const handleSeedData = async () => {
     try {
       await fetch("/api/seed");
-      toast.success("Demo data seeded successfully");
+      showToast("Demo data seeded successfully");
     } catch {
-      toast.error("Failed to seed data");
+      showToast("Failed to seed data", { isError: true });
     }
   };
 
   return (
-    <PageLayout title="Settings" description="Manage your account and preferences">
-      {/* Billing Plans */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Billing</CardTitle>
-          <CardDescription>Choose the plan that fits your business</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            {PLANS.map((plan) => (
-              <Card
-                key={plan.name}
-                className={plan.current ? "border-primary" : ""}
-              >
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{plan.name}</CardTitle>
-                    {plan.current && <Badge>Current</Badge>}
-                  </div>
-                  <CardDescription className="text-2xl font-bold text-foreground">
-                    {plan.price}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-sm">
-                        <Check className="h-4 w-4 text-primary" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  {!plan.current && (
-                    <Button className="w-full mt-4" variant="outline">
-                      Upgrade
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+    <Page title="Settings" subtitle="Manage your account and preferences">
+      <BlockStack gap="400">
+        <Card>
+          <BlockStack gap="400">
+            <BlockStack gap="100">
+              <Text as="h2" variant="headingMd">Billing</Text>
+              <Text as="p" variant="bodyMd" tone="subdued">
+                Choose the plan that fits your business
+              </Text>
+            </BlockStack>
+            <InlineGrid columns={3} gap="400">
+              {PLANS.map((plan) => (
+                <Box
+                  key={plan.name}
+                  borderWidth="025"
+                  borderColor={plan.current ? "border-success" : "border"}
+                  borderRadius="200"
+                  padding="400"
+                >
+                  <BlockStack gap="300">
+                    <InlineStack align="space-between" blockAlign="center">
+                      <Text as="h3" variant="headingMd">{plan.name}</Text>
+                      {plan.current && <Badge tone="success">Current</Badge>}
+                    </InlineStack>
+                    <Text as="p" variant="heading2xl">{plan.price}</Text>
+                    <Divider />
+                    <BlockStack gap="200">
+                      {plan.features.map((f) => (
+                        <InlineStack key={f} gap="200" blockAlign="center">
+                          <Icon source={CheckIcon} tone="success" />
+                          <Text as="span" variant="bodyMd">{f}</Text>
+                        </InlineStack>
+                      ))}
+                    </BlockStack>
+                    {!plan.current && (
+                      <Button fullWidth>Upgrade</Button>
+                    )}
+                  </BlockStack>
+                </Box>
+              ))}
+            </InlineGrid>
+          </BlockStack>
+        </Card>
 
-      {/* Data Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Data Management</CardTitle>
-          <CardDescription>Seed demo data or export your data</CardDescription>
-        </CardHeader>
-        <CardContent className="flex gap-3">
-          <Button variant="outline" onClick={handleSeedData}>
-            Seed Demo Data
-          </Button>
-          <Button variant="outline">Export All Data</Button>
-        </CardContent>
-      </Card>
-    </PageLayout>
+        <Card>
+          <BlockStack gap="400">
+            <BlockStack gap="100">
+              <Text as="h2" variant="headingMd">Data Management</Text>
+              <Text as="p" variant="bodyMd" tone="subdued">
+                Seed demo data or export your data
+              </Text>
+            </BlockStack>
+            <InlineStack gap="300">
+              <Button onClick={handleSeedData}>Seed Demo Data</Button>
+              <Button>Export All Data</Button>
+            </InlineStack>
+          </BlockStack>
+        </Card>
+      </BlockStack>
+    </Page>
   );
 }

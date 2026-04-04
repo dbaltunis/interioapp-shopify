@@ -1,30 +1,23 @@
 import { useState } from "react";
-import { PageLayout } from "@/components/layout/PageLayout";
-import { Card, CardContent } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+  Page,
+  Card,
+  IndexTable,
+  Badge,
+  Button,
+  Modal,
+  FormLayout,
+  TextField,
+  Tag,
+  InlineStack,
+  BlockStack,
+  SkeletonBodyText,
+  EmptyState,
+} from "@shopify/polaris";
+import { DeleteIcon, EditIcon } from "@shopify/polaris-icons";
 import { useApiList, useApiCreate, useApiUpdate, useApiDelete } from "@/hooks/useApi";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
 import type { Fabric } from "@/lib/types";
-import { Pencil, Trash2, X } from "lucide-react";
 
 type FabricForm = Partial<Fabric>;
 
@@ -41,15 +34,7 @@ export default function FabricsPage() {
 
   const openNew = () => {
     setEditingId(null);
-    setForm({
-      name: "",
-      category: "",
-      colours: [],
-      roll_width: null,
-      price_per_sqm: null,
-      price_per_linear_metre: null,
-      surcharge: 0,
-    });
+    setForm({ name: "", category: "", colours: [], roll_width: null, price_per_sqm: null, price_per_linear_metre: null, surcharge: 0 });
     setDialogOpen(true);
   };
 
@@ -61,8 +46,7 @@ export default function FabricsPage() {
 
   const addColour = () => {
     const colour = colourInput.trim();
-    if (!colour) return;
-    if (form.colours?.includes(colour)) return;
+    if (!colour || form.colours?.includes(colour)) return;
     setForm({ ...form, colours: [...(form.colours || []), colour] });
     setColourInput("");
   };
@@ -73,20 +57,20 @@ export default function FabricsPage() {
 
   const handleSave = async () => {
     if (!form.name) {
-      toast.error("Name is required");
+      showToast("Name is required", { isError: true });
       return;
     }
     try {
       if (editingId) {
         await updateMutation.mutateAsync({ id: editingId, ...form } as { id: string } & Partial<Fabric>);
-        toast.success("Fabric updated");
+        showToast("Fabric updated");
       } else {
         await createMutation.mutateAsync(form as Partial<Fabric>);
-        toast.success("Fabric created");
+        showToast("Fabric created");
       }
       setDialogOpen(false);
     } catch {
-      toast.error("Failed to save fabric");
+      showToast("Failed to save fabric", { isError: true });
     }
   };
 
@@ -94,196 +78,125 @@ export default function FabricsPage() {
     if (!confirm(`Delete fabric "${name}"?`)) return;
     try {
       await deleteMutation.mutateAsync(id);
-      toast.success(`Fabric "${name}" deleted`);
+      showToast(`Fabric "${name}" deleted`);
     } catch {
-      toast.error("Failed to delete fabric");
+      showToast("Failed to delete fabric", { isError: true });
     }
   };
 
+  const resourceName = { singular: "fabric", plural: "fabrics" };
+
   return (
-    <PageLayout
+    <Page
       title="Fabrics"
-      description="Manage your fabric catalogue"
-      action={{ label: "Add Fabric", onClick: openNew }}
+      subtitle="Manage your fabric catalogue"
+      primaryAction={{ content: "Add Fabric", onAction: openNew }}
     >
-      <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="p-6 space-y-4">
-              {[...Array(3)].map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
-              ))}
-            </div>
-          ) : !fabrics?.length ? (
-            <div className="p-12 text-center">
-              <p className="text-muted-foreground mb-4">No fabrics yet.</p>
-              <Button onClick={openNew}>Add Fabric</Button>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Colours</TableHead>
-                  <TableHead>Roll Width</TableHead>
-                  <TableHead>Price/sqm</TableHead>
-                  <TableHead>Price/lm</TableHead>
-                  <TableHead>Surcharge</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {fabrics.map((f) => (
-                  <TableRow key={f.id}>
-                    <TableCell className="font-medium">{f.name}</TableCell>
-                    <TableCell>{f.category || "—"}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {f.colours?.slice(0, 3).map((c) => (
-                          <Badge key={c} variant="outline" className="text-xs">
-                            {c}
-                          </Badge>
-                        ))}
-                        {(f.colours?.length || 0) > 3 && (
-                          <Badge variant="secondary" className="text-xs">
-                            +{f.colours!.length - 3}
-                          </Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>{f.roll_width ? `${f.roll_width}mm` : "—"}</TableCell>
-                    <TableCell>{f.price_per_sqm != null ? `$${f.price_per_sqm}` : "—"}</TableCell>
-                    <TableCell>
-                      {f.price_per_linear_metre != null ? `$${f.price_per_linear_metre}` : "—"}
-                    </TableCell>
-                    <TableCell>{f.surcharge ? `$${f.surcharge}` : "—"}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(f)}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(f.id, f.name)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
+      <Card padding="0">
+        {isLoading ? (
+          <div style={{ padding: "16px" }}>
+            <SkeletonBodyText lines={3} />
+          </div>
+        ) : !fabrics?.length ? (
+          <EmptyState
+            heading="No fabrics yet"
+            action={{ content: "Add Fabric", onAction: openNew }}
+            image=""
+          >
+            <p>Add your first fabric to the catalogue.</p>
+          </EmptyState>
+        ) : (
+          <IndexTable
+            resourceName={resourceName}
+            itemCount={fabrics.length}
+            headings={[
+              { title: "Name" },
+              { title: "Category" },
+              { title: "Colours" },
+              { title: "Roll Width" },
+              { title: "Price/sqm" },
+              { title: "Price/lm" },
+              { title: "Surcharge" },
+              { title: "Actions", alignment: "end" },
+            ]}
+            selectable={false}
+          >
+            {fabrics.map((f, index) => (
+              <IndexTable.Row id={f.id} key={f.id} position={index}>
+                <IndexTable.Cell>
+                  <span style={{ fontWeight: 600 }}>{f.name}</span>
+                </IndexTable.Cell>
+                <IndexTable.Cell>{f.category || "—"}</IndexTable.Cell>
+                <IndexTable.Cell>
+                  <InlineStack gap="100">
+                    {f.colours?.slice(0, 3).map((c) => (
+                      <Badge key={c}>{c}</Badge>
+                    ))}
+                    {(f.colours?.length || 0) > 3 && (
+                      <Badge tone="info">+{f.colours!.length - 3}</Badge>
+                    )}
+                  </InlineStack>
+                </IndexTable.Cell>
+                <IndexTable.Cell>{f.roll_width ? `${f.roll_width}mm` : "—"}</IndexTable.Cell>
+                <IndexTable.Cell>{f.price_per_sqm != null ? `$${f.price_per_sqm}` : "—"}</IndexTable.Cell>
+                <IndexTable.Cell>{f.price_per_linear_metre != null ? `$${f.price_per_linear_metre}` : "—"}</IndexTable.Cell>
+                <IndexTable.Cell>{f.surcharge ? `$${f.surcharge}` : "—"}</IndexTable.Cell>
+                <IndexTable.Cell>
+                  <InlineStack gap="100" align="end">
+                    <Button icon={EditIcon} variant="plain" onClick={() => openEdit(f)} accessibilityLabel={`Edit ${f.name}`} />
+                    <Button icon={DeleteIcon} variant="plain" tone="critical" onClick={() => handleDelete(f.id, f.name)} accessibilityLabel={`Delete ${f.name}`} />
+                  </InlineStack>
+                </IndexTable.Cell>
+              </IndexTable.Row>
+            ))}
+          </IndexTable>
+        )}
       </Card>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>{editingId ? "Edit Fabric" : "New Fabric"}</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Name</Label>
-                <Input
-                  value={form.name || ""}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <Input
-                  value={form.category || ""}
-                  onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  placeholder="e.g. Blockout, Sheer"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Colours</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={colourInput}
-                  onChange={(e) => setColourInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addColour())}
-                  placeholder="Type a colour and press Enter"
-                />
-                <Button type="button" variant="outline" onClick={addColour}>
-                  Add
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-1 mt-2">
-                {form.colours?.map((c) => (
-                  <Badge key={c} variant="secondary" className="gap-1">
-                    {c}
-                    <button onClick={() => removeColour(c)}>
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Roll Width (mm)</Label>
-                <Input
-                  type="number"
-                  value={form.roll_width ?? ""}
-                  onChange={(e) =>
-                    setForm({ ...form, roll_width: e.target.value ? Number(e.target.value) : null })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Price per sqm</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={form.price_per_sqm ?? ""}
-                  onChange={(e) =>
-                    setForm({ ...form, price_per_sqm: e.target.value ? Number(e.target.value) : null })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Price per linear metre</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={form.price_per_linear_metre ?? ""}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      price_per_linear_metre: e.target.value ? Number(e.target.value) : null,
-                    })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Surcharge</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={form.surcharge ?? 0}
-                  onChange={(e) => setForm({ ...form, surcharge: Number(e.target.value) })}
-                />
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave}>
-              {editingId ? "Save" : "Create"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </PageLayout>
+      <Modal
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        title={editingId ? "Edit Fabric" : "New Fabric"}
+        primaryAction={{ content: editingId ? "Save" : "Create", onAction: handleSave }}
+        secondaryActions={[{ content: "Cancel", onAction: () => setDialogOpen(false) }]}
+      >
+        <Modal.Section>
+          <FormLayout>
+            <FormLayout.Group>
+              <TextField label="Name" value={form.name || ""} onChange={(val) => setForm({ ...form, name: val })} autoComplete="off" />
+              <TextField label="Category" value={form.category || ""} onChange={(val) => setForm({ ...form, category: val })} autoComplete="off" placeholder="e.g. Blockout, Sheer" />
+            </FormLayout.Group>
+
+            <BlockStack gap="200">
+              <TextField
+                label="Colours"
+                value={colourInput}
+                onChange={setColourInput}
+                onBlur={addColour}
+                autoComplete="off"
+                placeholder="Type a colour and press Enter"
+                connectedRight={<Button onClick={addColour}>Add</Button>}
+              />
+              {form.colours && form.colours.length > 0 && (
+                <InlineStack gap="200">
+                  {form.colours.map((c) => (
+                    <Tag key={c} onRemove={() => removeColour(c)}>{c}</Tag>
+                  ))}
+                </InlineStack>
+              )}
+            </BlockStack>
+
+            <FormLayout.Group>
+              <TextField label="Roll Width (mm)" type="number" value={String(form.roll_width ?? "")} onChange={(val) => setForm({ ...form, roll_width: val ? Number(val) : null })} autoComplete="off" />
+              <TextField label="Price per sqm" type="number" value={String(form.price_per_sqm ?? "")} onChange={(val) => setForm({ ...form, price_per_sqm: val ? Number(val) : null })} autoComplete="off" />
+            </FormLayout.Group>
+            <FormLayout.Group>
+              <TextField label="Price per linear metre" type="number" value={String(form.price_per_linear_metre ?? "")} onChange={(val) => setForm({ ...form, price_per_linear_metre: val ? Number(val) : null })} autoComplete="off" />
+              <TextField label="Surcharge" type="number" value={String(form.surcharge ?? 0)} onChange={(val) => setForm({ ...form, surcharge: Number(val) })} autoComplete="off" />
+            </FormLayout.Group>
+          </FormLayout>
+        </Modal.Section>
+      </Modal>
+    </Page>
   );
 }

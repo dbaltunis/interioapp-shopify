@@ -35,17 +35,27 @@ router.get("/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const { merchantId } = res.locals;
-  const { items, ...rest } = req.body;
+  const { line_items, ...rest } = req.body;
 
-  // Calculate total from items
-  const total = items?.reduce(
+  // Calculate totals from line_items
+  const total_ex_tax = line_items?.reduce(
     (sum: number, item: { line_total?: number }) => sum + (item.line_total || 0),
     0
   ) || 0;
+  const total_tax = rest.total_tax ?? 0;
+  const total_inc_tax = rest.total_inc_tax ?? total_ex_tax + total_tax;
 
   const { data, error } = await supabase
     .from("quotes")
-    .insert({ ...rest, items, total, merchant_id: merchantId, status: rest.status || "draft" })
+    .insert({
+      ...rest,
+      line_items,
+      total_ex_tax,
+      total_tax,
+      total_inc_tax,
+      merchant_id: merchantId,
+      status: rest.status || "draft",
+    })
     .select()
     .single();
 
@@ -57,12 +67,13 @@ router.put("/:id", async (req, res) => {
   const { merchantId } = res.locals;
   const { id, merchant_id, created_at, ...updateData } = req.body;
 
-  // Recalculate total if items changed
-  if (updateData.items) {
-    updateData.total = updateData.items.reduce(
+  // Recalculate totals if line_items changed
+  if (updateData.line_items) {
+    updateData.total_ex_tax = updateData.line_items.reduce(
       (sum: number, item: { line_total?: number }) => sum + (item.line_total || 0),
       0
     );
+    updateData.total_inc_tax = updateData.total_ex_tax + (updateData.total_tax || 0);
   }
 
   const { data, error } = await supabase

@@ -1,21 +1,18 @@
 import { useNavigate } from "react-router-dom";
-import { PageLayout } from "@/components/layout/PageLayout";
-import { Card, CardContent } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+  Page,
+  Card,
+  IndexTable,
+  Badge,
+  Button,
+  SkeletonBodyText,
+  EmptyState,
+  InlineStack,
+} from "@shopify/polaris";
+import { DeleteIcon, EditIcon } from "@shopify/polaris-icons";
 import { useApiList, useApiDelete } from "@/hooks/useApi";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
 import type { ProductTemplate } from "@/lib/types";
-import { Pencil, Trash2 } from "lucide-react";
 
 export default function TemplatesPage() {
   const navigate = useNavigate();
@@ -26,92 +23,93 @@ export default function TemplatesPage() {
     if (!confirm(`Delete template "${name}"? This cannot be undone.`)) return;
     try {
       await deleteMutation.mutateAsync(id);
-      toast.success(`Template "${name}" deleted`);
+      showToast(`Template "${name}" deleted`);
     } catch {
-      toast.error("Failed to delete template");
+      showToast("Failed to delete template", { isError: true });
     }
   };
 
+  const resourceName = { singular: "template", plural: "templates" };
+
   return (
-    <PageLayout
+    <Page
       title="Product Templates"
-      description="Manage your made-to-measure product configurations"
-      action={{ label: "Add Template", onClick: () => navigate("/templates/new") }}
+      subtitle="Manage your made-to-measure product configurations"
+      primaryAction={{ content: "Add Template", onAction: () => navigate("/templates/new") }}
     >
-      <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="p-6 space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
-              ))}
-            </div>
-          ) : !templates?.length ? (
-            <div className="p-12 text-center">
-              <p className="text-muted-foreground mb-4">
-                No templates yet. Create your first product template.
-              </p>
-              <Button onClick={() => navigate("/templates/new")}>
-                Create Template
-              </Button>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Code</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Pricing Model</TableHead>
-                  <TableHead>Dimensions (mm)</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {templates.map((t) => (
-                  <TableRow
-                    key={t.id}
-                    className="cursor-pointer"
-                    onClick={() => navigate(`/templates/${t.id}`)}
-                  >
-                    <TableCell className="font-medium">{t.name}</TableCell>
-                    <TableCell className="font-mono text-sm">{t.code}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="capitalize">
-                        {t.category}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="capitalize">
-                      {t.pricing_model?.replace("_", " ")}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      W: {t.min_width}–{t.max_width} | D: {t.min_drop}–{t.max_drop}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => navigate(`/templates/${t.id}`)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(t.id, t.name)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
+      <Card padding="0">
+        {isLoading ? (
+          <div style={{ padding: "16px" }}>
+            <SkeletonBodyText lines={5} />
+          </div>
+        ) : !templates?.length ? (
+          <EmptyState
+            heading="No templates yet"
+            action={{ content: "Create Template", onAction: () => navigate("/templates/new") }}
+            image=""
+          >
+            <p>Create your first product template to get started.</p>
+          </EmptyState>
+        ) : (
+          <IndexTable
+            resourceName={resourceName}
+            itemCount={templates.length}
+            headings={[
+              { title: "Name" },
+              { title: "Code" },
+              { title: "Category" },
+              { title: "Pricing Model" },
+              { title: "Dimensions (mm)" },
+              { title: "Actions", alignment: "end" },
+            ]}
+            selectable={false}
+          >
+            {templates.map((t, index) => (
+              <IndexTable.Row
+                id={t.id}
+                key={t.id}
+                position={index}
+                onClick={() => navigate(`/templates/${t.id}`)}
+              >
+                <IndexTable.Cell>
+                  <span style={{ fontWeight: 600 }}>{t.name}</span>
+                </IndexTable.Cell>
+                <IndexTable.Cell>
+                  <span style={{ fontFamily: "monospace", fontSize: "13px" }}>{t.code}</span>
+                </IndexTable.Cell>
+                <IndexTable.Cell>
+                  <Badge>{t.category}</Badge>
+                </IndexTable.Cell>
+                <IndexTable.Cell>
+                  {t.pricing_model?.replace("_", " ")}
+                </IndexTable.Cell>
+                <IndexTable.Cell>
+                  W: {t.min_width}–{t.max_width} | D: {t.min_drop}–{t.max_drop}
+                </IndexTable.Cell>
+                <IndexTable.Cell>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <InlineStack gap="100" align="end">
+                      <Button
+                        icon={EditIcon}
+                        variant="plain"
+                        onClick={() => navigate(`/templates/${t.id}`)}
+                        accessibilityLabel={`Edit ${t.name}`}
+                      />
+                      <Button
+                        icon={DeleteIcon}
+                        variant="plain"
+                        tone="critical"
+                        onClick={() => handleDelete(t.id, t.name)}
+                        accessibilityLabel={`Delete ${t.name}`}
+                      />
+                    </InlineStack>
+                  </div>
+                </IndexTable.Cell>
+              </IndexTable.Row>
+            ))}
+          </IndexTable>
+        )}
       </Card>
-    </PageLayout>
+    </Page>
   );
 }
