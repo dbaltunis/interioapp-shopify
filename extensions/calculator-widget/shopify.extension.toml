@@ -1,12 +1,4 @@
-api_version = "2024-01"
+api_version = "2024-10"
+uid = "5d179b68-5346-ae56-8c4b-444128b7bad215217921"
 type = "theme"
-
-[[extensions.blocks]]
 name = "MeasureRight Calculator"
-target = "section"
-
-[extensions.settings]
-  [extensions.settings.template_id]
-  type = "text"
-  label = "Template ID"
-  default = ""

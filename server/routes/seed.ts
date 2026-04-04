@@ -75,7 +75,7 @@ router.get("/", async (_req, res) => {
       ])
       .select();
 
-    // Seed templates (if not already present)
+    // Seed templates
     const { count: templateCount } = await supabase
       .from("product_templates")
       .select("id", { count: "exact" })
@@ -100,6 +100,40 @@ router.get("/", async (_req, res) => {
             wastage_percent: 5,
             labour_cost: 15,
             installation_cost: 25,
+            options: [
+              {
+                key: "control_side",
+                label: "Control Side",
+                type: "select",
+                required: true,
+                choices: [
+                  { value: "left", label: "Left", price_type: "none", price_value: 0 },
+                  { value: "right", label: "Right", price_type: "none", price_value: 0 },
+                ],
+              },
+              {
+                key: "motor",
+                label: "Motorisation",
+                type: "select",
+                required: false,
+                choices: [
+                  { value: "manual", label: "Manual (Chain)", price_type: "none", price_value: 0 },
+                  { value: "standard_motor", label: "Standard Motor", price_type: "flat", price_value: 120 },
+                  { value: "smart_motor", label: "Smart Motor (WiFi)", price_type: "flat", price_value: 220 },
+                ],
+              },
+              {
+                key: "cassette",
+                label: "Cassette / Headrail",
+                type: "select",
+                required: false,
+                choices: [
+                  { value: "open", label: "Open Roll", price_type: "none", price_value: 0 },
+                  { value: "fascia", label: "Fascia Cover", price_type: "flat", price_value: 25 },
+                  { value: "cassette", label: "Full Cassette", price_type: "flat", price_value: 55 },
+                ],
+              },
+            ],
           },
           {
             merchant_id: merchantId,
@@ -115,6 +149,28 @@ router.get("/", async (_req, res) => {
             wastage_percent: 3,
             labour_cost: 20,
             installation_cost: 30,
+            options: [
+              {
+                key: "slat_size",
+                label: "Slat Size",
+                type: "select",
+                required: true,
+                choices: [
+                  { value: "25mm", label: "25mm", price_type: "none", price_value: 0 },
+                  { value: "50mm", label: "50mm", price_type: "flat", price_value: 15 },
+                ],
+              },
+              {
+                key: "control_side",
+                label: "Control Side",
+                type: "select",
+                required: true,
+                choices: [
+                  { value: "left", label: "Left", price_type: "none", price_value: 0 },
+                  { value: "right", label: "Right", price_type: "none", price_value: 0 },
+                ],
+              },
+            ],
           },
           {
             merchant_id: merchantId,
@@ -130,6 +186,60 @@ router.get("/", async (_req, res) => {
             wastage_percent: 10,
             labour_cost: 25,
             installation_cost: 35,
+            options: [
+              {
+                key: "heading_style",
+                label: "Heading Style",
+                type: "select",
+                required: true,
+                choices: [
+                  { value: "pencil_pleat", label: "Pencil Pleat", price_type: "multiplier", price_value: 1.0 },
+                  { value: "eyelet", label: "Eyelet", price_type: "multiplier", price_value: 1.15 },
+                  { value: "pinch_pleat", label: "Pinch Pleat", price_type: "multiplier", price_value: 1.35 },
+                  { value: "wave", label: "Wave / S-Fold", price_type: "multiplier", price_value: 1.50 },
+                  { value: "goblet", label: "Goblet Pleat", price_type: "multiplier", price_value: 1.45 },
+                ],
+              },
+              {
+                key: "lining",
+                label: "Lining",
+                type: "select",
+                required: false,
+                choices: [
+                  { value: "none", label: "Unlined", price_type: "none", price_value: 0 },
+                  { value: "standard", label: "Standard Lining", price_type: "per_sqm", price_value: 12 },
+                  { value: "blockout", label: "Blockout Lining", price_type: "per_sqm", price_value: 18 },
+                  { value: "thermal", label: "Thermal Lining", price_type: "per_sqm", price_value: 22 },
+                  { value: "interlining", label: "Interlining", price_type: "per_sqm", price_value: 30 },
+                ],
+              },
+              {
+                key: "track",
+                label: "Track / Pole",
+                type: "select",
+                required: false,
+                choices: [
+                  { value: "none", label: "No Track (fabric only)", price_type: "none", price_value: 0 },
+                  { value: "standard_track", label: "Standard Track", price_type: "per_linear_metre", price_value: 15 },
+                  { value: "heavy_duty", label: "Heavy Duty Track", price_type: "per_linear_metre", price_value: 28 },
+                  { value: "motorised_track", label: "Motorised Track", price_type: "per_linear_metre", price_value: 65 },
+                  { value: "wooden_pole", label: "Wooden Pole", price_type: "per_linear_metre", price_value: 35 },
+                  { value: "metal_pole", label: "Metal Pole", price_type: "per_linear_metre", price_value: 42 },
+                ],
+              },
+              {
+                key: "tiebacks",
+                label: "Tiebacks",
+                type: "select",
+                required: false,
+                choices: [
+                  { value: "none", label: "No Tiebacks", price_type: "none", price_value: 0 },
+                  { value: "fabric", label: "Fabric Tiebacks (pair)", price_type: "flat", price_value: 35 },
+                  { value: "rope", label: "Rope Tiebacks (pair)", price_type: "flat", price_value: 25 },
+                  { value: "tassel", label: "Tassel Tiebacks (pair)", price_type: "flat", price_value: 45 },
+                ],
+              },
+            ],
           },
         ])
         .select();
@@ -142,7 +252,7 @@ router.get("/", async (_req, res) => {
       templates = existingTemplates || [];
     }
 
-    // Seed a pricing grid for first template
+    // Seed pricing grid for roller blind (grid model)
     if (templates?.[0]) {
       await supabase.from("pricing_grids").insert({
         merchant_id: merchantId,
@@ -160,6 +270,19 @@ router.get("/", async (_req, res) => {
           150, 170, 205, 235, 270, 305, 340, 425,
           175, 200, 240, 275, 315, 360, 400, 500,
         ],
+      });
+    }
+
+    // Seed pricing grid for curtains (sqm model)
+    if (templates?.[2]) {
+      await supabase.from("pricing_grids").insert({
+        merchant_id: merchantId,
+        product_template_id: templates[2].id,
+        price_per_sqm: 85,
+        price_per_linear_metre: 145,
+        width_bands: [],
+        drop_bands: [],
+        prices: [],
       });
     }
 

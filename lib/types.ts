@@ -8,6 +8,24 @@ export interface Merchant {
   updated_at: string;
 }
 
+// ── Template Options ──
+export type OptionPriceType = "none" | "flat" | "multiplier" | "per_sqm" | "per_linear_metre";
+
+export interface TemplateOptionChoice {
+  value: string;
+  label: string;
+  price_type: OptionPriceType;
+  price_value: number;
+}
+
+export interface TemplateOption {
+  key: string;
+  label: string;
+  type: "select" | "radio" | "checkbox";
+  required: boolean;
+  choices: TemplateOptionChoice[];
+}
+
 // ── Product Template ──
 export type ProductCategory = "blind" | "curtain" | "shutter" | "awning";
 export type PricingModel = "area" | "grid" | "sqm" | "linear_metre" | "fixed";
@@ -30,7 +48,7 @@ export interface ProductTemplate {
   min_diameter: number | null;
   max_diameter: number | null;
   default_deductions: Record<string, unknown> | null;
-  options: Record<string, unknown> | null;
+  options: TemplateOption[] | null;
   dimension_fields: Record<string, unknown> | null;
   labels: Record<string, unknown> | null;
   default_grid_id: string | null;

@@ -1,252 +1,917 @@
+{% if block.settings.hide_default_controls %}
+<style>
+  .product-form__variants,
+  variant-selects,
+  variant-radios,
+  .product-form__quantity,
+  quantity-input,
+  .product-form__submit,
+  .product-form__buttons,
+  .shopify-payment-button,
+  .price {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+</style>
+{% endif %}
+
 <div id="measureright-calculator"
      data-template-id="{{ block.settings.template_id }}"
-     data-shop="{{ shop.permanent_domain }}">
-  <div class="mr-loading" style="padding: 2rem; text-align: center; background: #f5f5f5; border-radius: 8px; color: #666;">
-    Loading calculator...
+     data-shop="{{ shop.permanent_domain }}"
+     data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+     data-product-url="{{ product.url }}"
+     data-currency="{{ cart.currency.iso_code }}"
+     data-accent-color="{{ block.settings.accent_color }}"
+     data-show-from-price="{{ block.settings.show_from_price }}">
+  <div class="mr-loading">
+    <div class="mr-spinner"></div>
+    <span>Loading calculator...</span>
   </div>
 </div>
 
 <style>
-  #measureright-calculator {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    max-width: 480px;
-    margin: 1.5rem 0;
+  :root {
+    --mr-accent: {{ block.settings.accent_color | default: '#2563eb' }};
+    --mr-accent-hover: color-mix(in srgb, var(--mr-accent) 85%, black);
+    --mr-accent-light: color-mix(in srgb, var(--mr-accent) 10%, white);
+    --mr-radius: 10px;
+    --mr-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --mr-shadow-md: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
   }
-  .mr-calc-form {
+
+  #measureright-calculator {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    max-width: 520px;
+    margin: 1.5rem 0;
+    color: #1f2937;
+    line-height: 1.5;
+  }
+
+  #measureright-calculator *,
+  #measureright-calculator *::before,
+  #measureright-calculator *::after {
+    box-sizing: border-box;
+  }
+
+  /* Loading state */
+  .mr-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 2.5rem 1.5rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--mr-radius);
+    color: #6b7280;
+    font-size: 0.9375rem;
+  }
+
+  .mr-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2.5px solid #e5e7eb;
+    border-top-color: var(--mr-accent);
+    border-radius: 50%;
+    animation: mr-spin 0.7s linear infinite;
+  }
+
+  @keyframes mr-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Card wrapper */
+  .mr-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--mr-radius);
+    box-shadow: var(--mr-shadow);
+    padding: 1.5rem;
+  }
+
+  .mr-card + .mr-card {
+    margin-top: 1rem;
+  }
+
+  /* Header */
+  .mr-header {
+    margin-bottom: 1.25rem;
+  }
+
+  .mr-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.25rem;
+  }
+
+  .mr-subtitle {
+    font-size: 0.8125rem;
+    color: #9ca3af;
+    margin: 0;
+  }
+
+  /* From price */
+  .mr-from-price {
+    display: inline-block;
+    background: var(--mr-accent-light);
+    color: var(--mr-accent);
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 0.375rem 0.875rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    border: 1px solid color-mix(in srgb, var(--mr-accent) 20%, transparent);
+  }
+
+  /* Form fields */
+  .mr-form {
     display: flex;
     flex-direction: column;
     gap: 1rem;
   }
-  .mr-calc-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin: 0 0 0.5rem;
+
+  .mr-row {
+    display: flex;
+    gap: 0.75rem;
   }
+
+  .mr-row > .mr-field {
+    flex: 1;
+    min-width: 0;
+  }
+
   .mr-field {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.3rem;
   }
+
   .mr-field label {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #333;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #374151;
+    letter-spacing: 0.01em;
   }
+
+  .mr-field label .mr-required {
+    color: #ef4444;
+    margin-left: 2px;
+  }
+
   .mr-field input,
   .mr-field select {
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    padding: 0.625rem 0.75rem;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
     font-size: 0.9375rem;
-    background: #fff;
+    background: #ffffff;
+    color: #1f2937;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
   }
+
+  .mr-field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11.5l-5-5h10l-5 5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2rem;
+  }
+
   .mr-field input:focus,
   .mr-field select:focus {
     outline: none;
-    border-color: #333;
-    box-shadow: 0 0 0 1px #333;
+    border-color: var(--mr-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--mr-accent) 15%, transparent);
   }
-  .mr-field .mr-help {
+
+  .mr-field input::placeholder {
+    color: #9ca3af;
+  }
+
+  .mr-help {
+    font-size: 0.6875rem;
+    color: #9ca3af;
+    margin: 0;
+  }
+
+  .mr-separator {
+    border: none;
+    border-top: 1px solid #f3f4f6;
+    margin: 0.5rem 0;
+  }
+
+  .mr-options-heading {
     font-size: 0.75rem;
-    color: #888;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9ca3af;
+    margin: 0.25rem 0 0;
   }
-  .mr-row {
-    display: flex;
-    gap: 1rem;
-  }
-  .mr-row .mr-field {
-    flex: 1;
-  }
-  .mr-price-display {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 1rem;
+
+  /* Price display card */
+  .mr-price-card {
+    background: linear-gradient(135deg, var(--mr-accent-light), #ffffff);
+    border: 1.5px solid color-mix(in srgb, var(--mr-accent) 25%, transparent);
+    border-radius: var(--mr-radius);
+    padding: 1.25rem 1.5rem;
     text-align: center;
+    margin-top: 1rem;
   }
+
+  .mr-price-card.mr-hidden {
+    display: none;
+  }
+
   .mr-price-label {
-    font-size: 0.8125rem;
-    color: #666;
-    margin-bottom: 0.25rem;
-  }
-  .mr-price-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #111;
-  }
-  .mr-price-breakdown {
     font-size: 0.75rem;
-    color: #888;
-    margin-top: 0.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    margin: 0 0 0.25rem;
   }
+
+  .mr-price-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--mr-accent);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .mr-price-na {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #9ca3af;
+  }
+
+  .mr-price-note {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-top: 0.25rem;
+  }
+
+  /* Breakdown list */
+  .mr-breakdown {
+    margin-top: 1rem;
+    border-top: 1px solid color-mix(in srgb, var(--mr-accent) 15%, transparent);
+    padding-top: 0.75rem;
+  }
+
+  .mr-breakdown-title {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9ca3af;
+    margin: 0 0 0.5rem;
+  }
+
+  .mr-breakdown-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .mr-breakdown-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.3rem 0;
+    font-size: 0.8125rem;
+    color: #4b5563;
+  }
+
+  .mr-breakdown-list li:last-child {
+    border-top: 1px dashed #e5e7eb;
+    margin-top: 0.25rem;
+    padding-top: 0.5rem;
+    font-weight: 700;
+    color: #111827;
+    font-size: 0.875rem;
+  }
+
+  .mr-breakdown-list .mr-amount {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Add to cart button */
+  .mr-atc-wrapper {
+    margin-top: 1rem;
+  }
+
+  .mr-atc-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    background: var(--mr-accent);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    letter-spacing: 0.01em;
+  }
+
+  .mr-atc-btn:hover:not(:disabled) {
+    background: var(--mr-accent-hover);
+    box-shadow: var(--mr-shadow-md);
+  }
+
+  .mr-atc-btn:active:not(:disabled) {
+    transform: scale(0.985);
+  }
+
+  .mr-atc-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .mr-atc-btn .mr-btn-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255,255,255,0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: mr-spin 0.6s linear infinite;
+  }
+
+  /* Error state */
   .mr-error {
     background: #fef2f2;
     border: 1px solid #fecaca;
-    border-radius: 8px;
-    padding: 1rem;
-    color: #991b1b;
+    border-radius: var(--mr-radius);
+    padding: 1.25rem 1.5rem;
     text-align: center;
   }
+
+  .mr-error-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
   .mr-error-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
+    font-weight: 700;
+    color: #991b1b;
+    margin: 0 0 0.25rem;
+    font-size: 0.9375rem;
+  }
+
+  .mr-error-msg {
+    color: #b91c1c;
+    font-size: 0.8125rem;
+    margin: 0;
+  }
+
+  /* Validation error on fields */
+  .mr-field-error input,
+  .mr-field-error select {
+    border-color: #ef4444;
+  }
+
+  .mr-field-error .mr-help {
+    color: #ef4444;
+  }
+
+  /* Responsive */
+  @media (max-width: 400px) {
+    .mr-row {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .mr-card {
+      padding: 1.25rem 1rem;
+    }
+    .mr-price-value {
+      font-size: 1.625rem;
+    }
   }
 </style>
 
 <script>
 (function() {
+  'use strict';
+
   var container = document.getElementById('measureright-calculator');
   if (!container) return;
 
-  var templateId = container.getAttribute('data-template-id');
+  var templateCode = container.getAttribute('data-template-id');
   var shop = container.getAttribute('data-shop');
+  var variantId = container.getAttribute('data-variant-id');
+  var productUrl = container.getAttribute('data-product-url');
+  var currencyCode = container.getAttribute('data-currency') || 'USD';
+  var showFromPrice = container.getAttribute('data-show-from-price') === 'true';
   var proxyBase = '/apps/measureright';
 
-  if (!templateId) {
-    container.innerHTML = '<div class="mr-error"><div class="mr-error-title">Configuration needed</div><p>No template ID configured for this calculator block.</p></div>';
+  // Currency formatting
+  function formatCurrency(amount) {
+    try {
+      return new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency: currencyCode,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(amount);
+    } catch (e) {
+      return '$' + amount.toFixed(2);
+    }
+  }
+
+  // Show configuration error
+  if (!templateCode) {
+    container.innerHTML =
+      '<div class="mr-error">' +
+        '<div class="mr-error-title">Configuration Needed</div>' +
+        '<p class="mr-error-msg">No template code configured for this calculator block. Edit the block settings to add one.</p>' +
+      '</div>';
     return;
   }
 
-  // Fetch calculator data from the app proxy
-  var url = proxyBase + '/api/calculator?template_code=' + encodeURIComponent(templateId) + '&shop=' + encodeURIComponent(shop);
+  // State
+  var templateData = null;
+  var gridsData = null;
+  var fabricsData = null;
+  var defaultGrid = null;
+  var cachedMinPrice = null;
+
+  // Fetch calculator data
+  var url = proxyBase + '/api/calculator?template_code=' + encodeURIComponent(templateCode) + '&shop=' + encodeURIComponent(shop);
 
   fetch(url)
     .then(function(r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
+      if (!r.ok) throw new Error('Failed to load pricing data (HTTP ' + r.status + ')');
       return r.json();
     })
     .then(function(data) {
-      renderCalculator(data);
+      templateData = data.template;
+      gridsData = data.grids || [];
+      fabricsData = data.fabrics || [];
+      defaultGrid = gridsData.length > 0 ? (gridsData.find(function(g) { return !g.fabric_id; }) || gridsData[0]) : null;
+      renderCalculator();
     })
     .catch(function(err) {
-      container.innerHTML = '<div class="mr-error"><div class="mr-error-title">Calculator Error</div><p>Could not load pricing. ' + err.message + '</p></div>';
+      container.innerHTML =
+        '<div class="mr-error">' +
+          '<div class="mr-error-title">Unable to Load Calculator</div>' +
+          '<p class="mr-error-msg">' + escapeHtml(err.message) + '</p>' +
+        '</div>';
     });
 
-  function renderCalculator(data) {
-    var t = data.template;
-    var grids = data.grids;
-    var fabrics = data.fabrics;
-    var defaultGrid = grids.length > 0 ? grids.find(function(g) { return !g.fabric_id; }) || grids[0] : null;
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+  }
 
-    var fabricOptions = '';
-    if (fabrics.length > 0) {
-      fabricOptions = '<div class="mr-field"><label for="mr-fabric">Fabric</label><select id="mr-fabric"><option value="">Select fabric...</option>';
-      fabrics.forEach(function(f) {
-        fabricOptions += '<option value="' + f.id + '" data-surcharge="' + (f.surcharge || 0) + '">' + f.name + (f.category ? ' (' + f.category + ')' : '') + '</option>';
-      });
-      fabricOptions += '</select></div>';
+  // Compute minimum price from grid data
+  function computeMinPrice() {
+    if (cachedMinPrice !== null) return cachedMinPrice;
+    if (!defaultGrid) return null;
+
+    var model = templateData.pricing_model || 'grid';
+    var minPrice = Infinity;
+
+    if (model === 'grid') {
+      var prices = defaultGrid.prices || [];
+      for (var i = 0; i < prices.length; i++) {
+        if (prices[i] != null && prices[i] < minPrice) minPrice = prices[i];
+      }
+    } else if (model === 'sqm' || model === 'area') {
+      // Minimum area from min dims
+      var minW = (templateData.min_width || 300) / 1000;
+      var minD = (templateData.min_drop || 300) / 1000;
+      minPrice = minW * minD * (defaultGrid.price_per_sqm || 0);
+    } else if (model === 'linear_metre') {
+      var minWm = (templateData.min_width || 300) / 1000;
+      minPrice = minWm * (defaultGrid.price_per_linear_metre || 0);
+    } else if (model === 'fixed') {
+      var fp = defaultGrid.prices || [];
+      minPrice = fp.length > 0 ? fp[0] : 0;
     }
 
+    if (minPrice === Infinity || minPrice <= 0) return null;
+    cachedMinPrice = minPrice;
+    return minPrice;
+  }
+
+  // Render the full calculator UI
+  function renderCalculator() {
+    var t = templateData;
     var minW = t.min_width || 300;
     var maxW = t.max_width || 3000;
     var minD = t.min_drop || 300;
     var maxD = t.max_drop || 3000;
 
-    container.innerHTML =
-      '<div class="mr-calc-form">' +
-        '<p class="mr-calc-title">Calculate Your Price</p>' +
-        '<div class="mr-row">' +
-          '<div class="mr-field">' +
-            '<label for="mr-width">Width (mm)</label>' +
-            '<input type="number" id="mr-width" min="' + minW + '" max="' + maxW + '" step="1" placeholder="e.g. 1200">' +
-            '<span class="mr-help">' + minW + ' – ' + maxW + ' mm</span>' +
-          '</div>' +
-          '<div class="mr-field">' +
-            '<label for="mr-drop">Drop (mm)</label>' +
-            '<input type="number" id="mr-drop" min="' + minD + '" max="' + maxD + '" step="1" placeholder="e.g. 1500">' +
-            '<span class="mr-help">' + minD + ' – ' + maxD + ' mm</span>' +
-          '</div>' +
-        '</div>' +
-        fabricOptions +
-        '<div class="mr-price-display" id="mr-price-box" style="display:none;">' +
-          '<div class="mr-price-label">Estimated Price</div>' +
-          '<div class="mr-price-value" id="mr-price">—</div>' +
-          '<div class="mr-price-breakdown" id="mr-breakdown"></div>' +
-        '</div>' +
-      '</div>';
+    var html = '';
 
+    // From price
+    if (showFromPrice) {
+      var minP = computeMinPrice();
+      if (minP !== null) {
+        html += '<div class="mr-from-price">From ' + formatCurrency(minP) + '</div>';
+      }
+    }
+
+    // Main card
+    html += '<div class="mr-card">';
+    html += '<div class="mr-header">';
+    html += '<p class="mr-title">Calculate Your Price</p>';
+    html += '<p class="mr-subtitle">Enter your measurements to get an instant quote</p>';
+    html += '</div>';
+
+    html += '<div class="mr-form">';
+
+    // Width and Drop
+    html += '<div class="mr-row">';
+    html += '<div class="mr-field">';
+    html += '<label for="mr-width">Width (mm) <span class="mr-required">*</span></label>';
+    html += '<input type="number" id="mr-width" min="' + minW + '" max="' + maxW + '" step="1" placeholder="e.g. 1200">';
+    html += '<p class="mr-help">' + minW + ' - ' + maxW + ' mm</p>';
+    html += '</div>';
+    html += '<div class="mr-field">';
+    html += '<label for="mr-drop">Drop (mm) <span class="mr-required">*</span></label>';
+    html += '<input type="number" id="mr-drop" min="' + minD + '" max="' + maxD + '" step="1" placeholder="e.g. 1500">';
+    html += '<p class="mr-help">' + minD + ' - ' + maxD + ' mm</p>';
+    html += '</div>';
+    html += '</div>';
+
+    // Fabric selector
+    if (fabricsData.length > 0) {
+      html += '<div class="mr-field">';
+      html += '<label for="mr-fabric">Fabric <span class="mr-required">*</span></label>';
+      html += '<select id="mr-fabric"><option value="">Select fabric...</option>';
+      fabricsData.forEach(function(f) {
+        var label = escapeHtml(f.name);
+        if (f.category) label += ' (' + escapeHtml(f.category) + ')';
+        if (f.surcharge && f.surcharge > 0) label += ' +' + formatCurrency(f.surcharge);
+        html += '<option value="' + escapeHtml(f.id) + '" data-surcharge="' + (f.surcharge || 0) + '" data-name="' + escapeHtml(f.name) + '">' + label + '</option>';
+      });
+      html += '</select>';
+      html += '</div>';
+    }
+
+    // Dynamic options from template
+    var options = t.options || [];
+    if (options.length > 0) {
+      html += '<hr class="mr-separator">';
+      html += '<p class="mr-options-heading">Options</p>';
+
+      options.forEach(function(opt) {
+        html += '<div class="mr-field">';
+        html += '<label for="mr-opt-' + escapeHtml(opt.key) + '">' + escapeHtml(opt.label);
+        if (opt.required) html += ' <span class="mr-required">*</span>';
+        html += '</label>';
+
+        if (opt.type === 'select') {
+          html += '<select id="mr-opt-' + escapeHtml(opt.key) + '" data-option-key="' + escapeHtml(opt.key) + '" class="mr-option-select">';
+          if (!opt.required) {
+            html += '<option value="">None</option>';
+          } else {
+            html += '<option value="">Select...</option>';
+          }
+          var choices = opt.choices || [];
+          choices.forEach(function(c) {
+            var cLabel = escapeHtml(c.label);
+            if (c.price_type === 'flat' && c.price_value > 0) cLabel += ' (+' + formatCurrency(c.price_value) + ')';
+            if (c.price_type === 'multiplier' && c.price_value !== 1) cLabel += ' (x' + c.price_value + ')';
+            html += '<option value="' + escapeHtml(c.value) + '" data-price-type="' + (c.price_type || 'none') + '" data-price-value="' + (c.price_value || 0) + '">' + cLabel + '</option>';
+          });
+          html += '</select>';
+        }
+
+        html += '</div>';
+      });
+    }
+
+    html += '</div>'; // .mr-form
+    html += '</div>'; // .mr-card
+
+    // Price card (hidden initially)
+    html += '<div class="mr-price-card mr-hidden" id="mr-price-box">';
+    html += '<p class="mr-price-label">Your Price</p>';
+    html += '<p class="mr-price-value" id="mr-price"></p>';
+    html += '<p class="mr-price-note" id="mr-price-note"></p>';
+    html += '<div class="mr-breakdown" id="mr-breakdown"></div>';
+    html += '</div>';
+
+    // Add to cart
+    html += '<div class="mr-atc-wrapper">';
+    html += '<button class="mr-atc-btn" id="mr-atc-btn" disabled>';
+    html += '<span id="mr-atc-label">Add to Cart</span>';
+    html += '</button>';
+    html += '</div>';
+
+    container.innerHTML = html;
+
+    bindEvents();
+  }
+
+  // Bind all events
+  function bindEvents() {
     var widthInput = document.getElementById('mr-width');
     var dropInput = document.getElementById('mr-drop');
     var fabricSelect = document.getElementById('mr-fabric');
-    var priceBox = document.getElementById('mr-price-box');
-    var priceEl = document.getElementById('mr-price');
-    var breakdownEl = document.getElementById('mr-breakdown');
+    var optionSelects = document.querySelectorAll('.mr-option-select');
+    var atcBtn = document.getElementById('mr-atc-btn');
+
+    var debounceTimer = null;
+    function debouncedCalc() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(calculate, 150);
+    }
+
+    widthInput.addEventListener('input', debouncedCalc);
+    dropInput.addEventListener('input', debouncedCalc);
+    if (fabricSelect) fabricSelect.addEventListener('change', debouncedCalc);
+    for (var i = 0; i < optionSelects.length; i++) {
+      optionSelects[i].addEventListener('change', debouncedCalc);
+    }
+
+    atcBtn.addEventListener('click', handleAddToCart);
 
     function calculate() {
+      var priceBox = document.getElementById('mr-price-box');
+      var priceEl = document.getElementById('mr-price');
+      var priceNote = document.getElementById('mr-price-note');
+      var breakdownDiv = document.getElementById('mr-breakdown');
+
+      var t = templateData;
+      var minW = t.min_width || 300;
+      var maxW = t.max_width || 3000;
+      var minD = t.min_drop || 300;
+      var maxD = t.max_drop || 3000;
+
       var width = parseInt(widthInput.value, 10);
       var drop = parseInt(dropInput.value, 10);
 
+      // Validate
       if (!width || !drop || width < minW || width > maxW || drop < minD || drop > maxD) {
-        priceBox.style.display = 'none';
+        priceBox.classList.add('mr-hidden');
+        atcBtn.disabled = true;
         return;
       }
 
-      // Find the right grid (fabric-specific or default)
+      // Find grid
       var selectedFabricId = fabricSelect ? fabricSelect.value : '';
       var grid = defaultGrid;
       if (selectedFabricId) {
-        var fabricGrid = grids.find(function(g) { return g.fabric_id === selectedFabricId; });
+        var fabricGrid = gridsData.find(function(g) { return g.fabric_id === selectedFabricId; });
         if (fabricGrid) grid = fabricGrid;
       }
 
-      if (!grid || !grid.width_bands || !grid.drop_bands || !grid.prices) {
-        priceBox.style.display = 'block';
-        priceEl.textContent = 'N/A';
-        breakdownEl.textContent = 'No pricing grid available';
+      if (!grid) {
+        showPriceError(priceBox, priceEl, priceNote, breakdownDiv, 'No pricing data available');
+        atcBtn.disabled = true;
         return;
       }
 
-      // Grid lookup: find the band index for width and drop
-      var wBands = grid.width_bands;
-      var dBands = grid.drop_bands;
-      var prices = grid.prices;
+      // Compute base price based on pricing model
+      var model = t.pricing_model || 'grid';
+      var basePrice = null;
+      var widthM = width / 1000;
+      var dropM = drop / 1000;
+      var areaSqm = widthM * dropM;
 
-      var wIdx = findBandIndex(wBands, width);
-      var dIdx = findBandIndex(dBands, drop);
+      if (model === 'grid') {
+        if (!grid.width_bands || !grid.drop_bands || !grid.prices) {
+          showPriceError(priceBox, priceEl, priceNote, breakdownDiv, 'Pricing grid not configured');
+          atcBtn.disabled = true;
+          return;
+        }
+        var wIdx = findBandIndex(grid.width_bands, width);
+        var dIdx = findBandIndex(grid.drop_bands, drop);
+        basePrice = grid.prices[dIdx * grid.width_bands.length + wIdx];
+      } else if (model === 'sqm' || model === 'area') {
+        basePrice = areaSqm * (grid.price_per_sqm || 0);
+      } else if (model === 'linear_metre') {
+        basePrice = widthM * (grid.price_per_linear_metre || 0);
+      } else if (model === 'fixed') {
+        var fp = grid.prices || [];
+        basePrice = fp.length > 0 ? fp[0] : 0;
+      }
 
-      var basePrice = prices[dIdx * wBands.length + wIdx];
       if (basePrice === undefined || basePrice === null) {
-        priceBox.style.display = 'block';
-        priceEl.textContent = 'N/A';
-        breakdownEl.textContent = 'Size outside pricing range';
+        showPriceError(priceBox, priceEl, priceNote, breakdownDiv, 'Size outside pricing range');
+        atcBtn.disabled = true;
         return;
       }
 
-      // Add surcharges
-      var fabricSurcharge = 0;
-      if (fabricSelect && fabricSelect.value) {
-        var opt = fabricSelect.options[fabricSelect.selectedIndex];
-        fabricSurcharge = parseFloat(opt.getAttribute('data-surcharge')) || 0;
+      // Collect option selections and compute surcharges
+      var selectedOptions = {};
+      var multiplierProduct = 1;
+      var flatSum = 0;
+      var perSqmSum = 0;
+      var perLinearMetreSum = 0;
+      var requiredMissing = false;
+
+      var allOptionSelects = document.querySelectorAll('.mr-option-select');
+      for (var i = 0; i < allOptionSelects.length; i++) {
+        var sel = allOptionSelects[i];
+        var key = sel.getAttribute('data-option-key');
+        var val = sel.value;
+
+        // Check required
+        var optDef = (t.options || []).find(function(o) { return o.key === key; });
+        if (optDef && optDef.required && !val) {
+          requiredMissing = true;
+        }
+
+        if (val) {
+          selectedOptions[key] = val;
+          var selectedOpt = sel.options[sel.selectedIndex];
+          var priceType = selectedOpt.getAttribute('data-price-type') || 'none';
+          var priceValue = parseFloat(selectedOpt.getAttribute('data-price-value')) || 0;
+
+          if (priceType === 'multiplier') {
+            multiplierProduct *= priceValue;
+          } else if (priceType === 'flat') {
+            flatSum += priceValue;
+          } else if (priceType === 'per_sqm') {
+            perSqmSum += priceValue * areaSqm;
+          } else if (priceType === 'per_linear_metre') {
+            perLinearMetreSum += priceValue * widthM;
+          }
+        }
       }
 
-      var wastage = t.wastage_percent ? basePrice * (t.wastage_percent / 100) : 0;
+      // Fabric surcharge
+      var fabricSurcharge = 0;
+      var fabricName = '';
+      if (fabricSelect && fabricSelect.value) {
+        var fOpt = fabricSelect.options[fabricSelect.selectedIndex];
+        fabricSurcharge = parseFloat(fOpt.getAttribute('data-surcharge')) || 0;
+        fabricName = fOpt.getAttribute('data-name') || fOpt.textContent;
+      }
+
+      // Check required fabric
+      if (fabricsData.length > 0 && !fabricSelect.value) {
+        requiredMissing = true;
+      }
+
+      // Pricing calculation order:
+      // 1. Apply multiplier options to base
+      var baseAfterMultipliers = basePrice * multiplierProduct;
+
+      // 2. Add flat surcharges
+      var afterFlat = baseAfterMultipliers + flatSum;
+
+      // 3. Add per_sqm surcharges
+      var afterPerSqm = afterFlat + perSqmSum;
+
+      // 4. Add per_linear_metre surcharges
+      var afterPerLm = afterPerSqm + perLinearMetreSum;
+
+      // 5. Add fabric surcharge
+      var afterFabric = afterPerLm + fabricSurcharge;
+
+      // 6. Wastage on (base after multipliers + fabric surcharge)
+      var wastageBase = baseAfterMultipliers + fabricSurcharge;
+      var wastage = t.wastage_percent ? wastageBase * (t.wastage_percent / 100) : 0;
+
+      // 7. Labour and installation
       var labour = t.labour_cost || 0;
       var installation = t.installation_cost || 0;
-      var total = basePrice + fabricSurcharge + wastage + labour + installation;
 
-      priceBox.style.display = 'block';
-      priceEl.textContent = '$' + total.toFixed(2);
+      var total = afterFabric + wastage + labour + installation;
 
-      var parts = [];
-      parts.push('Base: $' + basePrice.toFixed(2));
-      if (fabricSurcharge > 0) parts.push('Fabric: +$' + fabricSurcharge.toFixed(2));
-      if (wastage > 0) parts.push('Wastage (' + t.wastage_percent + '%): +$' + wastage.toFixed(2));
-      if (labour > 0) parts.push('Labour: +$' + labour.toFixed(2));
-      if (installation > 0) parts.push('Install: +$' + installation.toFixed(2));
-      breakdownEl.textContent = parts.join(' · ');
-    }
-
-    function findBandIndex(bands, value) {
-      for (var i = 0; i < bands.length; i++) {
-        if (value <= bands[i]) return i;
+      // Build breakdown
+      var breakdownItems = [];
+      breakdownItems.push({ label: 'Base price', amount: basePrice });
+      if (multiplierProduct !== 1) {
+        breakdownItems.push({ label: 'Options (multiplier x' + multiplierProduct.toFixed(2) + ')', amount: baseAfterMultipliers - basePrice });
       }
-      return bands.length - 1;
+      if (flatSum > 0) {
+        breakdownItems.push({ label: 'Option surcharges', amount: flatSum });
+      }
+      if (perSqmSum > 0) {
+        breakdownItems.push({ label: 'Per sqm options', amount: perSqmSum });
+      }
+      if (perLinearMetreSum > 0) {
+        breakdownItems.push({ label: 'Per linear metre options', amount: perLinearMetreSum });
+      }
+      if (fabricSurcharge > 0) {
+        breakdownItems.push({ label: 'Fabric surcharge', amount: fabricSurcharge });
+      }
+      if (wastage > 0) {
+        breakdownItems.push({ label: 'Wastage (' + t.wastage_percent + '%)', amount: wastage });
+      }
+      if (labour > 0) {
+        breakdownItems.push({ label: 'Labour', amount: labour });
+      }
+      if (installation > 0) {
+        breakdownItems.push({ label: 'Installation', amount: installation });
+      }
+      breakdownItems.push({ label: 'Total', amount: total });
+
+      // Render
+      priceBox.classList.remove('mr-hidden');
+      priceEl.textContent = formatCurrency(total);
+      priceEl.className = 'mr-price-value';
+      priceNote.textContent = model === 'grid' ? '' : '';
+
+      var bHtml = '<p class="mr-breakdown-title">Price Breakdown</p>';
+      bHtml += '<ul class="mr-breakdown-list">';
+      breakdownItems.forEach(function(item) {
+        bHtml += '<li><span>' + escapeHtml(item.label) + '</span><span class="mr-amount">' + formatCurrency(item.amount) + '</span></li>';
+      });
+      bHtml += '</ul>';
+      breakdownDiv.innerHTML = bHtml;
+
+      // Enable/disable add to cart
+      atcBtn.disabled = requiredMissing;
     }
 
-    widthInput.addEventListener('input', calculate);
-    dropInput.addEventListener('input', calculate);
-    if (fabricSelect) fabricSelect.addEventListener('change', calculate);
+    function showPriceError(priceBox, priceEl, priceNote, breakdownDiv, msg) {
+      priceBox.classList.remove('mr-hidden');
+      priceEl.textContent = msg;
+      priceEl.className = 'mr-price-value mr-price-na';
+      priceNote.textContent = '';
+      breakdownDiv.innerHTML = '';
+    }
+
+    function handleAddToCart() {
+      var width = parseInt(widthInput.value, 10);
+      var drop = parseInt(dropInput.value, 10);
+      var fabricId = fabricSelect ? fabricSelect.value : '';
+      var fabricName = '';
+      if (fabricSelect && fabricSelect.value) {
+        var fOpt = fabricSelect.options[fabricSelect.selectedIndex];
+        fabricName = fOpt.getAttribute('data-name') || fOpt.textContent.trim();
+      }
+
+      // Collect options
+      var selectedOptions = {};
+      var allOptSels = document.querySelectorAll('.mr-option-select');
+      for (var i = 0; i < allOptSels.length; i++) {
+        var sel = allOptSels[i];
+        var key = sel.getAttribute('data-option-key');
+        if (sel.value) selectedOptions[key] = sel.value;
+      }
+
+      // Show loading
+      var label = document.getElementById('mr-atc-label');
+      var originalText = label.textContent;
+      label.innerHTML = '<span class="mr-btn-spinner"></span> Processing...';
+      atcBtn.disabled = true;
+
+      var payload = {
+        shop: shop,
+        template_code: templateCode,
+        width: width,
+        drop: drop,
+        fabric_id: fabricId,
+        fabric_name: fabricName,
+        colour: '',
+        options: selectedOptions,
+        quantity: 1
+      };
+
+      fetch(proxyBase + '/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(function(r) {
+          if (!r.ok) throw new Error('Checkout failed (HTTP ' + r.status + ')');
+          return r.json();
+        })
+        .then(function(data) {
+          if (data.checkout_url) {
+            window.location.href = data.checkout_url;
+          } else {
+            throw new Error(data.error || 'No checkout URL returned');
+          }
+        })
+        .catch(function(err) {
+          label.textContent = originalText;
+          atcBtn.disabled = false;
+          alert('Could not create checkout: ' + err.message);
+        });
+    }
   }
+
+  function findBandIndex(bands, value) {
+    for (var i = 0; i < bands.length; i++) {
+      if (value <= bands[i]) return i;
+    }
+    return bands.length - 1;
+  }
+
 })();
 </script>
 
@@ -258,8 +923,26 @@
     {
       "type": "text",
       "id": "template_id",
-      "label": "Product Template ID",
+      "label": "Product Template Code",
       "info": "The MeasureRight template code (e.g. roller-blind)"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_default_controls",
+      "label": "Hide default product controls",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_from_price",
+      "label": "Show 'From $X' minimum price",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent Color",
+      "default": "#2563eb"
     }
   ]
 }
