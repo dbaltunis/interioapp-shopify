@@ -413,6 +413,11 @@
     cursor: not-allowed;
   }
 
+  .mr-atc-btn.mr-atc-success {
+    background: #16a34a !important;
+    opacity: 1 !important;
+  }
+
   .mr-atc-btn .mr-btn-spinner {
     width: 18px;
     height: 18px;
@@ -982,55 +987,128 @@
 
       // Collect options
       var selectedOptions = {};
+      var optionLabels = {};
       var allOptSels = document.querySelectorAll('.mr-option-select');
       for (var i = 0; i < allOptSels.length; i++) {
         var sel = allOptSels[i];
         var key = sel.getAttribute('data-option-key');
-        if (sel.value) selectedOptions[key] = sel.value;
+        if (sel.value) {
+          selectedOptions[key] = sel.value;
+          // Get the human-readable label for the selected value
+          var selectedOpt = sel.options[sel.selectedIndex];
+          optionLabels[key] = selectedOpt ? selectedOpt.textContent.trim() : sel.value;
+        }
       }
 
       // Show loading
       var label = document.getElementById('mr-atc-label');
       var originalText = label.textContent;
-      label.innerHTML = '<span class="mr-btn-spinner"></span> Processing...';
+      label.innerHTML = '<span class="mr-btn-spinner"></span> Adding...';
       atcBtn.disabled = true;
 
       var colourSelect = document.getElementById('mr-colour');
       var selectedColour = (colourSelect && colourSelect.value) ? colourSelect.value : '';
 
-      var payload = {
-        shop: shop,
-        template_code: templateCode,
-        width: width,
-        drop: drop,
-        fabric_id: fabricId,
-        fabric_name: fabricName,
-        colour: selectedColour,
-        options: selectedOptions,
-        quantity: 1
+      // Get the calculated price from the displayed price
+      var priceEl = document.getElementById('mr-price');
+      var calculatedPrice = priceEl ? priceEl.textContent : '';
+
+      // Build line item properties for the cart
+      var properties = {
+        'Width': width + 'mm',
+        'Drop': drop + 'mm'
       };
 
-      fetch(proxyBase + '/api/create-checkout', {
+      if (fabricName) {
+        properties['Fabric'] = fabricName;
+      }
+      if (selectedColour) {
+        properties['Colour'] = selectedColour;
+      }
+
+      // Add each option with its readable label
+      var tOpts = templateData ? (templateData.options || []) : [];
+      for (var key in selectedOptions) {
+        var optDef = tOpts.find(function(o) { return o.key === key; });
+        var optLabel = optDef ? optDef.label : key;
+        properties[optLabel] = optionLabels[key] || selectedOptions[key];
+      }
+
+      // Store template and calculated price as hidden properties (prefixed with _)
+      properties['_template_code'] = templateCode;
+      properties['_calculated_price'] = calculatedPrice;
+      properties['_width_mm'] = String(width);
+      properties['_drop_mm'] = String(drop);
+      if (fabricId) properties['_fabric_id'] = fabricId;
+
+      // Add to Shopify cart using Cart AJAX API
+      fetch('/cart/add.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          id: parseInt(variantId, 10),
+          quantity: 1,
+          properties: properties
+        })
       })
         .then(function(r) {
-          if (!r.ok) throw new Error('Checkout failed (HTTP ' + r.status + ')');
+          if (!r.ok) throw new Error('Failed to add to cart (HTTP ' + r.status + ')');
           return r.json();
         })
-        .then(function(data) {
-          if (data.checkout_url) {
-            window.location.href = data.checkout_url;
-          } else {
-            throw new Error(data.error || 'No checkout URL returned');
-          }
+        .then(function(item) {
+          // Success — update cart count in the header
+          label.textContent = 'Added!';
+          atcBtn.classList.add('mr-atc-success');
+
+          // Try to update the cart count bubble in the theme header
+          updateCartCount();
+
+          // Reset button after a short delay
+          setTimeout(function() {
+            label.textContent = originalText;
+            atcBtn.disabled = false;
+            atcBtn.classList.remove('mr-atc-success');
+          }, 2000);
         })
         .catch(function(err) {
           label.textContent = originalText;
           atcBtn.disabled = false;
-          alert('Could not create checkout: ' + err.message);
+          alert('Could not add to cart: ' + err.message);
         });
+    }
+
+    function updateCartCount() {
+      // Fetch updated cart to get new item count
+      fetch('/cart.js')
+        .then(function(r) { return r.json(); })
+        .then(function(cart) {
+          // Update common cart count selectors used by Dawn and other themes
+          var countBubbles = document.querySelectorAll(
+            '.cart-count-bubble span[aria-hidden], ' +
+            '#cart-icon-bubble span[aria-hidden], ' +
+            '.header__icon .count, ' +
+            '.site-header__cart-count, ' +
+            '.cart-count'
+          );
+          for (var i = 0; i < countBubbles.length; i++) {
+            countBubbles[i].textContent = cart.item_count;
+          }
+
+          // Show the bubble if it was hidden
+          var bubbles = document.querySelectorAll(
+            '.cart-count-bubble, #cart-icon-bubble .cart-count-bubble'
+          );
+          for (var j = 0; j < bubbles.length; j++) {
+            bubbles[j].style.display = '';
+            bubbles[j].removeAttribute('hidden');
+          }
+
+          // Dispatch a custom event so the theme can react
+          document.dispatchEvent(new CustomEvent('cart:updated', {
+            detail: { cart: cart }
+          }));
+        })
+        .catch(function() { /* ignore — cart count update is best-effort */ });
     }
   }
 
