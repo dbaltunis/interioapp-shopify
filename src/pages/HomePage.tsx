@@ -43,9 +43,8 @@ export default function HomePage() {
   const handleSeedDemo = async () => {
     setSeeding(true);
     try {
-      const res = await fetch("/api/seed");
-      const json = await res.json();
-      if (json.data?.seeded) {
+      const json = await fetch("/api/seed");
+      if (json.data?.seeded || json.seeded) {
         showToast("Demo products created: Roller Blind, Venetian Blind, and Curtains");
         refetchTemplates();
       } else {

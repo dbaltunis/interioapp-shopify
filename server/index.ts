@@ -35,8 +35,18 @@ const app = express();
 // Middleware
 app.use(compression());
 app.use(cors());
-
 app.use(cookieParser());
+
+// Shopify embedded apps MUST set frame-ancestors to allow iframe embedding
+app.use((_req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "frame-ancestors https://*.myshopify.com https://admin.shopify.com;"
+  );
+  // Remove X-Frame-Options if set by other middleware (it conflicts with frame-ancestors)
+  res.removeHeader("X-Frame-Options");
+  next();
+});
 
 // Webhook routes must be registered BEFORE express.json() to capture raw body for HMAC verification
 app.use("/api/webhooks", express.json({ verify: captureRawBody }), webhookRoutes);

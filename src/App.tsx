@@ -4,6 +4,7 @@ import { NavMenu } from "@shopify/app-bridge-react";
 import enTranslations from "@shopify/polaris/locales/en.json";
 import { AppBridgeProvider } from "./providers/AppBridgeProvider";
 import { QueryProvider } from "./providers/QueryProvider";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 import HomePage from "./pages/HomePage";
 import ShopifyProductsPage from "./pages/ShopifyProductsPage";
@@ -48,6 +49,7 @@ export default function App() {
     <BrowserRouter>
       <AppBridgeProvider>
         <AppProvider i18n={enTranslations}>
+          <ErrorBoundary>
           <QueryProvider>
             <NavMenu>
               <a href="/" rel="home">Home</a>
@@ -63,6 +65,7 @@ export default function App() {
             </NavMenu>
             <AppRoutes />
           </QueryProvider>
+          </ErrorBoundary>
         </AppProvider>
       </AppBridgeProvider>
     </BrowserRouter>
