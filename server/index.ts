@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
 import { authenticateRequest } from "./middleware/auth.js";
 import { errorHandler } from "./middleware/error-handler.js";
+import { runMigrations } from "./lib/migrate.js";
 
 // Route imports
 import authRoutes from "./routes/auth.js";
@@ -92,10 +93,12 @@ if (isProduction) {
 // Error handler
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`MeasureRight server running on port ${PORT}`);
   if (!isProduction) {
     console.log(`API: http://localhost:${PORT}/api/health`);
     console.log(`Frontend dev server should run on http://localhost:5173`);
   }
+  // Check for missing database columns on startup
+  await runMigrations().catch((err) => console.error("Migration check failed:", err));
 });
