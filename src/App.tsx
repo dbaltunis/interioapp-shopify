@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppProvider } from "@shopify/polaris";
 import { NavMenu } from "@shopify/app-bridge-react";
 import enTranslations from "@shopify/polaris/locales/en.json";
@@ -24,7 +24,8 @@ import SettingsPage from "./pages/SettingsPage";
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/dashboard" element={<HomePage />} />
       <Route path="/shopify-products" element={<ShopifyProductsPage />} />
       <Route path="/templates" element={<TemplatesPage />} />
       <Route path="/templates/new" element={<TemplateDetailPage />} />
@@ -52,7 +53,7 @@ export default function App() {
           <ErrorBoundary>
           <QueryProvider>
             <NavMenu>
-              <a href="/" rel="home">Home</a>
+              <a href="/dashboard" rel="home">Home</a>
               <a href="/templates">Templates</a>
               <a href="/price-lists">Price Lists</a>
               <a href="/fabrics">Fabrics</a>
