@@ -4,6 +4,7 @@ import {
   Card,
   IndexTable,
   Badge,
+  Banner,
   Button,
   Modal,
   FormLayout,
@@ -89,9 +90,18 @@ export default function FabricsPage() {
   return (
     <Page
       title="Fabrics"
-      subtitle="Manage your fabric catalogue"
+      subtitle="Optional pricing modifiers — not Shopify products"
       primaryAction={{ content: "Add Fabric", onAction: openNew }}
     >
+      <BlockStack gap="400">
+      <Banner tone="info" title="What are fabrics?">
+        <p>
+          Fabrics are <strong>optional pricing modifiers</strong> for your calculator — they are not
+          Shopify products. When enabled on a product template, customers can choose a fabric which
+          may add a surcharge or use a fabric-specific pricing grid. If your products don't need
+          fabric selection, you can ignore this section entirely.
+        </p>
+      </Banner>
       <Card padding="0">
         {isLoading ? (
           <div style={{ padding: "16px" }}>
@@ -99,11 +109,14 @@ export default function FabricsPage() {
           </div>
         ) : !fabrics?.length ? (
           <EmptyState
-            heading="No fabrics yet"
+            heading="No fabrics added"
             action={{ content: "Add Fabric", onAction: openNew }}
             image=""
           >
-            <p>Add your first fabric to the catalogue.</p>
+            <p>
+              Fabrics are optional. Add them only if your products need fabric selection
+              with per-fabric pricing or surcharges.
+            </p>
           </EmptyState>
         ) : (
           <IndexTable
@@ -152,6 +165,7 @@ export default function FabricsPage() {
           </IndexTable>
         )}
       </Card>
+      </BlockStack>
 
       <Modal
         open={dialogOpen}
