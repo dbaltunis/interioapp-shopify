@@ -14,6 +14,9 @@ export interface Merchant {
   installed_at: string;
   uninstalled_at: string | null;
   updated_at: string;
+  interioapp_account_id: string | null;
+  interioapp_api_key: string | null;
+  interioapp_last_sync: string | null;
 }
 
 export interface ProductTemplate {

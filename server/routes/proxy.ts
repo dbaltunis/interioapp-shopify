@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { supabase } from "../lib/supabase.js";
+import { createLead, type InterioAppCredentials } from "../lib/interioapp.js";
 
 const router = Router();
 
@@ -573,6 +574,36 @@ router.post("/api/create-checkout", async (req: Request, res: Response) => {
     // The draft order response includes invoice_url which is the checkout URL.
     // No need to call send_invoice — that would email the customer prematurely.
     const checkoutUrl = draft_order.invoice_url || null;
+
+    // Auto-push lead to InterioApp if connected (fire-and-forget)
+    try {
+      const { data: merchantSettings } = await supabase
+        .from("merchants")
+        .select("interioapp_account_id, interioapp_api_key")
+        .eq("id", merchant.id)
+        .single();
+
+      if (merchantSettings?.interioapp_account_id && merchantSettings?.interioapp_api_key) {
+        const credentials: InterioAppCredentials = {
+          account_id: merchantSettings.interioapp_account_id,
+          api_key: merchantSettings.interioapp_api_key,
+        };
+        const customerEmail = draft_order.email || draft_order.customer?.email;
+        const customerName = draft_order.customer?.first_name
+          ? `${draft_order.customer.first_name} ${draft_order.customer.last_name || ""}`.trim()
+          : "Shopify Customer";
+        if (customerEmail) {
+          createLead(credentials, {
+            name: customerName,
+            email: customerEmail,
+            source: "shopify-measureright",
+            notes: `Draft order ${draft_order.id} — ${lineTitle}`,
+          }).catch((err) => console.error("InterioApp lead push failed:", err.message));
+        }
+      }
+    } catch {
+      // Non-critical — don't block checkout
+    }
 
     res.json({
       checkout_url: checkoutUrl,

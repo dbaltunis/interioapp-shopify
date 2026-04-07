@@ -23,6 +23,7 @@ import analyticsRoutes from "./routes/analytics.js";
 import settingsRoutes from "./routes/settings.js";
 import billingRoutes from "./routes/billing.js";
 import seedRoutes from "./routes/seed.js";
+import interioappRoutes from "./routes/interioapp.js";
 import proxyRoutes from "./routes/proxy.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -74,6 +75,7 @@ app.use("/api/analytics", authenticateRequest, analyticsRoutes);
 app.use("/api/settings", authenticateRequest, settingsRoutes);
 app.use("/api/billing", authenticateRequest, billingRoutes);
 app.use("/api/seed", authenticateRequest, seedRoutes);
+app.use("/api/interioapp", authenticateRequest, interioappRoutes);
 
 // Public proxy routes (no auth — Shopify App Proxy forwards storefront requests here)
 app.use("/proxy", proxyRoutes);

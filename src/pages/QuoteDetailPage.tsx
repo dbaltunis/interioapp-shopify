@@ -77,6 +77,26 @@ export default function QuoteDetailPage() {
     }
   };
 
+  const [pushingToInterioApp, setPushingToInterioApp] = useState(false);
+
+  const handlePushToInterioApp = async () => {
+    setPushingToInterioApp(true);
+    try {
+      const res = await fetch("/api/interioapp/push/project", {
+        method: "POST",
+        body: JSON.stringify({ quote_id: id }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      showToast(`Pushed to InterioApp as project ${json.data.project_number}`);
+      refetch();
+    } catch (err: any) {
+      showToast(err.message || "Failed to push to InterioApp", { isError: true });
+    } finally {
+      setPushingToInterioApp(false);
+    }
+  };
+
   if (isLoading || !quote) {
     return (
       <SkeletonPage title="Loading..." backAction>
@@ -119,9 +139,18 @@ export default function QuoteDetailPage() {
                   </Button>
                 ))}
                 {quote.status === "accepted" && (
-                  <Button variant="primary" size="slim" onClick={handleCreateWorkOrder}>
-                    Create Work Order
-                  </Button>
+                  <>
+                    <Button variant="primary" size="slim" onClick={handleCreateWorkOrder}>
+                      Create Work Order
+                    </Button>
+                    <Button
+                      size="slim"
+                      onClick={handlePushToInterioApp}
+                      loading={pushingToInterioApp}
+                    >
+                      Push to InterioApp
+                    </Button>
+                  </>
                 )}
               </InlineStack>
             </InlineStack>

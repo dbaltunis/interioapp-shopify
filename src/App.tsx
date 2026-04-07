@@ -20,6 +20,7 @@ import OrdersPage from "./pages/OrdersPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
+import InterioAppPage from "./pages/InterioAppPage";
 
 function AppRoutes() {
   return (
@@ -41,6 +42,7 @@ function AppRoutes() {
       <Route path="/orders/:id" element={<OrderDetailPage />} />
       <Route path="/analytics" element={<AnalyticsPage />} />
       <Route path="/settings" element={<SettingsPage />} />
+      <Route path="/interioapp" element={<InterioAppPage />} />
     </Routes>
   );
 }
@@ -62,6 +64,7 @@ export default function App() {
               <a href="/orders">Work Orders</a>
               <a href="/shopify-products">Products</a>
               <a href="/analytics">Analytics</a>
+              <a href="/interioapp">InterioApp</a>
               <a href="/settings">Settings</a>
             </NavMenu>
             <AppRoutes />

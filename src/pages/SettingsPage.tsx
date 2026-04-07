@@ -341,6 +341,21 @@ export default function SettingsPage() {
           </BlockStack>
         </Card>
 
+        {/* InterioApp Integration */}
+        <Card>
+          <BlockStack gap="400">
+            <InlineStack align="space-between" blockAlign="center">
+              <BlockStack gap="100">
+                <Text as="h2" variant="headingMd">InterioApp Integration</Text>
+                <Text as="p" variant="bodySm" tone="subdued">
+                  Sync fabrics, templates, and pricing with your InterioApp account
+                </Text>
+              </BlockStack>
+              <Button url="/interioapp">Manage Connection</Button>
+            </InlineStack>
+          </BlockStack>
+        </Card>
+
         {/* Data */}
         <Card>
           <BlockStack gap="400">
