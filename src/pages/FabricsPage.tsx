@@ -34,7 +34,7 @@ export default function FabricsPage() {
 
   const openNew = () => {
     setEditingId(null);
-    setForm({ name: "", category: "", colours: [], roll_width: null, price_per_sqm: null, price_per_linear_metre: null, surcharge: 0 });
+    setForm({ name: "", category: "", colours: [], roll_width: undefined, price_per_sqm: undefined, price_per_linear_metre: undefined, surcharge: 0 });
     setDialogOpen(true);
   };
 
@@ -133,7 +133,7 @@ export default function FabricsPage() {
                       <Badge key={c}>{c}</Badge>
                     ))}
                     {(f.colours?.length || 0) > 3 && (
-                      <Badge tone="info">+{f.colours!.length - 3}</Badge>
+                      <Badge tone="info">{`+${f.colours!.length - 3}`}</Badge>
                     )}
                   </InlineStack>
                 </IndexTable.Cell>
@@ -187,11 +187,11 @@ export default function FabricsPage() {
             </BlockStack>
 
             <FormLayout.Group>
-              <TextField label="Roll Width (mm)" type="number" value={String(form.roll_width ?? "")} onChange={(val) => setForm({ ...form, roll_width: val ? Number(val) : null })} autoComplete="off" />
-              <TextField label="Price per sqm" type="number" value={String(form.price_per_sqm ?? "")} onChange={(val) => setForm({ ...form, price_per_sqm: val ? Number(val) : null })} autoComplete="off" />
+              <TextField label="Roll Width (mm)" type="number" value={String(form.roll_width ?? "")} onChange={(val) => setForm({ ...form, roll_width: val ? Number(val) : undefined })} autoComplete="off" />
+              <TextField label="Price per sqm" type="number" value={String(form.price_per_sqm ?? "")} onChange={(val) => setForm({ ...form, price_per_sqm: val ? Number(val) : undefined })} autoComplete="off" />
             </FormLayout.Group>
             <FormLayout.Group>
-              <TextField label="Price per linear metre" type="number" value={String(form.price_per_linear_metre ?? "")} onChange={(val) => setForm({ ...form, price_per_linear_metre: val ? Number(val) : null })} autoComplete="off" />
+              <TextField label="Price per linear metre" type="number" value={String(form.price_per_linear_metre ?? "")} onChange={(val) => setForm({ ...form, price_per_linear_metre: val ? Number(val) : undefined })} autoComplete="off" />
               <TextField label="Surcharge" type="number" value={String(form.surcharge ?? 0)} onChange={(val) => setForm({ ...form, surcharge: Number(val) })} autoComplete="off" />
             </FormLayout.Group>
           </FormLayout>

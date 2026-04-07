@@ -106,7 +106,10 @@
      data-product-url="{{ product.url }}"
      data-currency="{{ cart.currency.iso_code }}"
      data-accent-color="{{ block.settings.accent_color }}"
-     data-show-from-price="{{ block.settings.show_from_price }}">
+     data-show-from-price="{{ block.settings.show_from_price }}"
+     data-show-fabrics="{{ block.settings.show_fabric_selector }}"
+     data-show-breakdown="{{ block.settings.show_breakdown }}"
+     data-button-text="{{ block.settings.button_text | default: 'Add to Cart' }}">
   <div class="mr-loading">
     <div class="mr-spinner"></div>
     <span>Loading calculator...</span>
@@ -502,6 +505,9 @@
   var productUrl = container.getAttribute('data-product-url');
   var currencyCode = container.getAttribute('data-currency') || 'USD';
   var showFromPrice = container.getAttribute('data-show-from-price') === 'true';
+  var showFabrics = container.getAttribute('data-show-fabrics') === 'true';
+  var showBreakdown = container.getAttribute('data-show-breakdown') !== 'false';
+  var buttonText = container.getAttribute('data-button-text') || 'Add to Cart';
   var proxyBase = '/apps/measureright';
 
   // Currency formatting
@@ -622,7 +628,7 @@
     html += '<div class="mr-card">';
     html += '<div class="mr-header">';
     html += '<p class="mr-title">Calculate Your Price</p>';
-    html += '<p class="mr-subtitle">Enter your measuements to get an instant quote</p>';
+    html += '<p class="mr-subtitle">Enter your measurements to get an instant quote</p>';
     html += '</div>';
 
     html += '<div class="mr-form">';
@@ -641,8 +647,8 @@
     html += '</div>';
     html += '</div>';
 
-    // Fabric selector
-    if (fabricsData.length > 0) {
+    // Fabric selector — only shown if enabled in block settings
+    if (showFabrics && fabricsData.length > 0) {
       html += '<div class="mr-field">';
       html += '<label for="mr-fabric">Fabric <span class="mr-required">*</span></label>';
       html += '<select id="mr-fabric"><option value="">Select fabric...</option>';
@@ -709,7 +715,7 @@
     // Add to cart — inside the .mr-card
     html += '<div class="mr-atc-wrapper">';
     html += '<button class="mr-atc-btn" id="mr-atc-btn" disabled>';
-    html += '<span id="mr-atc-label">Add to Cart</span>';
+    html += '<span id="mr-atc-label">' + escapeHtml(buttonText) + '</span>';
     html += '</button>';
     html += '</div>';
 
@@ -900,8 +906,8 @@
         fabricName = fOpt.getAttribute('data-name') || fOpt.textContent;
       }
 
-      // Check required fabric
-      if (fabricsData.length > 0 && !fabricSelect.value) {
+      // Check required fabric (only if fabric selector is visible)
+      if (showFabrics && fabricsData.length > 0 && fabricSelect && !fabricSelect.value) {
         requiredMissing = true;
       }
 
@@ -966,13 +972,17 @@
       priceEl.className = 'mr-price-value';
       priceNote.textContent = model === 'grid' ? '' : '';
 
-      var bHtml = '<p class="mr-breakdown-title">Price Breakdown</p>';
-      bHtml += '<ul class="mr-breakdown-list">';
-      breakdownItems.forEach(function(item) {
-        bHtml += '<li><span>' + escapeHtml(item.label) + '</span><span class="mr-amount">' + formatCurrency(item.amount) + '</span></li>';
-      });
-      bHtml += '</ul>';
-      breakdownDiv.innerHTML = bHtml;
+      if (showBreakdown) {
+        var bHtml = '<p class="mr-breakdown-title">Price Breakdown</p>';
+        bHtml += '<ul class="mr-breakdown-list">';
+        breakdownItems.forEach(function(item) {
+          bHtml += '<li><span>' + escapeHtml(item.label) + '</span><span class="mr-amount">' + formatCurrency(item.amount) + '</span></li>';
+        });
+        bHtml += '</ul>';
+        breakdownDiv.innerHTML = bHtml;
+      } else {
+        breakdownDiv.innerHTML = '';
+      }
 
       // Enable/disable add to cart
       atcBtn.disabled = requiredMissing;
@@ -996,130 +1006,69 @@
         fabricName = fOpt.getAttribute('data-name') || fOpt.textContent.trim();
       }
 
-      // Collect options
+      // Collect options (values for server, labels for display)
       var selectedOptions = {};
-      var optionLabels = {};
       var allOptSels = document.querySelectorAll('.mr-option-select');
       for (var i = 0; i < allOptSels.length; i++) {
         var sel = allOptSels[i];
         var key = sel.getAttribute('data-option-key');
         if (sel.value) {
           selectedOptions[key] = sel.value;
-          // Get the human-readable label for the selected value
-          var selectedOpt = sel.options[sel.selectedIndex];
-          optionLabels[key] = selectedOpt ? selectedOpt.textContent.trim() : sel.value;
         }
       }
 
       // Show loading
       var label = document.getElementById('mr-atc-label');
       var originalText = label.textContent;
-      label.innerHTML = '<span class="mr-btn-spinner"></span> Adding...';
+      label.innerHTML = '<span class="mr-btn-spinner"></span> Processing...';
       atcBtn.disabled = true;
 
       var colourSelect = document.getElementById('mr-colour');
       var selectedColour = (colourSelect && colourSelect.value) ? colourSelect.value : '';
 
-      // Get the calculated price from the displayed price
-      var priceEl = document.getElementById('mr-price');
-      var calculatedPrice = priceEl ? priceEl.textContent : '';
-
-      // Build line item properties for the cart
-      var properties = {
-        'Width': width + 'mm',
-        'Drop': drop + 'mm'
-      };
-
-      if (fabricName) {
-        properties['Fabric'] = fabricName;
-      }
-      if (selectedColour) {
-        properties['Colour'] = selectedColour;
-      }
-
-      // Add each option with its readable label
-      var tOpts = templateData ? (templateData.options || []) : [];
-      for (var key in selectedOptions) {
-        var optDef = tOpts.find(function(o) { return o.key === key; });
-        var optLabel = optDef ? optDef.label : key;
-        properties[optLabel] = optionLabels[key] || selectedOptions[key];
-      }
-
-      // Store template and calculated price as hidden properties (prefixed with _)
-      properties['_template_code'] = templateCode;
-      properties['_calculated_price'] = calculatedPrice;
-      properties['_width_mm'] = String(width);
-      properties['_drop_mm'] = String(drop);
-      if (fabricId) properties['_fabric_id'] = fabricId;
-
-      // Add to Shopify cart using Cart AJAX API
-      fetch('/cart/add.js', {
+      // Use the server-side draft order endpoint to create a checkout
+      // with the correct calculated price (Shopify Cart API ignores custom prices)
+      fetch(proxyBase + '/api/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          id: parseInt(variantId, 10),
-          quantity: 1,
-          properties: properties
+          shop: shop,
+          template_code: templateCode,
+          width: width,
+          drop: drop,
+          fabric_id: fabricId || null,
+          fabric_name: fabricName || null,
+          colour: selectedColour || null,
+          options: selectedOptions,
+          quantity: 1
         })
       })
         .then(function(r) {
-          if (!r.ok) throw new Error('Failed to add to cart (HTTP ' + r.status + ')');
+          if (!r.ok) return r.json().then(function(e) { throw new Error(e.error || 'Checkout failed'); });
           return r.json();
         })
-        .then(function(item) {
-          // Success — update cart count in the header
-          label.textContent = 'Added!';
+        .then(function(data) {
+          // Success — redirect to Shopify checkout with correct price
+          label.textContent = 'Redirecting to checkout...';
           atcBtn.classList.add('mr-atc-success');
 
-          // Try to update the cart count bubble in the theme header
-          updateCartCount();
-
-          // Reset button after a short delay
-          setTimeout(function() {
-            label.textContent = originalText;
-            atcBtn.disabled = false;
-            atcBtn.classList.remove('mr-atc-success');
-          }, 2000);
+          if (data.checkout_url) {
+            window.location.href = data.checkout_url;
+          } else {
+            // Fallback: show success and reset
+            label.textContent = 'Order created!';
+            setTimeout(function() {
+              label.textContent = originalText;
+              atcBtn.disabled = false;
+              atcBtn.classList.remove('mr-atc-success');
+            }, 3000);
+          }
         })
         .catch(function(err) {
           label.textContent = originalText;
           atcBtn.disabled = false;
-          alert('Could not add to cart: ' + err.message);
+          alert('Could not proceed to checkout: ' + err.message);
         });
-    }
-
-    function updateCartCount() {
-      // Fetch updated cart to get new item count
-      fetch('/cart.js')
-        .then(function(r) { return r.json(); })
-        .then(function(cart) {
-          // Update common cart count selectors used by Dawn and other themes
-          var countBubbles = document.querySelectorAll(
-            '.cart-count-bubble span[aria-hidden], ' +
-            '#cart-icon-bubble span[aria-hidden], ' +
-            '.header__icon .count, ' +
-            '.site-header__cart-count, ' +
-            '.cart-count'
-          );
-          for (var i = 0; i < countBubbles.length; i++) {
-            countBubbles[i].textContent = cart.item_count;
-          }
-
-          // Show the bubble if it was hidden
-          var bubbles = document.querySelectorAll(
-            '.cart-count-bubble, #cart-icon-bubble .cart-count-bubble'
-          );
-          for (var j = 0; j < bubbles.length; j++) {
-            bubbles[j].style.display = '';
-            bubbles[j].removeAttribute('hidden');
-          }
-
-          // Dispatch a custom event so the theme can react
-          document.dispatchEvent(new CustomEvent('cart:updated', {
-            detail: { cart: cart }
-          }));
-        })
-        .catch(function() { /* ignore — cart count update is best-effort */ });
     }
   }
 
@@ -1142,12 +1091,13 @@
       "type": "text",
       "id": "template_id",
       "label": "Product Template Code",
-      "info": "The MeasureRight template code (e.g. roller-blind)"
+      "info": "The MeasureRight template code (e.g. roller-blind). Find this in your MeasureRight admin under Templates."
     },
     {
       "type": "checkbox",
       "id": "hide_default_controls",
       "label": "Hide default product controls",
+      "info": "Hides Shopify's default variant picker, quantity input, and Add to Cart button",
       "default": true
     },
     {
@@ -1157,10 +1107,32 @@
       "default": true
     },
     {
+      "type": "checkbox",
+      "id": "show_fabric_selector",
+      "label": "Show fabric & colour selector",
+      "info": "Enable if your products require fabric selection. Leave off for simple dimension-based pricing.",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breakdown",
+      "label": "Show price breakdown",
+      "info": "Show a line-by-line cost breakdown below the total price",
+      "default": true
+    },
+    {
       "type": "color",
       "id": "accent_color",
-      "label": "Accent Color",
+      "label": "Accent Colour",
+      "info": "Used for buttons, price highlight, and focus states",
       "default": "#2563eb"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "info": "Text shown on the Add to Cart button",
+      "default": "Add to Cart"
     }
   ]
 }

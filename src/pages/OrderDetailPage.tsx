@@ -65,7 +65,7 @@ export default function OrderDetailPage() {
 
   if (isLoading || !order) {
     return (
-      <SkeletonPage title="Loading..." backAction={{ content: "Orders", url: "/orders" }}>
+      <SkeletonPage title="Loading..." backAction>
         <Card><SkeletonBodyText lines={4} /></Card>
         <Card><SkeletonBodyText lines={6} /></Card>
       </SkeletonPage>

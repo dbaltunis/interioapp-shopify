@@ -13,16 +13,22 @@ interface BillingPlan {
 }
 
 const PLANS: Record<string, BillingPlan> = {
-  professional: {
-    name: "Professional",
-    price: 29.0,
-    trial_days: 14,
+  starter: {
+    name: "Starter",
+    price: 99.0,
+    trial_days: 7,
     test: process.env.NODE_ENV !== "production",
   },
-  enterprise: {
-    name: "Enterprise",
-    price: 79.0,
-    trial_days: 14,
+  professional: {
+    name: "Professional",
+    price: 119.0,
+    trial_days: 7,
+    test: process.env.NODE_ENV !== "production",
+  },
+  business: {
+    name: "Business",
+    price: 199.0,
+    trial_days: 7,
     test: process.env.NODE_ENV !== "production",
   },
 };
@@ -42,12 +48,12 @@ router.get("/", async (_req, res) => {
       .single();
 
     if (error || !merchant) {
-      return res.json({ data: { plan: "starter", status: "active" } });
+      return res.json({ data: { plan: "none", status: "trial" } });
     }
 
     res.json({
       data: {
-        plan: merchant.subscription_status || "starter",
+        plan: merchant.subscription_status || "none",
         status: "active",
         currency: merchant.currency || "USD",
       },
@@ -68,7 +74,7 @@ router.post("/subscribe", async (req, res) => {
   const { plan } = req.body;
 
   if (!plan || !PLANS[plan]) {
-    return res.status(400).json({ error: "Invalid plan. Choose 'professional' or 'enterprise'." });
+    return res.status(400).json({ error: "Invalid plan. Choose 'starter', 'professional', or 'business'." });
   }
 
   const selectedPlan = PLANS[plan];

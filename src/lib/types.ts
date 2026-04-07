@@ -39,7 +39,7 @@ export interface ProductTemplate {
   labels: Record<string, unknown> | null;
   default_grid_id: string | null;
   vendor_id: string | null;
-  pricing_formula: Record<string, unknown> | null;
+  pricing_formula: string | null;
   pricing_defaults: Record<string, unknown> | null;
   wastage_percent: number;
   pack_size: number | null;
@@ -150,7 +150,9 @@ export interface ShopifyProduct {
   id: string;
   title: string;
   handle: string;
-  image_url: string | null;
+  vendor: string | null;
+  product_type: string | null;
+  status: string;
+  image: { src: string; alt: string | null } | null;
   template_id: string | null;
-  synced: boolean;
 }

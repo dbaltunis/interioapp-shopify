@@ -256,7 +256,7 @@ export default function PriceListDetailPage() {
 
   if (!isNew && isLoading) {
     return (
-      <SkeletonPage title="Loading..." backAction={{ content: "Price Lists", url: "/price-lists" }}>
+      <SkeletonPage title="Loading..." backAction>
         <Card><SkeletonBodyText lines={6} /></Card>
         <Card><SkeletonBodyText lines={10} /></Card>
       </SkeletonPage>

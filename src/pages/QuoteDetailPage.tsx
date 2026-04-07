@@ -79,7 +79,7 @@ export default function QuoteDetailPage() {
 
   if (isLoading || !quote) {
     return (
-      <SkeletonPage title="Loading..." backAction={{ content: "Quotes", url: "/quotes" }}>
+      <SkeletonPage title="Loading..." backAction>
         <Card><SkeletonBodyText lines={4} /></Card>
         <Card><SkeletonBodyText lines={6} /></Card>
       </SkeletonPage>

@@ -273,6 +273,26 @@ router.get("/", async (_req, res) => {
       });
     }
 
+    // Seed pricing grid for venetian blind (grid model)
+    if (templates?.[1]) {
+      await supabase.from("pricing_grids").insert({
+        merchant_id: merchantId,
+        product_template_id: templates[1].id,
+        fabric_id: null,
+        width_bands: [600, 900, 1200, 1500, 1800, 2100, 2400],
+        drop_bands: [600, 900, 1200, 1500, 1800, 2100, 2400],
+        prices: [
+          65, 75, 90, 105, 120, 140, 160,
+          70, 82, 98, 115, 132, 155, 178,
+          78, 92, 110, 130, 150, 175, 200,
+          88, 105, 125, 148, 172, 200, 230,
+          100, 120, 145, 170, 198, 230, 265,
+          115, 138, 165, 195, 228, 265, 305,
+          132, 158, 190, 225, 262, 305, 350,
+        ],
+      });
+    }
+
     // Seed pricing grid for curtains (sqm model)
     if (templates?.[2]) {
       await supabase.from("pricing_grids").insert({

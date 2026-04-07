@@ -13,6 +13,8 @@ import {
   Divider,
   Select,
   TextField,
+  ChoiceList,
+  RangeSlider,
 } from "@shopify/polaris";
 import { CheckIcon } from "@shopify/polaris-icons";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
@@ -23,29 +25,39 @@ const PLANS = [
   {
     key: "starter",
     name: "Starter",
-    price: "Free",
-    features: ["1 product template", "1 pricing grid", "Basic calculator"],
+    price: "$99/month",
+    trial: "7-day free trial",
+    features: [
+      "Up to 5 product templates",
+      "Grid & area pricing",
+      "Basic calculator widget",
+      "Email support",
+    ],
   },
   {
     key: "professional",
     name: "Professional",
-    price: "$29/month",
+    price: "$119/month",
+    trial: "7-day free trial",
     features: [
       "Unlimited templates",
-      "Unlimited grids",
-      "Unlimited fabrics",
+      "All pricing models",
       "Quote management",
+      "Widget customisation",
+      "Priority support",
     ],
   },
   {
-    key: "enterprise",
-    name: "Enterprise",
-    price: "$79/month",
+    key: "business",
+    name: "Business",
+    price: "$199/month",
+    trial: "7-day free trial",
     features: [
       "Everything in Professional",
-      "Work orders",
-      "Analytics",
-      "Priority support",
+      "Work orders & analytics",
+      "Multi-vendor support",
+      "Data export",
+      "Dedicated support",
     ],
   },
 ];
@@ -179,6 +191,13 @@ export default function SettingsPage() {
     }
   };
 
+  // Widget customisation state
+  const [widgetAccentColor, setWidgetAccentColor] = useState(settings?.widget_accent_color || "#2563eb");
+  const [widgetButtonStyle, setWidgetButtonStyle] = useState(settings?.widget_button_style || "rounded");
+  const [widgetShowBreakdown, setWidgetShowBreakdown] = useState(settings?.widget_show_breakdown ?? true);
+  const [widgetShowFromPrice, setWidgetShowFromPrice] = useState(settings?.widget_show_from_price ?? true);
+  const [widgetHideDefaults, setWidgetHideDefaults] = useState(settings?.widget_hide_defaults ?? true);
+
   const hasSettingsChanges =
     currency !== settingsCurrency ||
     markupMode !== settingsMarkupMode ||
@@ -233,6 +252,87 @@ export default function SettingsPage() {
           </BlockStack>
         </Card>
 
+        {/* Widget Customisation */}
+        <Card>
+          <BlockStack gap="400">
+            <BlockStack gap="100">
+              <Text as="h2" variant="headingMd">Widget Customisation</Text>
+              <Text as="p" variant="bodyMd" tone="subdued">
+                Customise the look and feel of the calculator on your storefront.
+                These settings are applied via the theme editor block settings.
+              </Text>
+            </BlockStack>
+            <InlineGrid columns={2} gap="400">
+              <TextField
+                label="Accent Colour"
+                value={widgetAccentColor}
+                onChange={setWidgetAccentColor}
+                autoComplete="off"
+                helpText="Hex colour code (e.g. #2563eb). Used for buttons, price highlights, and active states."
+                prefix={
+                  <div
+                    style={{
+                      width: 20,
+                      height: 20,
+                      borderRadius: 4,
+                      backgroundColor: widgetAccentColor,
+                      border: "1px solid #ccc",
+                    }}
+                  />
+                }
+              />
+              <Select
+                label="Button Style"
+                options={[
+                  { label: "Rounded", value: "rounded" },
+                  { label: "Square", value: "square" },
+                  { label: "Pill", value: "pill" },
+                ]}
+                value={widgetButtonStyle}
+                onChange={setWidgetButtonStyle}
+                helpText="Shape of the Add to Cart and Calculate buttons."
+              />
+            </InlineGrid>
+            <InlineGrid columns={3} gap="400">
+              <Select
+                label="Show Price Breakdown"
+                options={[
+                  { label: "Yes \u2014 show full breakdown", value: "true" },
+                  { label: "No \u2014 show total only", value: "false" },
+                ]}
+                value={String(widgetShowBreakdown)}
+                onChange={(val) => setWidgetShowBreakdown(val === "true")}
+                helpText="Whether to show line-by-line price breakdown."
+              />
+              <Select
+                label="Show 'From' Price"
+                options={[
+                  { label: "Yes", value: "true" },
+                  { label: "No", value: "false" },
+                ]}
+                value={String(widgetShowFromPrice)}
+                onChange={(val) => setWidgetShowFromPrice(val === "true")}
+                helpText="Show the starting price before calculation."
+              />
+              <Select
+                label="Hide Default Shopify Controls"
+                options={[
+                  { label: "Yes \u2014 hide variant/ATC", value: "true" },
+                  { label: "No \u2014 keep defaults", value: "false" },
+                ]}
+                value={String(widgetHideDefaults)}
+                onChange={(val) => setWidgetHideDefaults(val === "true")}
+                helpText="Hides Shopify's default variant picker, quantity, and Add to Cart."
+              />
+            </InlineGrid>
+            <Text as="p" variant="bodySm" tone="subdued">
+              To apply these settings, go to your theme editor (Online Store &rarr; Themes &rarr; Customize),
+              find the MeasureRight Calculator block, and update the block settings there.
+              The accent colour and visibility options are configured per-block in the theme editor.
+            </Text>
+          </BlockStack>
+        </Card>
+
         {/* Billing Plans */}
         <Card>
           <BlockStack gap="400">
@@ -259,6 +359,7 @@ export default function SettingsPage() {
                         {isCurrent && <Badge tone="success">Current</Badge>}
                       </InlineStack>
                       <Text as="p" variant="heading2xl">{plan.price}</Text>
+                      <Text as="p" variant="bodySm" tone="subdued">{plan.trial}</Text>
                       <Divider />
                       <BlockStack gap="200">
                         {plan.features.map((f) => (
@@ -268,14 +369,9 @@ export default function SettingsPage() {
                           </InlineStack>
                         ))}
                       </BlockStack>
-                      {!isCurrent && plan.key !== "starter" && (
+                      {!isCurrent && (
                         <Button fullWidth onClick={() => handleUpgrade(plan.key)}>
-                          Upgrade
-                        </Button>
-                      )}
-                      {!isCurrent && plan.key === "starter" && (
-                        <Button fullWidth disabled>
-                          Downgrade
+                          {PLANS.indexOf(plan) > PLANS.findIndex(p => p.key === currentPlan) ? "Upgrade" : "Switch Plan"}
                         </Button>
                       )}
                     </BlockStack>

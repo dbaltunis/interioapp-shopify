@@ -96,7 +96,7 @@ export default function TemplateDetailPage() {
 
   if (!isNew && isLoading) {
     return (
-      <SkeletonPage title="Loading..." backAction={{ content: "Templates", url: "/templates" }}>
+      <SkeletonPage title="Loading..." backAction>
         <Card><SkeletonBodyText lines={6} /></Card>
         <Card><SkeletonBodyText lines={4} /></Card>
       </SkeletonPage>

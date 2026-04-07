@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppProvider } from "@shopify/polaris";
 import { NavMenu } from "@shopify/app-bridge-react";
 import enTranslations from "@shopify/polaris/locales/en.json";
+import { AppBridgeProvider } from "./providers/AppBridgeProvider";
 import { QueryProvider } from "./providers/QueryProvider";
 
 import HomePage from "./pages/HomePage";
@@ -45,23 +46,25 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppProvider i18n={enTranslations}>
-        <QueryProvider>
-          <NavMenu>
-            <a href="/" rel="home">Home</a>
-            <a href="/templates">Templates</a>
-            <a href="/price-lists">Price Lists</a>
-            <a href="/fabrics">Fabrics</a>
-            <a href="/vendors">Vendors</a>
-            <a href="/quotes">Quotes</a>
-            <a href="/orders">Work Orders</a>
-            <a href="/shopify-products">Products</a>
-            <a href="/analytics">Analytics</a>
-            <a href="/settings">Settings</a>
-          </NavMenu>
-          <AppRoutes />
-        </QueryProvider>
-      </AppProvider>
+      <AppBridgeProvider>
+        <AppProvider i18n={enTranslations}>
+          <QueryProvider>
+            <NavMenu>
+              <a href="/" rel="home">Home</a>
+              <a href="/templates">Templates</a>
+              <a href="/price-lists">Price Lists</a>
+              <a href="/fabrics">Fabrics</a>
+              <a href="/vendors">Vendors</a>
+              <a href="/quotes">Quotes</a>
+              <a href="/orders">Work Orders</a>
+              <a href="/shopify-products">Products</a>
+              <a href="/analytics">Analytics</a>
+              <a href="/settings">Settings</a>
+            </NavMenu>
+            <AppRoutes />
+          </QueryProvider>
+        </AppProvider>
+      </AppBridgeProvider>
     </BrowserRouter>
   );
 }
