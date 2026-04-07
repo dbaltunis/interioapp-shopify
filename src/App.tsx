@@ -24,7 +24,7 @@ import SettingsPage from "./pages/SettingsPage";
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<Navigate to="/templates" replace />} />
       <Route path="/dashboard" element={<HomePage />} />
       <Route path="/shopify-products" element={<ShopifyProductsPage />} />
       <Route path="/templates" element={<TemplatesPage />} />
