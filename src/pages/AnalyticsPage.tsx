@@ -45,7 +45,7 @@ export default function AnalyticsPage() {
           {stats.map((stat) => (
             <Card key={stat.title}>
               <BlockStack gap="200">
-                <Text as="p" variant="bodyMd" tone="subdued">
+                <Text as="p" variant="bodySm" tone="subdued">
                   {stat.title}
                 </Text>
                 {isLoading ? (
@@ -73,6 +73,9 @@ export default function AnalyticsPage() {
                   const count = quotesByStatus[status] || 0;
                   const total = quotes?.length || 1;
                   const pct = Math.round((count / total) * 100);
+                  const tone = status === "accepted" ? "success" as const
+                    : status === "rejected" ? "critical" as const
+                    : "primary" as const;
                   return (
                     <BlockStack key={status} gap="100">
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -83,7 +86,7 @@ export default function AnalyticsPage() {
                           {count} ({pct}%)
                         </Text>
                       </div>
-                      <ProgressBar progress={pct} size="small" />
+                      <ProgressBar progress={pct} size="small" tone={tone} />
                     </BlockStack>
                   );
                 })}

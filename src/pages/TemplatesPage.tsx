@@ -46,9 +46,9 @@ export default function TemplatesPage() {
           <EmptyState
             heading="No templates yet"
             action={{ content: "Create Template", onAction: () => navigate("/templates/new") }}
-            image=""
+            image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
           >
-            <p>Create your first product template to get started.</p>
+            <p>Templates define how your made-to-measure products are configured and priced. Create your first template to start accepting custom orders.</p>
           </EmptyState>
         ) : (
           <IndexTable

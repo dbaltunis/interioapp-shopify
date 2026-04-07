@@ -4,7 +4,6 @@ import {
   Card,
   IndexTable,
   Badge,
-  Banner,
   Button,
   Modal,
   FormLayout,
@@ -90,18 +89,9 @@ export default function FabricsPage() {
   return (
     <Page
       title="Fabrics"
-      subtitle="Optional pricing modifiers — not Shopify products"
+      subtitle="Optional pricing modifiers for your calculator — add surcharges or fabric-specific pricing grids"
       primaryAction={{ content: "Add Fabric", onAction: openNew }}
     >
-      <BlockStack gap="400">
-      <Banner tone="info" title="What are fabrics?">
-        <p>
-          Fabrics are <strong>optional pricing modifiers</strong> for your calculator — they are not
-          Shopify products. When enabled on a product template, customers can choose a fabric which
-          may add a surcharge or use a fabric-specific pricing grid. If your products don't need
-          fabric selection, you can ignore this section entirely.
-        </p>
-      </Banner>
       <Card padding="0">
         {isLoading ? (
           <div style={{ padding: "16px" }}>
@@ -111,10 +101,10 @@ export default function FabricsPage() {
           <EmptyState
             heading="No fabrics added"
             action={{ content: "Add Fabric", onAction: openNew }}
-            image=""
+            image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
           >
             <p>
-              Fabrics are optional. Add them only if your products need fabric selection
+              Fabrics are optional. Add them if your products offer fabric selection
               with per-fabric pricing or surcharges.
             </p>
           </EmptyState>
@@ -139,7 +129,7 @@ export default function FabricsPage() {
                 <IndexTable.Cell>
                   <span style={{ fontWeight: 600 }}>{f.name}</span>
                 </IndexTable.Cell>
-                <IndexTable.Cell>{f.category || "—"}</IndexTable.Cell>
+                <IndexTable.Cell>{f.category || "\u2014"}</IndexTable.Cell>
                 <IndexTable.Cell>
                   <InlineStack gap="100">
                     {f.colours?.slice(0, 3).map((c) => (
@@ -150,10 +140,10 @@ export default function FabricsPage() {
                     )}
                   </InlineStack>
                 </IndexTable.Cell>
-                <IndexTable.Cell>{f.roll_width ? `${f.roll_width}mm` : "—"}</IndexTable.Cell>
-                <IndexTable.Cell>{f.price_per_sqm != null ? `$${f.price_per_sqm}` : "—"}</IndexTable.Cell>
-                <IndexTable.Cell>{f.price_per_linear_metre != null ? `$${f.price_per_linear_metre}` : "—"}</IndexTable.Cell>
-                <IndexTable.Cell>{f.surcharge ? `$${f.surcharge}` : "—"}</IndexTable.Cell>
+                <IndexTable.Cell>{f.roll_width ? `${f.roll_width}mm` : "\u2014"}</IndexTable.Cell>
+                <IndexTable.Cell>{f.price_per_sqm != null ? `$${f.price_per_sqm}` : "\u2014"}</IndexTable.Cell>
+                <IndexTable.Cell>{f.price_per_linear_metre != null ? `$${f.price_per_linear_metre}` : "\u2014"}</IndexTable.Cell>
+                <IndexTable.Cell>{f.surcharge ? `$${f.surcharge}` : "\u2014"}</IndexTable.Cell>
                 <IndexTable.Cell>
                   <InlineStack gap="100" align="end">
                     <Button icon={EditIcon} variant="plain" onClick={() => openEdit(f)} accessibilityLabel={`Edit ${f.name}`} />
@@ -165,7 +155,6 @@ export default function FabricsPage() {
           </IndexTable>
         )}
       </Card>
-      </BlockStack>
 
       <Modal
         open={dialogOpen}

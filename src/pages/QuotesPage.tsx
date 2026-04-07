@@ -32,8 +32,11 @@ export default function QuotesPage() {
             <SkeletonBodyText lines={5} />
           </div>
         ) : !quotes?.length ? (
-          <EmptyState heading="No quotes yet" image="">
-            <p>Quotes will appear here when customers use the calculator.</p>
+          <EmptyState
+            heading="No quotes yet"
+            image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+          >
+            <p>When customers use your calculator, their quotes will appear here.</p>
           </EmptyState>
         ) : (
           <IndexTable

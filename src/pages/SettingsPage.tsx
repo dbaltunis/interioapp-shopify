@@ -13,8 +13,6 @@ import {
   Divider,
   Select,
   TextField,
-  ChoiceList,
-  RangeSlider,
 } from "@shopify/polaris";
 import { CheckIcon } from "@shopify/polaris-icons";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
@@ -39,6 +37,7 @@ const PLANS = [
     name: "Professional",
     price: "$119/month",
     trial: "7-day free trial",
+    recommended: true,
     features: [
       "Unlimited templates",
       "All pricing models",
@@ -80,7 +79,6 @@ export default function SettingsPage() {
   const fetch = useAuthenticatedFetch();
   const queryClient = useQueryClient();
 
-  // Fetch current settings
   const { data: settings } = useQuery({
     queryKey: ["settings"],
     queryFn: async () => {
@@ -90,7 +88,6 @@ export default function SettingsPage() {
     },
   });
 
-  // Fetch billing status
   const { data: billing } = useQuery({
     queryKey: ["billing"],
     queryFn: async () => {
@@ -102,12 +99,10 @@ export default function SettingsPage() {
 
   const currentPlan = billing?.plan || "starter";
 
-  // Settings form state
   const [currency, setCurrency] = useState("");
   const [markupMode, setMarkupMode] = useState("");
   const [markupValue, setMarkupValue] = useState("");
 
-  // Sync form state when settings load
   const settingsCurrency = settings?.currency || "USD";
   const settingsMarkupMode = settings?.markup_mode || "percentage";
   const settingsMarkupValue = String(settings?.markup_value ?? "0");
@@ -118,7 +113,6 @@ export default function SettingsPage() {
     setMarkupValue(settingsMarkupValue);
   }
 
-  // Save settings mutation
   const saveSettings = useMutation({
     mutationFn: async () => {
       const res = await fetch("/api/settings", {
@@ -142,7 +136,6 @@ export default function SettingsPage() {
     },
   });
 
-  // Upgrade plan
   const handleUpgrade = useCallback(async (planKey: string) => {
     try {
       const res = await fetch("/api/billing/subscribe", {
@@ -152,7 +145,6 @@ export default function SettingsPage() {
       });
       const json = await res.json();
       if (json.data?.confirmation_url && json.data.confirmation_url !== "#") {
-        // Redirect to Shopify charge approval page
         window.top
           ? (window.top.location.href = json.data.confirmation_url)
           : (window.location.href = json.data.confirmation_url);
@@ -191,7 +183,6 @@ export default function SettingsPage() {
     }
   };
 
-  // Widget customisation state
   const [widgetAccentColor, setWidgetAccentColor] = useState(settings?.widget_accent_color || "#2563eb");
   const [widgetButtonStyle, setWidgetButtonStyle] = useState(settings?.widget_button_style || "rounded");
   const [widgetShowBreakdown, setWidgetShowBreakdown] = useState(settings?.widget_show_breakdown ?? true);
@@ -218,48 +209,30 @@ export default function SettingsPage() {
       }
     >
       <BlockStack gap="400">
-        {/* Pricing & Markup Settings */}
+        {/* Pricing */}
         <Card>
           <BlockStack gap="400">
             <BlockStack gap="100">
               <Text as="h2" variant="headingMd">Pricing Settings</Text>
-              <Text as="p" variant="bodyMd" tone="subdued">
+              <Text as="p" variant="bodySm" tone="subdued">
                 Configure currency and markup for your quotes
               </Text>
             </BlockStack>
             <InlineGrid columns={3} gap="400">
-              <Select
-                label="Currency"
-                options={CURRENCY_OPTIONS}
-                value={currency || "USD"}
-                onChange={setCurrency}
-              />
-              <Select
-                label="Markup Mode"
-                options={MARKUP_MODE_OPTIONS}
-                value={markupMode || "percentage"}
-                onChange={setMarkupMode}
-              />
-              <TextField
-                label={markupMode === "percentage" ? "Markup (%)" : "Markup Amount"}
-                type="number"
-                value={markupValue}
-                onChange={setMarkupValue}
-                autoComplete="off"
-                min={0}
-              />
+              <Select label="Currency" options={CURRENCY_OPTIONS} value={currency || "USD"} onChange={setCurrency} />
+              <Select label="Markup Mode" options={MARKUP_MODE_OPTIONS} value={markupMode || "percentage"} onChange={setMarkupMode} />
+              <TextField label={markupMode === "percentage" ? "Markup (%)" : "Markup Amount"} type="number" value={markupValue} onChange={setMarkupValue} autoComplete="off" min={0} />
             </InlineGrid>
           </BlockStack>
         </Card>
 
-        {/* Widget Customisation */}
+        {/* Widget */}
         <Card>
           <BlockStack gap="400">
             <BlockStack gap="100">
               <Text as="h2" variant="headingMd">Widget Customisation</Text>
-              <Text as="p" variant="bodyMd" tone="subdued">
-                Customise the look and feel of the calculator on your storefront.
-                These settings are applied via the theme editor block settings.
+              <Text as="p" variant="bodySm" tone="subdued">
+                These settings are configured per-block in your theme editor.
               </Text>
             </BlockStack>
             <InlineGrid columns={2} gap="400">
@@ -268,17 +241,9 @@ export default function SettingsPage() {
                 value={widgetAccentColor}
                 onChange={setWidgetAccentColor}
                 autoComplete="off"
-                helpText="Hex colour code (e.g. #2563eb). Used for buttons, price highlights, and active states."
+                helpText="Hex colour code (e.g. #2563eb)"
                 prefix={
-                  <div
-                    style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: 4,
-                      backgroundColor: widgetAccentColor,
-                      border: "1px solid #ccc",
-                    }}
-                  />
+                  <div style={{ width: 16, height: 16, borderRadius: 3, backgroundColor: widgetAccentColor, border: "1px solid #ddd" }} />
                 }
               />
               <Select
@@ -290,19 +255,17 @@ export default function SettingsPage() {
                 ]}
                 value={widgetButtonStyle}
                 onChange={setWidgetButtonStyle}
-                helpText="Shape of the Add to Cart and Calculate buttons."
               />
             </InlineGrid>
             <InlineGrid columns={3} gap="400">
               <Select
                 label="Show Price Breakdown"
                 options={[
-                  { label: "Yes \u2014 show full breakdown", value: "true" },
-                  { label: "No \u2014 show total only", value: "false" },
+                  { label: "Yes", value: "true" },
+                  { label: "No", value: "false" },
                 ]}
                 value={String(widgetShowBreakdown)}
                 onChange={(val) => setWidgetShowBreakdown(val === "true")}
-                helpText="Whether to show line-by-line price breakdown."
               />
               <Select
                 label="Show 'From' Price"
@@ -312,33 +275,29 @@ export default function SettingsPage() {
                 ]}
                 value={String(widgetShowFromPrice)}
                 onChange={(val) => setWidgetShowFromPrice(val === "true")}
-                helpText="Show the starting price before calculation."
               />
               <Select
-                label="Hide Default Shopify Controls"
+                label="Hide Default Controls"
                 options={[
-                  { label: "Yes \u2014 hide variant/ATC", value: "true" },
-                  { label: "No \u2014 keep defaults", value: "false" },
+                  { label: "Yes", value: "true" },
+                  { label: "No", value: "false" },
                 ]}
                 value={String(widgetHideDefaults)}
                 onChange={(val) => setWidgetHideDefaults(val === "true")}
-                helpText="Hides Shopify's default variant picker, quantity, and Add to Cart."
               />
             </InlineGrid>
             <Text as="p" variant="bodySm" tone="subdued">
-              To apply these settings, go to your theme editor (Online Store &rarr; Themes &rarr; Customize),
-              find the MeasureRight Calculator block, and update the block settings there.
-              The accent colour and visibility options are configured per-block in the theme editor.
+              Go to Online Store &rarr; Themes &rarr; Customize to apply these settings on the MeasureRight Calculator block.
             </Text>
           </BlockStack>
         </Card>
 
-        {/* Billing Plans */}
+        {/* Billing */}
         <Card>
           <BlockStack gap="400">
             <BlockStack gap="100">
               <Text as="h2" variant="headingMd">Billing</Text>
-              <Text as="p" variant="bodyMd" tone="subdued">
+              <Text as="p" variant="bodySm" tone="subdued">
                 Choose the plan that fits your business
               </Text>
             </BlockStack>
@@ -382,12 +341,12 @@ export default function SettingsPage() {
           </BlockStack>
         </Card>
 
-        {/* Data Management */}
+        {/* Data */}
         <Card>
           <BlockStack gap="400">
             <BlockStack gap="100">
               <Text as="h2" variant="headingMd">Data Management</Text>
-              <Text as="p" variant="bodyMd" tone="subdued">
+              <Text as="p" variant="bodySm" tone="subdued">
                 Seed demo data or export your data
               </Text>
             </BlockStack>

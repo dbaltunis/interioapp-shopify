@@ -86,9 +86,9 @@ export default function VendorsPage() {
           <EmptyState
             heading="No vendors yet"
             action={{ content: "Add Vendor", onAction: openNew }}
-            image=""
+            image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
           >
-            <p>Add your first vendor or supplier.</p>
+            <p>Track your suppliers and manufacturing partners. Add a vendor to get started.</p>
           </EmptyState>
         ) : (
           <IndexTable

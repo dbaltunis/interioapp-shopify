@@ -32,8 +32,11 @@ export default function OrdersPage() {
             <SkeletonBodyText lines={5} />
           </div>
         ) : !orders?.length ? (
-          <EmptyState heading="No work orders yet" image="">
-            <p>Create one from an accepted quote.</p>
+          <EmptyState
+            heading="No work orders yet"
+            image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+          >
+            <p>Work orders are created from accepted quotes.</p>
           </EmptyState>
         ) : (
           <IndexTable

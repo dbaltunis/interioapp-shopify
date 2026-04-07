@@ -119,15 +119,11 @@
 <style>
   :root {
     --mr-accent: {{ block.settings.accent_color | default: '#2563eb' }};
-    --mr-accent-hover: color-mix(in srgb, var(--mr-accent) 80%, black);
-    --mr-accent-light: color-mix(in srgb, var(--mr-accent) 8%, white);
-    --mr-accent-mid: color-mix(in srgb, var(--mr-accent) 15%, white);
-    --mr-radius: 12px;
-    --mr-radius-sm: 8px;
-    --mr-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-    --mr-shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
-    --mr-shadow-lg: 0 8px 30px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.05);
-    --mr-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --mr-accent-hover: color-mix(in srgb, var(--mr-accent) 85%, black);
+    --mr-accent-light: color-mix(in srgb, var(--mr-accent) 10%, white);
+    --mr-radius: 10px;
+    --mr-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --mr-shadow-md: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
   }
 
   #measureright-calculator {
@@ -137,8 +133,6 @@
     margin: 24px 0;
     color: #1f2937;
     line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
 
   #measureright-calculator *,
@@ -147,53 +141,40 @@
     box-sizing: border-box;
   }
 
-  /* Loading state */
+  /* Loading */
   .mr-loading {
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 16px;
-    padding: 48px 24px;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    border: 1px solid #e2e8f0;
+    gap: 12px;
+    padding: 40px 24px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
     border-radius: var(--mr-radius);
-    color: #64748b;
-    font-size: 14px;
-    font-weight: 500;
+    color: #6b7280;
+    font-size: 15px;
   }
 
   .mr-spinner {
-    width: 28px;
-    height: 28px;
-    border: 3px solid #e2e8f0;
+    width: 20px;
+    height: 20px;
+    border: 2.5px solid #e5e7eb;
     border-top-color: var(--mr-accent);
     border-radius: 50%;
-    animation: mr-spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    animation: mr-spin 0.7s linear infinite;
   }
 
   @keyframes mr-spin {
     to { transform: rotate(360deg); }
   }
 
-  @keyframes mr-fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes mr-slideDown {
-    from { opacity: 0; max-height: 0; }
-    to { opacity: 1; max-height: 400px; }
-  }
-
-  /* Card wrapper */
+  /* Card */
   .mr-card {
     background: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: var(--mr-radius);
     box-shadow: var(--mr-shadow);
-    padding: 1.75em;
-    animation: mr-fadeIn 0.4s ease-out;
+    padding: 1.5em;
   }
 
   .mr-card + .mr-card {
@@ -202,17 +183,14 @@
 
   /* Header */
   .mr-header {
-    margin-bottom: 1.5em;
-    padding-bottom: 1em;
-    border-bottom: 1px solid #f3f4f6;
+    margin-bottom: 1.25em;
   }
 
   .mr-title {
-    font-size: 1.1875em;
+    font-size: 1.125em;
     font-weight: 700;
     color: #111827;
     margin: 0 0 0.25em;
-    letter-spacing: -0.01em;
   }
 
   .mr-subtitle {
@@ -223,18 +201,15 @@
 
   /* From price */
   .mr-from-price {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375em;
+    display: inline-block;
     background: var(--mr-accent-light);
     color: var(--mr-accent);
-    font-weight: 700;
-    font-size: 0.9375em;
-    padding: 0.5em 1em;
-    border-radius: 100px;
-    margin-bottom: 1.25em;
-    border: 1px solid color-mix(in srgb, var(--mr-accent) 15%, transparent);
-    letter-spacing: -0.01em;
+    font-weight: 600;
+    font-size: 1em;
+    padding: 0.375em 0.875em;
+    border-radius: 6px;
+    margin-bottom: 1em;
+    border: 1px solid color-mix(in srgb, var(--mr-accent) 20%, transparent);
   }
 
   /* Form fields */
@@ -274,98 +249,65 @@
 
   .mr-field input,
   .mr-field select {
-    padding: 0.6875em 0.875em;
+    padding: 0.625em 0.75em;
     border: 1.5px solid #d1d5db;
-    border-radius: var(--mr-radius-sm);
+    border-radius: 8px;
     font-size: 0.9375em;
     background: #ffffff;
     color: #1f2937;
-    transition: border-color var(--mr-transition), box-shadow var(--mr-transition), background-color var(--mr-transition);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
     width: 100%;
     appearance: none;
     -webkit-appearance: none;
   }
 
-  .mr-field input:hover,
-  .mr-field select:hover {
-    border-color: #9ca3af;
-    background: #fafbfc;
-  }
-
   .mr-field select {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11.5l-5-5h10l-5 5z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 0.875em center;
-    padding-right: 2.25em;
-    cursor: pointer;
+    background-position: right 0.75em center;
+    padding-right: 2em;
   }
 
   .mr-field input:focus,
   .mr-field select:focus {
     outline: none;
     border-color: var(--mr-accent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--mr-accent) 12%, transparent);
-    background: #ffffff;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--mr-accent) 15%, transparent);
   }
 
   .mr-field input::placeholder {
     color: #9ca3af;
   }
 
-  /* Number input — hide spinner arrows for cleaner look */
-  .mr-field input[type="number"]::-webkit-inner-spin-button,
-  .mr-field input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  .mr-field input[type="number"] {
-    -moz-appearance: textfield;
-  }
-
   .mr-help {
     font-size: 0.6875em;
     color: #9ca3af;
     margin: 0;
-    font-weight: 500;
   }
 
   .mr-separator {
     border: none;
     border-top: 1px solid #f3f4f6;
-    margin: 0.375em 0;
+    margin: 0.5em 0;
   }
 
   .mr-options-heading {
-    font-size: 0.6875em;
-    font-weight: 700;
+    font-size: 0.75em;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.05em;
     color: #9ca3af;
     margin: 0.25em 0 0;
   }
 
   /* Price display card */
   .mr-price-card {
-    background: linear-gradient(135deg, var(--mr-accent-light) 0%, var(--mr-accent-mid) 100%);
-    border: 1.5px solid color-mix(in srgb, var(--mr-accent) 20%, transparent);
+    background: var(--mr-accent-light);
+    border: 1.5px solid color-mix(in srgb, var(--mr-accent) 25%, transparent);
     border-radius: var(--mr-radius);
-    padding: 1.375em 1.5em;
+    padding: 1.25em 1.5em;
     text-align: center;
-    margin-top: 1.25em;
-    animation: mr-fadeIn 0.3s ease-out;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .mr-price-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--mr-accent);
-    border-radius: 3px 3px 0 0;
+    margin-top: 1em;
   }
 
   .mr-price-card.mr-hidden {
@@ -373,22 +315,20 @@
   }
 
   .mr-price-label {
-    font-size: 0.6875em;
-    font-weight: 700;
+    font-size: 0.75em;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.05em;
     color: #6b7280;
-    margin: 0 0 0.375em;
+    margin: 0 0 0.25em;
   }
 
   .mr-price-value {
-    font-size: 2.25em;
+    font-size: 2em;
     font-weight: 800;
     color: var(--mr-accent);
     margin: 0;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
   }
 
   .mr-price-na {
@@ -429,18 +369,19 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.375em 0;
+    padding: 0.4375em 0.5em;
     font-size: 0.8125em;
     color: #4b5563;
+    border-radius: 4px;
   }
 
   .mr-breakdown-list li:last-child {
-    border-top: 1.5px solid color-mix(in srgb, var(--mr-accent) 20%, transparent);
-    margin-top: 0.375em;
-    padding-top: 0.625em;
+    border-top: 1px dashed #e5e7eb;
+    margin-top: 0.25em;
+    padding-top: 0.5em;
     font-weight: 700;
-    color: var(--mr-accent);
-    font-size: 0.9375em;
+    color: #111827;
+    font-size: 0.875em;
   }
 
   .mr-breakdown-list .mr-amount {
@@ -459,50 +400,35 @@
     justify-content: center;
     gap: 0.5em;
     width: 100%;
-    padding: 0.9375em 1.5em;
+    padding: 0.875em 1.5em;
     background: var(--mr-accent);
     color: #ffffff;
     border: none;
-    border-radius: var(--mr-radius-sm);
+    border-radius: 8px;
     font-size: 1em;
     font-weight: 700;
     cursor: pointer;
-    transition: all var(--mr-transition);
-    box-shadow: 0 2px 4px color-mix(in srgb, var(--mr-accent) 30%, transparent);
-    letter-spacing: 0.01em;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .mr-atc-btn::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
-    pointer-events: none;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
   }
 
   .mr-atc-btn:hover:not(:disabled) {
     background: var(--mr-accent-hover);
-    box-shadow: 0 4px 12px color-mix(in srgb, var(--mr-accent) 35%, transparent);
-    transform: translateY(-1px);
+    box-shadow: var(--mr-shadow-md);
   }
 
   .mr-atc-btn:active:not(:disabled) {
-    transform: translateY(0) scale(0.99);
-    box-shadow: 0 1px 2px color-mix(in srgb, var(--mr-accent) 25%, transparent);
+    transform: scale(0.985);
   }
 
   .mr-atc-btn:disabled {
-    opacity: 0.45;
+    opacity: 0.55;
     cursor: not-allowed;
-    box-shadow: none;
   }
 
   .mr-atc-btn.mr-atc-success {
     background: #16a34a !important;
     opacity: 1 !important;
-    box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3) !important;
   }
 
   .mr-atc-btn .mr-btn-spinner {
@@ -516,12 +442,11 @@
 
   /* Error state */
   .mr-error {
-    background: linear-gradient(135deg, #fef2f2 0%, #fff1f2 100%);
+    background: #fef2f2;
     border: 1px solid #fecaca;
     border-radius: var(--mr-radius);
-    padding: 1.5em;
+    padding: 1.25em 1.5em;
     text-align: center;
-    animation: mr-fadeIn 0.3s ease-out;
   }
 
   .mr-error-icon {
@@ -564,7 +489,7 @@
       padding: 1.25em 1em;
     }
     .mr-price-value {
-      font-size: 1.75em;
+      font-size: 2em;
     }
     .mr-atc-btn {
       padding: 1em 1.25em;
