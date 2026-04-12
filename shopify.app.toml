@@ -10,7 +10,7 @@ scopes = "read_orders,read_products,read_themes,write_draft_orders,write_product
 redirect_urls = [ "https://measureright-production-4bef.up.railway.app/api/auth/callback" ]
 
 [webhooks]
-api_version = "2024-10"
+api_version = "2025-07"
 
   [[webhooks.subscriptions]]
   topics = [ "app/uninstalled" ]
@@ -21,16 +21,8 @@ api_version = "2024-10"
   uri = "/api/webhooks/orders-paid"
 
   [[webhooks.subscriptions]]
-  topics = [ "customers/data_request" ]
-  uri = "/api/webhooks/customers/data_request"
-
-  [[webhooks.subscriptions]]
-  topics = [ "customers/redact" ]
-  uri = "/api/webhooks/customers/redact"
-
-  [[webhooks.subscriptions]]
-  topics = [ "shop/redact" ]
-  uri = "/api/webhooks/shop/redact"
+  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+  uri = "https://measureright-production-4bef.up.railway.app/api/webhooks"
 
 [app_proxy]
 url = "https://measureright-production-4bef.up.railway.app/proxy"
