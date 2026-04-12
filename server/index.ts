@@ -5,6 +5,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
+import { existsSync } from "fs";
 import { authenticateRequest } from "./middleware/auth.js";
 import { errorHandler } from "./middleware/error-handler.js";
 import { runMigrations } from "./lib/migrate.js";
@@ -45,7 +46,6 @@ app.use((_req, res, next) => {
     "Content-Security-Policy",
     "frame-ancestors https://*.myshopify.com https://admin.shopify.com;"
   );
-  // Remove X-Frame-Options if set by other middleware (it conflicts with frame-ancestors)
   res.removeHeader("X-Frame-Options");
   next();
 });
@@ -81,13 +81,25 @@ app.use("/api/interioapp", authenticateRequest, interioappRoutes);
 // Public proxy routes (no auth — Shopify App Proxy forwards storefront requests here)
 app.use("/proxy", proxyRoutes);
 
-// In production, serve the built Vite app
+// Serve frontend — in production try dist/client, otherwise redirect to auth
 if (isProduction) {
-  const clientDir = resolve(__dirname, "../client");
-  app.use(express.static(clientDir));
-  app.get("*", (_req, res) => {
-    res.sendFile(resolve(clientDir, "index.html"));
-  });
+  const clientDir = resolve(__dirname, "../dist/client");
+  if (existsSync(clientDir)) {
+    app.use(express.static(clientDir));
+    app.get("*", (_req, res) => {
+      res.sendFile(resolve(clientDir, "index.html"));
+    });
+  } else {
+    // No built frontend — redirect Shopify embedded app requests to OAuth
+    app.get("*", (req, res) => {
+      const shop = req.query.shop as string;
+      if (shop) {
+        res.redirect(`/api/auth?shop=${shop}`);
+      } else {
+        res.status(200).json({ status: "ok", service: "MeasureRight API" });
+      }
+    });
+  }
 }
 
 // Error handler
@@ -95,10 +107,5 @@ app.use(errorHandler);
 
 app.listen(PORT, async () => {
   console.log(`MeasureRight server running on port ${PORT}`);
-  if (!isProduction) {
-    console.log(`API: http://localhost:${PORT}/api/health`);
-    console.log(`Frontend dev server should run on http://localhost:5173`);
-  }
-  // Check for missing database columns on startup
   await runMigrations().catch((err) => console.error("Migration check failed:", err));
 });
